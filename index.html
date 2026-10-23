@@ -63,6 +63,9 @@
         <button id="auth-tab-signup-btn" onclick="switchAuthMode('signup')" class="flex-1 py-2 text-center font-bold rounded-xl text-slate-500 hover:text-slate-800 transition">
           <span data-i18n="tabSignup">✨ नया खाता</span>
         </button>
+        <button id="auth-tab-passbook-btn" onclick="switchAuthMode('passbook')" class="flex-1 py-2 text-center font-bold rounded-xl text-slate-500 hover:text-slate-800 transition">
+          <span>🔍 ग्राहक हिसाब</span>
+        </button>
       </div>
 
       <!-- 1. OTP LOGIN FORM (DEFAULT) -->
@@ -266,6 +269,50 @@
         </div>
       </form>
 
+      <!-- 4. PUBLIC CUSTOMER & FARMER PASSBOOK LOOKUP FORM (NO REGISTRATION REQUIRED) -->
+      <div id="auth-passbook-form" class="space-y-4 text-xs hidden">
+        <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 p-3.5 rounded-2xl text-center">
+          <span class="text-2xl block mb-1">📖</span>
+          <h4 class="font-black text-slate-900 text-sm">सार्वजनिक ग्राहक व किसान पासबुक</h4>
+          <p class="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+            बिना किसी बिज़नेस रजिस्ट्रेशन के, सीधे अपना 10-अंकों का मोबाइल नंबर दर्ज कर अपनी दूध पर्चियां, खरीदारी व बकाया हिसाब देखें।
+          </p>
+        </div>
+
+        <form id="public-passbook-form" onsubmit="event.preventDefault(); searchPublicCustomerPassbook();" class="space-y-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">मोबाइल नंबर (10 Digits) *</label>
+            <div class="flex">
+              <span class="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-slate-200 bg-slate-100 text-slate-600 font-bold text-xs">
+                🇮🇳 +91
+              </span>
+              <input type="tel" id="public-search-phone" maxlength="10" placeholder="9414001122" class="dairy-input flex-1 px-3.5 py-2.5 border rounded-r-xl font-bold text-slate-800 text-sm tracking-wider" required>
+            </div>
+            <div class="flex items-center space-x-2 pt-1 text-[11px] text-slate-400">
+              <span>डेमो नंबर:</span>
+              <button type="button" onclick="document.getElementById('public-search-phone').value='9414001122'; searchPublicCustomerPassbook();" class="text-emerald-700 font-bold underline">9414001122</button>
+              <span>•</span>
+              <button type="button" onclick="document.getElementById('public-search-phone').value='9829012345'; searchPublicCustomerPassbook();" class="text-emerald-700 font-bold underline">9829012345</button>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md transition transform active:scale-95 flex items-center justify-center space-x-2">
+            <span>🔍</span>
+            <span>मेरा पासबुक व हिसाब देखें (Search Record)</span>
+          </button>
+        </form>
+
+        <!-- Dynamic Results Container -->
+        <div id="public-passbook-results" class="hidden pt-2 max-h-[50vh] overflow-y-auto space-y-3">
+        </div>
+
+        <div class="text-center pt-2 border-t border-slate-100">
+          <button type="button" onclick="switchAuthMode('otp')" class="text-emerald-700 hover:underline font-bold text-xs">
+            ← डेयरी संचालक लॉगिन पर वापस जाएं
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -287,6 +334,9 @@
             </h1>
             <span id="app-header-badge" class="bg-emerald-500/80 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow uppercase">
               डेयरी ऐप
+            </span>
+            <span id="header-shift-badge" class="bg-amber-400/90 text-amber-950 text-[10px] font-black px-1.5 py-0.5 rounded shadow">
+              🌅 सुबह
             </span>
           </div>
           <p id="app-header-tag" class="text-xs text-emerald-100 font-medium mt-0.5 opacity-90 hidden sm:block">
@@ -353,6 +403,14 @@
           <button class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="billing">
             <span>🧾</span>
             <span data-i18n="tabBilling">पखवाड़ा बिलिंग (Billing)</span>
+          </button>
+          <button class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="cattle-farm">
+            <span>🐄</span>
+            <span data-i18n="tabCattleFarm">पशुपालन व चारा (Cattle & Farm)</span>
+          </button>
+          <button class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="directory">
+            <span>🩺</span>
+            <span data-i18n="tabDirectory">डॉक्टर व दुकानें (Directory)</span>
           </button>
           <button class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="rate-chart">
             <span>⚙️</span>
@@ -442,6 +500,27 @@
               <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
                 क्लिक कर कार्ट में जोड़ें
               </span>
+            </div>
+
+            <!-- Products Grid -->
+            <!-- Category Filter Pills & Add Custom Item Trigger -->
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pb-3 border-b border-slate-100">
+              <div class="flex space-x-1 bg-slate-100 p-1 rounded-xl text-xs">
+                <button type="button" class="pos-cat-btn px-3 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 text-white shadow transition" data-cat="all" onclick="setPosCategory('all')">
+                  सभी (All)
+                </button>
+                <button type="button" class="pos-cat-btn px-3 py-1.5 text-xs font-semibold rounded-xl bg-transparent text-slate-700 hover:bg-white transition" data-cat="dairy" onclick="setPosCategory('dairy')">
+                  🧀 डेयरी उत्पाद
+                </button>
+                <button type="button" class="pos-cat-btn px-3 py-1.5 text-xs font-semibold rounded-xl bg-transparent text-slate-700 hover:bg-white transition" data-cat="equipment" onclick="setPosCategory('equipment')">
+                  ⚙️ उपकरण व मशीनरी
+                </button>
+              </div>
+
+              <button type="button" onclick="openAddCustomItemModal()" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition flex items-center space-x-1 shadow-sm">
+                <span>➕</span>
+                <span>नया सामान जोड़ें</span>
+              </button>
             </div>
 
             <!-- Products Grid -->
@@ -1021,6 +1100,26 @@
               </button>
             </div>
           </div>
+
+          <!-- Google Drive Cloud Backup Card -->
+          <div class="dairy-card p-5 bg-gradient-to-br from-emerald-50 via-teal-50 to-white border-2 border-emerald-300 shadow-sm">
+            <div class="flex items-center space-x-2 pb-2 mb-3 border-b border-emerald-100">
+              <span class="text-2xl">☁️</span>
+              <div>
+                <h4 class="font-black text-slate-900 text-sm">
+                  Google Drive सुरक्षित क्लाउड बैकअप (Save to Drive)
+                </h4>
+                <p class="text-[11px] text-emerald-800 font-medium">100% सुरक्षित ऑटोमैटिक क्लाउड सिंक</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+              अपने पूरे डेयरी हिसाब (दूध संकलन, GST बिल, पशुधन, चारा, डॉक्टर खर्च व दुकानें) का डेटा सीधे अपने Google Drive पर सुरक्षित रखें।
+            </p>
+            <button onclick="exportToGoogleDrive()" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-bold shadow-md transition transform active:scale-95 flex items-center justify-center space-x-2">
+              <span class="text-base">🚀</span>
+              <span>Google Drive पर डेटा सेव करें (Export to Drive)</span>
+            </button>
+          </div>
         </div>
 
       </div>
@@ -1031,6 +1130,29 @@
     <!-- TAB: DASHBOARD & REPORTS SECTION                         -->
     <!-- ======================================================== -->
     <section id="tab-section-dashboard" class="tab-content space-y-6 hidden">
+      <!-- Today's Collection Highlights -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="dairy-card p-4 bg-emerald-50/80 border border-emerald-200 flex items-center justify-between">
+          <div>
+            <span class="text-xs text-emerald-800 font-bold uppercase tracking-wider">आज का कुल दूध संकलन</span>
+            <div id="dash-today-liters" class="text-2xl font-black text-emerald-950 mt-1">0.0 L</div>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl shadow-inner">
+            🥛
+          </div>
+        </div>
+
+        <div class="dairy-card p-4 bg-blue-50/80 border border-blue-200 flex items-center justify-between">
+          <div>
+            <span class="text-xs text-blue-800 font-bold uppercase tracking-wider">आज का दूध खरीद मूल्य</span>
+            <div id="dash-today-amount" class="text-2xl font-black text-blue-950 mt-1">₹ 0.00</div>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-2xl shadow-inner">
+            💰
+          </div>
+        </div>
+      </div>
+
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="dairy-card p-5 bg-white border-l-4 border-l-emerald-600">
           <span class="text-xs text-slate-400 font-bold uppercase tracking-wider" data-i18n="totalRegisteredFarmers">कुल पंजीकृत किसान</span>
@@ -1049,6 +1171,334 @@
           <div id="dash-total-sales" class="text-2xl font-black text-teal-700 mt-1">₹ 0</div>
         </div>
       </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB: CATTLE & FARM MANAGEMENT (पशुपालन, चारा व डॉक्टर)  -->
+    <!-- ======================================================== -->
+    <section id="tab-section-cattle-farm" class="tab-content space-y-6 hidden">
+      
+      <!-- Top Livestock Summary Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="dairy-card p-4 border-l-4 border-l-purple-600 bg-white flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">कुल भैंसें (Buffaloes)</p>
+            <h3 id="farm-buf-count" class="text-lg sm:text-xl font-black text-slate-900 mt-1">0 (दुधारू: 0)</h3>
+            <p class="text-[11px] text-slate-500 mt-0.5">दूध उत्पादन रिकॉर्ड</p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-purple-50 text-purple-700 flex items-center justify-center text-xl">
+            🐃
+          </div>
+        </div>
+
+        <div class="dairy-card p-4 border-l-4 border-l-amber-500 bg-white flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">कुल गायें (Cows)</p>
+            <h3 id="farm-cow-count" class="text-lg sm:text-xl font-black text-slate-900 mt-1">0 (दुधारू: 0)</h3>
+            <p class="text-[11px] text-slate-500 mt-0.5">देसी / संकर नस्लें</p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center text-xl">
+            🐄
+          </div>
+        </div>
+
+        <div class="dairy-card p-4 border-l-4 border-l-emerald-500 bg-white flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">बछड़े व कटड़े (Calves)</p>
+            <h3 id="farm-calf-count" class="text-lg sm:text-xl font-black text-emerald-800 mt-1">0</h3>
+            <p class="text-[11px] text-slate-500 mt-0.5">भविष्य का पशुधन</p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center text-xl">
+            🌱
+          </div>
+        </div>
+
+        <div class="dairy-card p-4 border-l-4 border-l-blue-500 bg-white flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">दैनिक कुल दूध उत्पादन</p>
+            <h3 id="farm-milk-output" class="text-lg sm:text-xl font-black text-blue-800 mt-1">0 L / दिन</h3>
+            <p class="text-[11px] text-slate-500 mt-0.5">फार्म का कुल उत्पादन</p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center text-xl">
+            🥛
+          </div>
+        </div>
+      </div>
+
+      <!-- Fodder & Feed Expense Calculator -->
+      <div class="dairy-card p-5 sm:p-6 bg-white border border-emerald-100 shadow-sm">
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+          <div class="flex items-center space-x-2">
+            <span class="text-2xl">🌾</span>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-slate-900">दैनिक चारा व खुराक खर्च कैलकुलेटर (Daily Feed & Fodder)</h3>
+              <p class="text-xs text-slate-500">सूखा चारा (तूड़ी), हरा चारा एवं संतुलित पशु आहार (खल/दाना) की दैनिक खपत व लागत</p>
+            </div>
+          </div>
+          <span class="hidden sm:inline-block text-xs font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">
+            ऑटोमैटिक मासिक बजट
+          </span>
+        </div>
+
+        <form id="feed-settings-form" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <!-- Dry Fodder -->
+            <div class="bg-amber-50/60 p-4 rounded-2xl border border-amber-200 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-amber-950 text-xs">🌾 सूखा चारा / तूड़ी (Dry)</span>
+                <span class="text-[10px] text-amber-800 font-semibold">किलो / दर</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 mb-0.5">खपत (Kg/दिन)</label>
+                  <input type="number" step="1" id="feed-dry-qty" placeholder="60" class="dairy-input w-full px-3 py-1.5 border border-amber-300 rounded-lg text-sm font-bold bg-white text-slate-800">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 mb-0.5">दर (₹/Kg)</label>
+                  <input type="number" step="0.5" id="feed-dry-rate" placeholder="8" class="dairy-input w-full px-3 py-1.5 border border-amber-300 rounded-lg text-sm font-bold bg-white text-slate-800">
+                </div>
+              </div>
+            </div>
+
+            <!-- Green Fodder -->
+            <div class="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-200 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-emerald-950 text-xs">🌿 हरा चारा / बरसीम (Green)</span>
+                <span class="text-[10px] text-emerald-800 font-semibold">किलो / दर</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 mb-0.5">खपत (Kg/दिन)</label>
+                  <input type="number" step="1" id="feed-green-qty" placeholder="100" class="dairy-input w-full px-3 py-1.5 border border-emerald-300 rounded-lg text-sm font-bold bg-white text-slate-800">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 mb-0.5">दर (₹/Kg)</label>
+                  <input type="number" step="0.5" id="feed-green-rate" placeholder="3" class="dairy-input w-full px-3 py-1.5 border border-emerald-300 rounded-lg text-sm font-bold bg-white text-slate-800">
+                </div>
+              </div>
+            </div>
+
+            <!-- Concentrate Feed -->
+            <div class="bg-blue-50/60 p-4 rounded-2xl border border-blue-200 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-blue-950 text-xs">🥣 दाना / खल / चूरी (Feed)</span>
+                <span class="text-[10px] text-blue-800 font-semibold">किलो / दर</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 mb-0.5">खपत (Kg/दिन)</label>
+                  <input type="number" step="1" id="feed-conc-qty" placeholder="30" class="dairy-input w-full px-3 py-1.5 border border-blue-300 rounded-lg text-sm font-bold bg-white text-slate-800">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 mb-0.5">दर (₹/Kg)</label>
+                  <input type="number" step="0.5" id="feed-conc-rate" placeholder="32" class="dairy-input w-full px-3 py-1.5 border border-blue-300 rounded-lg text-sm font-bold bg-white text-slate-800">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feed Expense Highlights & Save Button -->
+          <div class="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-100 bg-slate-50 p-3 rounded-2xl">
+            <div class="flex flex-wrap items-center gap-4 text-xs">
+              <div>
+                <span class="text-slate-500 font-semibold">दैनिक कुल चारा खर्च:</span>
+                <span id="farm-daily-feed-cost" class="font-black text-slate-900 text-sm ml-1">₹ 0.00</span>
+              </div>
+              <div>
+                <span class="text-slate-500 font-semibold">मासिक चारा खर्च (30 दिन):</span>
+                <span id="farm-monthly-feed-cost" class="font-black text-emerald-800 text-sm ml-1">₹ 0.00</span>
+              </div>
+              <div>
+                <span class="text-slate-500 font-semibold">प्रति पशु औसत खर्च:</span>
+                <span id="farm-feed-per-animal" class="font-black text-blue-800 text-sm ml-1">₹ 0.00 / पशु</span>
+              </div>
+            </div>
+
+            <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow transition flex items-center space-x-1.5">
+              <span>💾</span>
+              <span>चारा खपत व दर सेव करें</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Doctor & Medical Expenses Tracker -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left: Add Vet Expense Form -->
+        <div class="lg:col-span-4 space-y-4">
+          <div class="dairy-card p-5 bg-white border border-slate-200">
+            <div class="flex items-center space-x-2 pb-3 mb-3 border-b border-slate-100">
+              <span class="text-xl">💉</span>
+              <h4 class="font-black text-slate-900 text-sm">डॉक्टर व दवाई खर्च जोड़ें</h4>
+            </div>
+
+            <form id="vet-expense-form" class="space-y-3 text-xs">
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">पशु टैग / पहचान (Animal Tag) *</label>
+                <input type="text" id="vet-exp-tag" placeholder="उदा. BF-101 (लक्ष्मी)" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold" required>
+              </div>
+
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">इलाज / टीका / कारण (Reason) *</label>
+                <input type="text" id="vet-exp-reason" placeholder="उदा. FMD टीका, कृत्रिम गर्भाधान (AI), बुखार दवा" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium" required>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">डॉक्टर का नाम</label>
+                  <input type="text" id="vet-exp-doctor" placeholder="डॉ. शर्मा" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium">
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">खर्च रकम (₹) *</label>
+                  <input type="number" step="1" id="vet-exp-amount" placeholder="500" class="dairy-input w-full px-3 py-2 border rounded-xl font-black text-red-600" required>
+                </div>
+              </div>
+
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">तारीख (Date) *</label>
+                <input type="date" id="vet-exp-date" class="dairy-input w-full px-3 py-2 border rounded-xl font-semibold" required>
+              </div>
+
+              <button type="submit" class="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold shadow text-xs flex items-center justify-center space-x-1.5 transition">
+                <span>➕</span>
+                <span>डॉक्टर खर्च दर्ज करें (Add Expense)</span>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Right: Recent Vet Expenses List -->
+        <div class="lg:col-span-8 space-y-4">
+          <div class="dairy-card p-5 bg-white border border-slate-200">
+            <h4 class="font-bold text-slate-800 text-sm mb-3 flex items-center justify-between">
+              <span>📋 डॉक्टर व दवाई खर्च रजिस्टर (Vet Expenses Log)</span>
+            </h4>
+            <div class="overflow-x-auto max-h-80 overflow-y-auto">
+              <table class="w-full text-left text-xs whitespace-nowrap">
+                <thead class="bg-slate-50 text-slate-600 font-bold border-b sticky top-0">
+                  <tr>
+                    <th class="py-2.5 px-3">तारीख</th>
+                    <th class="py-2.5 px-3">पशु टैग</th>
+                    <th class="py-2.5 px-3">इलाज / विवरण</th>
+                    <th class="py-2.5 px-3">डॉक्टर</th>
+                    <th class="py-2.5 px-3 text-right">रकम (₹)</th>
+                    <th class="py-2.5 px-3 text-center">हटाएं</th>
+                  </tr>
+                </thead>
+                <tbody id="vet-expenses-body" class="divide-y divide-slate-100">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Cattle Livestock Registry Table -->
+      <div class="dairy-card p-5 sm:p-6 bg-white border border-slate-200">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 mb-4 border-b border-slate-100">
+          <div>
+            <h3 class="text-base font-black text-slate-900 flex items-center space-x-2">
+              <span>🏷️</span>
+              <span>पशु रजिस्टर (Livestock & Milking Records)</span>
+            </h3>
+            <p class="text-xs text-slate-500">सभी भैंस, गाय, दुधारू स्थिति व नस्ल का संपूर्ण विवरण</p>
+          </div>
+
+          <button onclick="openAddAnimalModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow transition flex items-center space-x-1.5">
+            <span>➕</span>
+            <span>नया पशु जोड़ें (Add Animal)</span>
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs whitespace-nowrap">
+            <thead class="bg-slate-50 text-slate-600 font-bold border-b">
+              <tr>
+                <th class="py-2.5 px-3">टैग नं</th>
+                <th class="py-2.5 px-3">नाम / पहचान</th>
+                <th class="py-2.5 px-3">प्रकार</th>
+                <th class="py-2.5 px-3">नस्ल</th>
+                <th class="py-2.5 px-3">स्थिति</th>
+                <th class="py-2.5 px-3 text-right">दैनिक दूध (L)</th>
+                <th class="py-2.5 px-3 text-center">उम्र</th>
+                <th class="py-2.5 px-3 text-center">एक्शन</th>
+              </tr>
+            </thead>
+            <tbody id="cattle-list-body" class="divide-y divide-slate-100">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB: DIRECTORY (पशु चिकित्सक व डेयरी उपकरण/चारा दुकानें) -->
+    <!-- ======================================================== -->
+    <section id="tab-section-directory" class="tab-content space-y-6 hidden">
+      
+      <!-- Segmented Toggle between Doctors and Shops -->
+      <div class="flex items-center justify-center">
+        <div class="bg-slate-100 p-1.5 rounded-2xl max-w-md w-full flex text-xs">
+          <button id="dir-tab-docs-btn" onclick="switchDirectoryTab('doctors')" class="flex-1 py-2.5 text-center font-bold rounded-xl bg-white text-emerald-800 shadow-sm transition">
+            🩺 आस-पास के पशु डॉक्टर (Doctors)
+          </button>
+          <button id="dir-tab-shops-btn" onclick="switchDirectoryTab('shops')" class="flex-1 py-2.5 text-center font-bold rounded-xl text-slate-600 hover:text-slate-900 transition">
+            🏪 डेयरी व चारा दुकानें (Shops)
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 1: Doctors Directory -->
+      <div id="dir-section-doctors" class="space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="text-base font-black text-slate-900 flex items-center space-x-2">
+              <span>🩺</span>
+              <span>आस-पास के अनुभवी पशु चिकित्सक (Veterinary Doctors)</span>
+            </h3>
+            <p class="text-xs text-slate-500">बीमारी, कृत्रिम गर्भाधान (AI), टीकाकरण व आपातकालीन सेवा हेतु रेटिंग्स व 1-क्लिक कॉल</p>
+          </div>
+
+          <button onclick="openAddDoctorModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow transition flex items-center space-x-1.5">
+            <span>➕</span>
+            <span>नया डॉक्टर जोड़ें (Add Doctor)</span>
+          </button>
+        </div>
+
+        <!-- Doctors Grid -->
+        <div id="doctors-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- Section 2: Shops Directory -->
+      <div id="dir-section-shops" class="space-y-4 hidden">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="text-base font-black text-slate-900 flex items-center space-x-2">
+              <span>🏪</span>
+              <span>आस-पास की डेयरी उपकरण, मशीनरी व चारा दुकानें (Feed & Machinery Suppliers)</span>
+            </h3>
+            <p class="text-xs text-slate-500">किसके पास अच्छा सामान, दूध मशीन, केन, फ्रिज व उत्तम पशु आहार मिलता है</p>
+          </div>
+
+          <button onclick="openAddShopModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow transition flex items-center space-x-1.5">
+            <span>➕</span>
+            <span>नई दुकान जोड़ें (Add Shop)</span>
+          </button>
+        </div>
+
+        <!-- Shops Grid -->
+        <div id="shops-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
     </section>
 
   </main>
@@ -1072,6 +1522,14 @@
     <button class="mobile-tab-btn text-slate-500 flex flex-col items-center text-[10px]" data-tab="billing">
       <span class="text-base">🧾</span>
       <span data-i18n="mobBilling">बिलिंग</span>
+    </button>
+    <button class="mobile-tab-btn text-slate-500 flex flex-col items-center text-[10px]" data-tab="cattle-farm">
+      <span class="text-base">🐄</span>
+      <span data-i18n="mobCattle">पशुपालन</span>
+    </button>
+    <button class="mobile-tab-btn text-slate-500 flex flex-col items-center text-[10px]" data-tab="directory">
+      <span class="text-base">🩺</span>
+      <span data-i18n="mobDirectory">डॉक्टर/दुकान</span>
     </button>
     <button class="mobile-tab-btn text-slate-500 flex flex-col items-center text-[10px]" data-tab="rate-chart">
       <span class="text-base">⚙️</span>
@@ -1226,6 +1684,288 @@
           बंद करें (Close)
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 4. ADD CUSTOM PRODUCT / EQUIPMENT MODAL                  -->
+  <!-- ======================================================== -->
+  <div id="add-custom-item-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl modal-fade-in border border-slate-100">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h3 class="font-black text-slate-900 text-base flex items-center space-x-1.5">
+          <span>➕</span>
+          <span>नया डेयरी सामान या उपकरण जोड़ें</span>
+        </h3>
+        <button onclick="closeAddCustomItemModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center font-bold">
+          ✕
+        </button>
+      </div>
+
+      <form id="add-custom-item-form" class="space-y-3 mt-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">सामान का नाम (Item Name) *</label>
+          <input type="text" id="custom-item-name" placeholder="उदा. दूध की बोतल, डीप फ्रीजर, क्रीम..." class="dairy-input w-full px-3 py-2 border rounded-xl font-bold" required>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">श्रेणी (Category) *</label>
+            <select id="custom-item-category" class="dairy-input w-full px-3 py-2 border rounded-xl font-semibold bg-white">
+              <option value="equipment">⚙️ डेयरी उपकरण व मशीनरी</option>
+              <option value="dairy">🧀 डेयरी उत्पाद (दूध/पनीर/घी)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">इकाई (Unit) *</label>
+            <input type="text" id="custom-item-unit" placeholder="Pcs / Kg / Ltr / नग" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium" required>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">बिक्री मूल्य दर (₹) *</label>
+            <input type="number" step="1" id="custom-item-rate" placeholder="उदा. 450" class="dairy-input w-full px-3 py-2 border rounded-xl font-black text-emerald-800" required>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">स्टॉक मात्रा (Stock)</label>
+            <input type="number" step="1" id="custom-item-stock" placeholder="उदा. 10" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">HSN कोड</label>
+            <input type="text" id="custom-item-hsn" placeholder="8434 / 0406" class="dairy-input w-full px-3 py-2 border rounded-xl font-mono">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">GST दर (%)</label>
+            <select id="custom-item-gst" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold bg-white">
+              <option value="0">0% (टैक्स फ्री)</option>
+              <option value="5">5% GST</option>
+              <option value="12">12% GST</option>
+              <option value="18" selected>18% GST (उपकरण मानक)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pt-3">
+          <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow text-xs flex items-center justify-center space-x-1.5 transition">
+            <span>💾</span>
+            <span>कैटलॉग में सुरक्षित करें (Save to Catalog)</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 5. ADD ANIMAL MODAL                                      -->
+  <!-- ======================================================== -->
+  <div id="add-animal-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl modal-fade-in border border-slate-100">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h3 class="font-black text-slate-900 text-base flex items-center space-x-1.5">
+          <span>🐄</span>
+          <span>नया पशु जोड़ें (Add Cattle/Animal)</span>
+        </h3>
+        <button onclick="closeAddAnimalModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center font-bold">
+          ✕
+        </button>
+      </div>
+
+      <form id="add-animal-form" class="space-y-3 mt-4 text-xs">
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">टैग / पहचान संख्या *</label>
+            <input type="text" id="add-animal-tag" placeholder="उदा. BF-103" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold text-slate-900" required>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">पशु का नाम *</label>
+            <input type="text" id="add-animal-name" placeholder="उदा. चमेली, कजरी" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold" required>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">पशु प्रकार *</label>
+            <select id="add-animal-type" class="dairy-input w-full px-3 py-2 border rounded-xl font-semibold bg-white">
+              <option value="buffalo">भैंस (Buffalo)</option>
+              <option value="cow">गाय (Cow)</option>
+              <option value="calf">बछड़ा / बछड़ी (Calf)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">नस्ल (Breed)</label>
+            <input type="text" id="add-animal-breed" placeholder="मुर्रा, साहीवाल, गीर..." class="dairy-input w-full px-3 py-2 border rounded-xl font-medium">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">वर्तमान स्थिति *</label>
+            <select id="add-animal-status" class="dairy-input w-full px-3 py-2 border rounded-xl font-semibold bg-white">
+              <option value="milking">दुधारू (Milking)</option>
+              <option value="dry">सूखी / बंद (Dry)</option>
+              <option value="pregnant">गाभिन (Pregnant)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">दैनिक दूध (L/दिन)</label>
+            <input type="number" step="0.5" id="add-animal-milk" placeholder="उदा. 12" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold text-emerald-800">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">उम्र (उदा. 4 वर्ष, 2 ब्यात)</label>
+          <input type="text" id="add-animal-age" placeholder="उदा. 4 वर्ष (2 ब्यात)" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium">
+        </div>
+
+        <div class="pt-3">
+          <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow text-xs flex items-center justify-center space-x-1.5 transition">
+            <span>💾</span>
+            <span>पशु रजिस्टर में जोड़ें (Save Animal)</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 6. ADD DOCTOR MODAL                                      -->
+  <!-- ======================================================== -->
+  <div id="add-doctor-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl modal-fade-in border border-slate-100">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h3 class="font-black text-slate-900 text-base flex items-center space-x-1.5">
+          <span>🩺</span>
+          <span>नया पशु डॉक्टर जोड़ें (Add Doctor)</span>
+        </h3>
+        <button onclick="closeAddDoctorModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center font-bold">
+          ✕
+        </button>
+      </div>
+
+      <form id="add-doctor-form" class="space-y-3 mt-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">डॉक्टर का नाम *</label>
+          <input type="text" id="add-doc-name" placeholder="उदा. डॉ. आर. के. बिश्नोई" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold" required>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">डिग्री (Degree)</label>
+            <input type="text" id="add-doc-degree" placeholder="B.V.Sc & A.H / LSA" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">विशेषज्ञता</label>
+            <input type="text" id="add-doc-specialty" placeholder="कृत्रिम गर्भाधान, सर्जरी" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">अस्पताल / क्लीनिक</label>
+            <input type="text" id="add-doc-clinic" placeholder="सरकारी पशु चिकित्सालय" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">मोबाइल नंबर *</label>
+            <input type="tel" id="add-doc-phone" placeholder="9829011111" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold text-emerald-800" required>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">स्थान / गाँव / शहर</label>
+            <input type="text" id="add-doc-location" placeholder="गाँव/कस्बा" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">रेटिंग (1 - 5 ⭐)</label>
+            <input type="number" step="0.1" min="1" max="5" id="add-doc-rating" value="4.8" class="dairy-input w-full px-3 py-2 border rounded-xl font-black text-amber-700">
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2 pt-1">
+          <input type="checkbox" id="add-doc-emergency" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500">
+          <label for="add-doc-emergency" class="font-bold text-slate-700 cursor-pointer">🚨 24x7 इमरजेंसी सेवा उपलब्ध</label>
+        </div>
+
+        <div class="pt-3">
+          <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow text-xs flex items-center justify-center space-x-1.5 transition">
+            <span>💾</span>
+            <span>डॉक्टर डायरेक्टरी में जोड़ें (Save Doctor)</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- 7. ADD SHOP / SUPPLIER MODAL                             -->
+  <!-- ======================================================== -->
+  <div id="add-shop-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl modal-fade-in border border-slate-100">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h3 class="font-black text-slate-900 text-base flex items-center space-x-1.5">
+          <span>🏪</span>
+          <span>नई डेयरी व चारा दुकान जोड़ें (Add Shop)</span>
+        </h3>
+        <button onclick="closeAddShopModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center font-bold">
+          ✕
+        </button>
+      </div>
+
+      <form id="add-shop-form" class="space-y-3 mt-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">दुकान / फर्म का नाम *</label>
+          <input type="text" id="add-shop-name" placeholder="उदा. किसान डेयरी इक्विपमेंट्स" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold" required>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">दुकान श्रेणी</label>
+            <input type="text" id="add-shop-category" placeholder="डेयरी मशीनरी / चारा-खल" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">संचालक / संपर्क व्यक्ति</label>
+            <input type="text" id="add-shop-owner" placeholder="दुकानदार का नाम" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">उपलब्ध मुख्य सामान (Good items sold) *</label>
+          <input type="text" id="add-shop-goods" placeholder="मिल्क केन, फैट मशीन, फ्रिज, अमूल दाना, सरसों खल..." class="dairy-input w-full px-3 py-2 border rounded-xl font-medium" required>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">मोबाइल नंबर *</label>
+            <input type="tel" id="add-shop-phone" placeholder="9829033333" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold text-emerald-800" required>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">रेटिंग (1 - 5 ⭐)</label>
+            <input type="number" step="0.1" min="1" max="5" id="add-shop-rating" value="4.8" class="dairy-input w-full px-3 py-2 border rounded-xl font-black text-amber-700">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">दुकान का पता व बाजार</label>
+            <input type="text" id="add-shop-address" placeholder="दाना मंडी, मुख्य बाजार" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">गुणवत्ता बैज</label>
+            <input type="text" id="add-shop-badge" placeholder="उदा. 100% शुद्ध / ओरिजिनल मशीन" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium">
+          </div>
+        </div>
+
+        <div class="pt-3">
+          <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow text-xs flex items-center justify-center space-x-1.5 transition">
+            <span>💾</span>
+            <span>दुकान डायरेक्टरी में जोड़ें (Save Shop)</span>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 

@@ -55,8 +55,10 @@ const I18N = {
 
     // Tabs
     tabCollection: "दूध संकलन (Collection)",
-    tabProductsPos: "🧀 डेयरी उत्पाद बिलिंग (Products POS)",
+    tabProductsPos: "🧀 डेयरी उत्पाद व उपकरण POS",
     tabCustomerPortal: "🔍 ग्राहक पासबुक (Customer Portal)",
+    tabCattleFarm: "🐄 पशुपालन व खर्च (Cattle & Farm)",
+    tabDirectory: "🩺 डॉक्टर व दुकानें (Directory)",
     tabFarmers: "किसान रजिस्टर (Farmers)",
     tabSales: "ग्राहक बिक्री (Retail Milk)",
     tabBilling: "पखवाड़ा बिलिंग (Billing)",
@@ -66,8 +68,10 @@ const I18N = {
 
     // Mobile Tabs
     mobCollection: "दूध संकलन",
-    mobProducts: "पनीर/घी POS",
+    mobProducts: "पनीर/उपकरण POS",
     mobCustomer: "ग्राहक खाता",
+    mobCattle: "पशु व चारा",
+    mobDirectory: "डॉक्टर व दुकान",
     mobBilling: "बिलिंग",
     mobSettings: "GST सेटिंग्स",
 
@@ -286,8 +290,10 @@ const I18N = {
 
     // Tabs
     tabCollection: "Milk Collection",
-    tabProductsPos: "🧀 Dairy Products & GST Billing",
+    tabProductsPos: "🧀 Dairy Products & Equipment POS",
     tabCustomerPortal: "🔍 Customer Portal",
+    tabCattleFarm: "🐄 Cattle & Farm Management",
+    tabDirectory: "🩺 Doctors & Shops Directory",
     tabFarmers: "Farmers Register",
     tabSales: "Retail Milk",
     tabBilling: "Billing & Slips",
@@ -297,8 +303,10 @@ const I18N = {
 
     // Mobile Tabs
     mobCollection: "Collection",
-    mobProducts: "Products POS",
-    mobCustomer: "Customer Portal",
+    mobProducts: "POS & Tools",
+    mobCustomer: "Customer",
+    mobCattle: "Cattle",
+    mobDirectory: "Directory",
     mobBilling: "Billing",
     mobSettings: "GST Settings",
 
@@ -516,15 +524,134 @@ const DEFAULT_DATA = {
     receiptFooterEn: "Pure Milk, Paneer & Desi Ghee is our hallmark. Thank you!"
   },
   products: [
-    { id: "P1", name: "ताज़ा पनीर (Fresh Paneer)", nameEn: "Fresh Malai Paneer", unit: "kg", rate: 360, hsn: "0406", gstPercent: 5, stock: 35 },
-    { id: "P2", name: "शुद्ध देसी घी (Pure Cow Ghee)", nameEn: "Pure Desi Cow Ghee (1L Jar)", unit: "ltr", rate: 650, hsn: "0405", gstPercent: 12, stock: 50 },
-    { id: "P3", name: "शुद्ध भैंस घी (Buffalo Ghee)", nameEn: "Pure Buffalo Ghee (1L Jar)", unit: "ltr", rate: 700, hsn: "0405", gstPercent: 12, stock: 40 },
-    { id: "P4", name: "मीठा / ताज़ा दही (Fresh Curd)", nameEn: "Fresh Curd / Dahi", unit: "kg", rate: 70, hsn: "0403", gstPercent: 5, stock: 60 },
-    { id: "P5", name: "मक्खन / टेबल बटर (Butter)", nameEn: "White / Table Butter", unit: "kg", rate: 480, hsn: "0405", gstPercent: 12, stock: 20 },
-    { id: "P6", name: "मसाला छाछ (Spiced Buttermilk)", nameEn: "Masala Chaach (500ml)", unit: "pkt", rate: 15, hsn: "0403", gstPercent: 0, stock: 120 },
-    { id: "P7", name: "शुद्ध मावा / खोया (Khoya / Mawa)", nameEn: "Pure Milk Mawa / Khoya", unit: "kg", rate: 380, hsn: "0402", gstPercent: 5, stock: 25 },
-    { id: "P8", name: "ताज़ा गाय दूध (Fresh Cow Milk)", nameEn: "Fresh Cow Milk", unit: "ltr", rate: 55, hsn: "0401", gstPercent: 0, stock: 150 },
-    { id: "P9", name: "ताज़ा भैंस दूध (Fresh Buffalo Milk)", nameEn: "Fresh Buffalo Milk", unit: "ltr", rate: 68, hsn: "0401", gstPercent: 0, stock: 180 }
+    { id: "P1", name: "ताज़ा पनीर (Fresh Paneer)", nameEn: "Fresh Malai Paneer", unit: "kg", rate: 360, hsn: "0406", gstPercent: 5, stock: 35, category: "dairy" },
+    { id: "P2", name: "शुद्ध देसी गाय घी (Pure Cow Ghee)", nameEn: "Pure Desi Cow Ghee (1L Jar)", unit: "ltr", rate: 650, hsn: "0405", gstPercent: 12, stock: 50, category: "dairy" },
+    { id: "P3", name: "शुद्ध भैंस घी (Buffalo Ghee)", nameEn: "Pure Buffalo Ghee (1L Jar)", unit: "ltr", rate: 700, hsn: "0405", gstPercent: 12, stock: 40, category: "dairy" },
+    { id: "P4", name: "मीठा / ताज़ा दही (Fresh Curd)", nameEn: "Fresh Curd / Dahi", unit: "kg", rate: 70, hsn: "0403", gstPercent: 5, stock: 60, category: "dairy" },
+    { id: "P5", name: "मक्खन / टेबल बटर (Butter)", nameEn: "White / Table Butter", unit: "kg", rate: 480, hsn: "0405", gstPercent: 12, stock: 20, category: "dairy" },
+    { id: "P6", name: "मसाला छाछ (Spiced Buttermilk)", nameEn: "Masala Chaach (500ml)", unit: "pkt", rate: 15, hsn: "0403", gstPercent: 0, stock: 120, category: "dairy" },
+    { id: "P7", name: "शुद्ध मावा / खोया (Khoya / Mawa)", nameEn: "Pure Milk Mawa / Khoya", unit: "kg", rate: 380, hsn: "0402", gstPercent: 5, stock: 25, category: "dairy" },
+    { id: "P8", name: "ताज़ा गाय दूध (Fresh Cow Milk)", nameEn: "Fresh Cow Milk", unit: "ltr", rate: 55, hsn: "0401", gstPercent: 0, stock: 150, category: "dairy" },
+    { id: "P9", name: "ताज़ा भैंस दूध (Fresh Buffalo Milk)", nameEn: "Fresh Buffalo Milk", unit: "ltr", rate: 68, hsn: "0401", gstPercent: 0, stock: 180, category: "dairy" },
+
+    // Dairy Equipment & Machinery (डेयरी उपकरण व मशीनरी)
+    { id: "EQ1", name: "दूध की बोतल (Milk Bottle - 1L कांच/प्लास्टिक)", nameEn: "Milk Bottle (1L)", unit: "pcs", rate: 25, hsn: "7010", gstPercent: 12, stock: 150, category: "equipment" },
+    { id: "EQ2", name: "दूध का कैन (Milk Can - 20L/40L स्टील/एल्युमिनियम)", nameEn: "Milk Can (40L/20L)", unit: "pcs", rate: 1850, hsn: "7310", gstPercent: 12, stock: 15, category: "equipment" },
+    { id: "EQ3", name: "मापने वाला बर्तन (Measuring Jug Set - SS 100ml-1L)", nameEn: "Measuring Jug (SS Set)", unit: "set", rate: 350, hsn: "7323", gstPercent: 12, stock: 25, category: "equipment" },
+    { id: "EQ4", name: "दूध की मशीन (Milk Vending Machine / ATM)", nameEn: "Milk Vending Machine", unit: "pcs", rate: 45000, hsn: "8434", gstPercent: 18, stock: 3, category: "equipment" },
+    { id: "EQ5", name: "फ्रिज (Commercial Dairy Refrigerator)", nameEn: "Commercial Refrigerator", unit: "pcs", rate: 22000, hsn: "8418", gstPercent: 18, stock: 4, category: "equipment" },
+    { id: "EQ6", name: "डीप फ्रीजर (Deep Freezer - 300L/500L)", nameEn: "Deep Freezer (300L/500L)", unit: "pcs", rate: 28500, hsn: "8418", gstPercent: 18, stock: 2, category: "equipment" },
+    { id: "EQ7", name: "वजन मशीन (Digital Weighing Scale - 100kg)", nameEn: "Digital Weighing Scale", unit: "pcs", rate: 2400, hsn: "8423", gstPercent: 18, stock: 8, category: "equipment" },
+    { id: "EQ8", name: "बिलिंग मशीन (Thermal POS Billing Machine)", nameEn: "Thermal POS Billing Machine", unit: "pcs", rate: 8500, hsn: "8470", gstPercent: 18, stock: 5, category: "equipment" }
+  ],
+  cattleSummary: {
+    totalBuffaloes: 8,
+    milkingBuffaloes: 6,
+    dryBuffaloes: 2,
+    totalCows: 6,
+    milkingCows: 5,
+    dryCows: 1,
+    totalCalves: 4,
+    dailyMilkOutput: 110.5
+  },
+  cattleList: [
+    { id: "CAT-1", tagNo: "TAG-101", name: "काली (भैंस)", type: "buffalo", breed: "मुर्राह (Murrah)", status: "milking", dailyMilk: 14.5, age: "4 वर्ष", lastCalving: "2026-06-15" },
+    { id: "CAT-2", tagNo: "TAG-102", name: "गंगा (गाय)", type: "cow", breed: "साहीवाल (Sahiwal)", status: "milking", dailyMilk: 16.0, age: "3.5 वर्ष", lastCalving: "2026-07-20" },
+    { id: "CAT-3", tagNo: "TAG-103", name: "लक्ष्मी (भैंस)", type: "buffalo", breed: "मुर्राह", status: "milking", dailyMilk: 12.0, age: "5 वर्ष", lastCalving: "2026-05-10" },
+    { id: "CAT-4", tagNo: "TAG-104", name: "गौरी (गाय)", type: "cow", breed: "गिर (Gir)", status: "milking", dailyMilk: 13.5, age: "4 वर्ष", lastCalving: "2026-08-05" },
+    { id: "CAT-5", tagNo: "TAG-105", name: "चंपा (भैंस)", type: "buffalo", breed: "जाफराबादी", status: "pregnant", dailyMilk: 0.0, age: "6 वर्ष", lastCalving: "2025-11-12" }
+  ],
+  feedConsumption: {
+    dryFodderQty: 75,
+    dryFodderRate: 8.5,
+    greenFodderQty: 150,
+    greenFodderRate: 3.0,
+    concentrateQty: 35,
+    concentrateRate: 34.0
+  },
+  vetExpenses: [
+    { id: "VET-1", date: "2026-10-18", animalTag: "TAG-101 (काली)", reason: "FMD खुरपका-मुंहपका टीका (Vaccination)", doctorName: "डॉ. रमेश वर्मा", amount: 450, notes: "सालाना अनिवार्य टीका" },
+    { id: "VET-2", date: "2026-10-12", animalTag: "TAG-103 (लक्ष्मी)", reason: "कृत्रिम गर्भाधान (AI - Artificial Insemination)", doctorName: "डॉ. सुरेश यादव", amount: 600, notes: "उच्च नस्ल मुर्राह सीमन" },
+    { id: "VET-3", date: "2026-09-28", animalTag: "TAG-102 (गंगा)", reason: "दूध बुखार व कैल्शियम सप्लीमेंट", doctorName: "डॉ. रमेश वर्मा", amount: 850, notes: "कैल्शियम टॉनिक व ड्रिप" }
+  ],
+  doctors: [
+    {
+      id: "DOC-1",
+      name: "डॉ. रमेश वर्मा",
+      degree: "B.V.Sc & A.H. (वरिष्ठ पशु चिकित्सा अधिकारी)",
+      specialty: "गाय-भैंस प्रसूति, बांझपन व शल्य चिकित्सा",
+      clinic: "राजकीय पशु चिकित्सालय एवं पॉलीक्लिनिक",
+      phone: "9829123456",
+      whatsapp: "9829123456",
+      location: "सदर बाजार (2.5 किमी दूर)",
+      rating: 4.9,
+      reviewsCount: 84,
+      isEmergency: true
+    },
+    {
+      id: "DOC-2",
+      name: "डॉ. सुरेश यादव",
+      degree: "M.V.Sc (पशुधन विकास एवं AI स्पेशलिस्ट)",
+      specialty: "उच्च नस्ल कृत्रिम गर्भाधान (AI) व पोषण सलाहकार",
+      clinic: "किसान पशु सेवा केंद्र",
+      phone: "9414567890",
+      whatsapp: "9414567890",
+      location: "तहसील रोड (4.0 किमी दूर)",
+      rating: 4.8,
+      reviewsCount: 62,
+      isEmergency: false
+    },
+    {
+      id: "DOC-3",
+      name: "डॉ. मुकेश जाट",
+      degree: "B.V.Sc (पशु सर्जन व टीकाकरण विशेषज्ञ)",
+      specialty: "आपातकालीन उपचार, टीकाकरण व थनैला (Mastitis) इलाज",
+      clinic: "गोपाल पशु चिकित्सा क्लिनिक",
+      phone: "9828987654",
+      whatsapp: "9828987654",
+      location: "बाईपास चौराहा (5.5 किमी दूर)",
+      rating: 4.7,
+      reviewsCount: 49,
+      isEmergency: true
+    }
+  ],
+  shops: [
+    {
+      id: "SHP-1",
+      name: "किसान डेयरी मशीनरी व इक्विपमेंट स्टोर",
+      category: "डेयरी उपकरण व मशीनें",
+      goods: "दूध के कैन (20L/40L), मापने वाले बर्तन, डीप फ्रीजर, मिल्किंग मशीन, वजन कांटा",
+      owner: "राजेश अग्रवाल",
+      phone: "9829011223",
+      whatsapp: "9829011223",
+      address: "जीटी रोड, मंडी गेट के सामने (1.8 किमी)",
+      rating: 4.9,
+      qualityBadge: "🌟 सर्वोत्तम क्वालिटी कैन व मशीनरी"
+    },
+    {
+      id: "SHP-2",
+      name: "श्री श्याम कैटल फीड व खल चूरी डिपो",
+      category: "पशु आहार व दाना",
+      goods: "शुद्ध कपासिया खल, सरसों खल, मक्का चूरी, मिनरल मिक्सचर",
+      owner: "मुरारी लाल",
+      phone: "9414099887",
+      whatsapp: "9414099887",
+      address: "अनाज मंडी, शॉप नं 42 (3.0 किमी)",
+      rating: 4.8,
+      qualityBadge: "🌾 थोक भाव, 100% शुद्ध खल व चूरी"
+    },
+    {
+      id: "SHP-3",
+      name: "न्यू मॉडर्न बॉटल्स एवं डेयरी पैकेजिंग",
+      category: "दूध बोतलें व पाउच",
+      goods: "कांच व प्लास्टिक दूध बोतलें (500ml/1L), सील ढक्कन, छाछ पाउच",
+      owner: "संजय जैन",
+      phone: "9829554433",
+      whatsapp: "9829554433",
+      address: "इंडस्ट्रियल एरिया, फेस 1 (6.0 किमी)",
+      rating: 4.7,
+      qualityBadge: "🍾 मजबूत व सस्ती फूड-ग्रेड बोतलें"
+    }
   ],
   farmers: [
     { id: "101", name: "रामकिशन यादव", nameEn: "Ramkishan Yadav", phone: "9829100101", village: "आनंदपुर", milkType: "buffalo", advance: 1500, bank: "SBI - 402819201" },
@@ -708,9 +835,11 @@ function switchAuthMode(mode) {
   const otpForm = document.getElementById('auth-otp-form');
   const loginForm = document.getElementById('auth-login-form');
   const signupForm = document.getElementById('auth-signup-form');
+  const passbookForm = document.getElementById('auth-passbook-form');
   const tabOtpBtn = document.getElementById('auth-tab-otp-btn');
   const tabLoginBtn = document.getElementById('auth-tab-login-btn');
   const tabSignupBtn = document.getElementById('auth-tab-signup-btn');
+  const tabPassbookBtn = document.getElementById('auth-tab-passbook-btn');
 
   const activeTabClass = "flex-1 py-2 text-center font-bold text-xs rounded-xl bg-white text-emerald-800 shadow-sm border border-emerald-100 transition";
   const inactiveTabClass = "flex-1 py-2 text-center font-bold text-xs rounded-xl text-slate-500 hover:text-slate-800 transition";
@@ -718,10 +847,12 @@ function switchAuthMode(mode) {
   if (otpForm) otpForm.classList.add('hidden');
   if (loginForm) loginForm.classList.add('hidden');
   if (signupForm) signupForm.classList.add('hidden');
+  if (passbookForm) passbookForm.classList.add('hidden');
 
   if (tabOtpBtn) tabOtpBtn.className = inactiveTabClass;
   if (tabLoginBtn) tabLoginBtn.className = inactiveTabClass;
   if (tabSignupBtn) tabSignupBtn.className = inactiveTabClass;
+  if (tabPassbookBtn) tabPassbookBtn.className = inactiveTabClass;
 
   if (mode === 'otp') {
     if (otpForm) otpForm.classList.remove('hidden');
@@ -732,6 +863,9 @@ function switchAuthMode(mode) {
   } else if (mode === 'signup') {
     if (signupForm) signupForm.classList.remove('hidden');
     if (tabSignupBtn) tabSignupBtn.className = activeTabClass;
+  } else if (mode === 'passbook') {
+    if (passbookForm) passbookForm.classList.remove('hidden');
+    if (tabPassbookBtn) tabPassbookBtn.className = activeTabClass;
   }
 }
 
@@ -1136,6 +1270,22 @@ function loadData() {
       appData = JSON.parse(savedData);
       if (!appData.products) appData.products = DEFAULT_DATA.products;
       if (!appData.invoices) appData.invoices = DEFAULT_DATA.invoices;
+
+      // Migrate new cattle, feed, vet, doctors, and shops
+      if (!appData.cattleSummary) appData.cattleSummary = JSON.parse(JSON.stringify(DEFAULT_DATA.cattleSummary));
+      if (!appData.cattleList) appData.cattleList = JSON.parse(JSON.stringify(DEFAULT_DATA.cattleList));
+      if (!appData.feedConsumption) appData.feedConsumption = JSON.parse(JSON.stringify(DEFAULT_DATA.feedConsumption));
+      if (!appData.vetExpenses) appData.vetExpenses = JSON.parse(JSON.stringify(DEFAULT_DATA.vetExpenses));
+      if (!appData.doctors) appData.doctors = JSON.parse(JSON.stringify(DEFAULT_DATA.doctors));
+      if (!appData.shops) appData.shops = JSON.parse(JSON.stringify(DEFAULT_DATA.shops));
+
+      // Ensure all equipment items (bottle, can, machine, deep freezer, etc.) are present
+      DEFAULT_DATA.products.forEach(defaultProd => {
+        if (!appData.products.some(p => p.id === defaultProd.id)) {
+          appData.products.push(defaultProd);
+        }
+      });
+
       // Auto-migrate away from hardcoded demo name if present
       if (appData.settings && (appData.settings.dairyName === "श्री कृष्णा डेयरी एवं मिष्ठान भंडार" || !appData.settings.dairyName)) {
         appData.settings.dairyName = "डेयरी हिसाब";
@@ -1263,6 +1413,8 @@ function switchTab(tabName) {
   if (tabName === 'products-pos') renderProductsPosTab();
   else if (tabName === 'customer-portal') renderCustomerPortalTab();
   else if (tabName === 'collection') renderCollectionTab();
+  else if (tabName === 'cattle-farm') renderCattleFarmTab();
+  else if (tabName === 'directory') renderDirectoryTab();
   else if (tabName === 'farmers') renderFarmersTab();
   else if (tabName === 'sales') renderSalesTab();
   else if (tabName === 'billing') renderBillingTab();
@@ -1272,8 +1424,22 @@ function switchTab(tabName) {
 }
 
 // ----------------------------------------------------
-// TAB: PRODUCTS POS & GST BILLING
+// TAB: PRODUCTS POS & GST BILLING (WITH EQUIPMENT)
 // ----------------------------------------------------
+let currentPosCategory = 'all';
+
+function setPosCategory(cat) {
+  currentPosCategory = cat;
+  document.querySelectorAll('.pos-cat-btn').forEach(btn => {
+    if (btn.dataset.cat === cat) {
+      btn.className = "pos-cat-btn px-3 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 text-white shadow transition";
+    } else {
+      btn.className = "pos-cat-btn px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
+    }
+  });
+  renderProductCards();
+}
+
 function renderProductsPosTab() {
   renderProductCards();
   renderCart();
@@ -1285,22 +1451,35 @@ function renderProductCards() {
   const container = document.getElementById('products-pos-grid');
   if (!container) return;
 
-  container.innerHTML = appData.products.map(p => {
+  const filtered = (currentPosCategory === 'all')
+    ? appData.products
+    : appData.products.filter(p => (p.category || 'dairy') === currentPosCategory);
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="col-span-2 text-center py-8 text-slate-400 text-xs">इस श्रेणी में कोई सामान नहीं है। ऊपर "+ नया सामान जोड़ें" दबाएं।</div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(p => {
     const name = getLocalizedName(p);
+    const isEquipment = p.category === 'equipment';
     return `
       <div onclick="addToCart('${p.id}')" class="product-card dairy-card p-3 border hover:border-emerald-500 hover:shadow-md transition">
         <div class="flex items-start justify-between">
           <div>
-            <h4 class="font-bold text-slate-800 text-xs sm:text-sm leading-tight">${name}</h4>
-            <span class="text-[10px] text-slate-400">HSN: ${p.hsn} | GST: ${p.gstPercent}%</span>
+            <div class="flex items-center space-x-1.5">
+              <span class="text-sm">${isEquipment ? '🛠️' : '🧀'}</span>
+              <h4 class="font-bold text-slate-800 text-xs sm:text-sm leading-tight">${name}</h4>
+            </div>
+            <span class="text-[10px] text-slate-400 block mt-0.5">HSN: ${p.hsn || '0000'} | GST: ${p.gstPercent || 0}%</span>
           </div>
-          <span class="text-xs font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg">
+          <span class="text-xs font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg whitespace-nowrap">
             ₹${p.rate}/${p.unit}
           </span>
         </div>
         <div class="mt-2 flex items-center justify-between text-[11px] pt-1 border-t border-slate-100">
-          <span class="text-slate-500">${currentLang === 'en' ? 'Stock:' : 'स्टॉक:'} <b>${p.stock} ${p.unit}</b></span>
-          <span class="text-emerald-600 font-bold hover:underline">+ जोड़ें</span>
+          <span class="text-slate-500">${currentLang === 'en' ? 'Stock:' : 'स्टॉक:'} <b>${p.stock || 0} ${p.unit}</b></span>
+          <span class="text-emerald-600 font-bold hover:underline">+ कार्ट में जोड़ें</span>
         </div>
       </div>
     `;
@@ -2764,6 +2943,663 @@ function exportCollectionsToExcel() {
   link.click();
 }
 
+// ----------------------------------------------------
+// PUBLIC CUSTOMER / FARMER PASSBOOK (NO BUSINESS REGISTRATION)
+// ----------------------------------------------------
+function searchPublicCustomerPassbook() {
+  const phoneInput = document.getElementById('public-search-phone');
+  const resultsDiv = document.getElementById('public-passbook-results');
+  if (!phoneInput || !resultsDiv) return;
+
+  const phone = phoneInput.value.trim().replace(/\D/g, '');
+  if (phone.length !== 10) {
+    alert("कृपया 10 अंकों का सही मोबाइल नंबर दर्ज करें!");
+    return;
+  }
+
+  const farmer = (appData.farmers || []).find(f => f.phone === phone);
+  const customer = (appData.customers || []).find(c => c.phone === phone);
+
+  if (!farmer && !customer) {
+    resultsDiv.innerHTML = `
+      <div class="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-center text-xs text-amber-900">
+        <span class="text-2xl block mb-1">⚠️</span>
+        <b>मोबाइल नंबर +91-${phone} का कोई रिकॉर्ड नहीं मिला!</b>
+        <p class="mt-1 text-slate-500">कृपया अपने डेयरी संचालक से अपना मोबाइल नंबर जुड़वाएं।</p>
+      </div>
+    `;
+    resultsDiv.classList.remove('hidden');
+    return;
+  }
+
+  const farmerCollections = farmer ? (appData.collections || []).filter(c => c.farmerId === farmer.id || c.farmerName === farmer.name) : [];
+  const farmerTotalLiters = farmerCollections.reduce((sum, c) => sum + (c.liters || 0), 0);
+  const farmerTotalAmount = farmerCollections.reduce((sum, c) => sum + (c.totalAmount || 0), 0);
+
+  const customerInvoices = customer ? (appData.invoices || []).filter(inv => inv.customerPhone === phone || inv.customerName === customer.name) : [];
+  const customerTotalBill = customerInvoices.reduce((sum, inv) => sum + (inv.grandTotal || 0), 0);
+  const customerTotalPaid = customerInvoices.reduce((sum, inv) => sum + (inv.paidAmount || 0), 0);
+  const customerDue = customer ? (customer.balance || 0) : (farmer ? (farmer.advance || 0) : 0);
+
+  const displayName = (farmer ? farmer.name : '') + (farmer && customer ? ' / ' : '') + (customer ? customer.name : '');
+  const village = (farmer ? farmer.village : '') || (customer ? customer.address : '') || 'स्थानीय';
+
+  let html = `
+    <div class="dairy-card p-4 bg-slate-50 border border-emerald-200 rounded-2xl space-y-3">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+            ${farmer ? '👨‍🌾 किसान आपूर्तिकर्ता' : '🥛 ग्राहक खाता'}
+          </span>
+          <h4 class="font-black text-slate-900 text-sm mt-1">${displayName}</h4>
+          <p class="text-[11px] text-slate-500">📍 ${village} | 📞 +91-${phone}</p>
+        </div>
+        <div class="text-right">
+          <span class="text-[10px] text-slate-400 block uppercase font-bold">${farmer ? 'अग्रिम/लोन' : 'बकाया'}</span>
+          <span class="text-base font-black ${customerDue > 0 ? 'text-red-600' : 'text-emerald-700'}">
+            ₹${customerDue.toFixed(2)}
+          </span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 text-center text-xs">
+        <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-[10px] text-slate-400 block">${farmer ? 'कुल दूध दिया' : 'कुल खरीदारी'}</span>
+          <b class="text-slate-800">${farmer ? farmerTotalLiters.toFixed(1) + ' L' : '₹' + customerTotalBill.toFixed(2)}</b>
+        </div>
+        <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
+          <span class="text-[10px] text-slate-400 block">${farmer ? 'कुल दूध मूल्य' : 'कुल जमा राशि'}</span>
+          <b class="text-emerald-700">₹${(farmer ? farmerTotalAmount : customerTotalPaid).toFixed(2)}</b>
+        </div>
+      </div>
+  `;
+
+  if (farmerCollections.length > 0) {
+    html += `
+      <div class="pt-2">
+        <h5 class="font-bold text-[11px] text-slate-700 mb-1">हालिया दूध संकलन पर्चियां:</h5>
+        <div class="max-h-40 overflow-y-auto border rounded-xl bg-white text-[10px]">
+          <table class="w-full text-left divide-y divide-slate-100">
+            <thead class="bg-slate-100 font-bold text-slate-600">
+              <tr>
+                <th class="p-1.5">तारीख/शिफ्ट</th>
+                <th class="p-1.5 text-right">लीटर</th>
+                <th class="p-1.5 text-right">फैट</th>
+                <th class="p-1.5 text-right">रकम</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              ${farmerCollections.slice(0, 8).map(c => `
+                <tr>
+                  <td class="p-1.5">${c.date} (${c.shift === 'morning' ? 'सुबह' : 'शाम'})</td>
+                  <td class="p-1.5 text-right font-bold">${c.liters} L</td>
+                  <td class="p-1.5 text-right">${c.fat}%</td>
+                  <td class="p-1.5 text-right font-black text-emerald-700">₹${c.totalAmount.toFixed(2)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  const waText = encodeURIComponent(
+    `*डेयरी हिसाब पर्ची*\n` +
+    `नाम: ${displayName}\n` +
+    `मोबाइल: ${phone}\n` +
+    `कुल हिसाब: ₹${(farmer ? farmerTotalAmount : customerTotalBill).toFixed(2)}\n` +
+    `बकाया/शेष: ₹${customerDue.toFixed(2)}\n` +
+    `तारीख: ${new Date().toLocaleDateString('hi-IN')}`
+  );
+
+  html += `
+      <div class="pt-2">
+        <a href="https://api.whatsapp.com/send?phone=91${phone}&text=${waText}" target="_blank" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow">
+          <span>📲</span>
+          <span>WhatsApp पर अपनी पर्ची मंगवाएं</span>
+        </a>
+      </div>
+    </div>
+  `;
+
+  resultsDiv.innerHTML = html;
+  resultsDiv.classList.remove('hidden');
+}
+
+// ----------------------------------------------------
+// CUSTOM ITEMS (DAIRY PRODUCTS & EQUIPMENT)
+// ----------------------------------------------------
+function openAddCustomItemModal() {
+  const modal = document.getElementById('add-custom-item-modal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeAddCustomItemModal() {
+  const modal = document.getElementById('add-custom-item-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function handleAddCustomItem(e) {
+  if (e) e.preventDefault();
+  const name = document.getElementById('custom-item-name').value.trim();
+  const category = document.getElementById('custom-item-category').value;
+  const unit = document.getElementById('custom-item-unit').value.trim();
+  const rate = parseFloat(document.getElementById('custom-item-rate').value) || 0;
+  const hsn = document.getElementById('custom-item-hsn').value.trim() || '0000';
+  const gstPercent = parseFloat(document.getElementById('custom-item-gst').value) || 0;
+  const stock = parseFloat(document.getElementById('custom-item-stock').value) || 10;
+
+  if (!name || rate <= 0) {
+    alert("कृपया सामान का नाम और सही कीमत भरें!");
+    return;
+  }
+
+  const newItem = {
+    id: "ITEM-" + Date.now(),
+    name: name,
+    nameEn: name,
+    category: category,
+    unit: unit,
+    rate: rate,
+    hsn: hsn,
+    gstPercent: gstPercent,
+    stock: stock
+  };
+
+  appData.products.push(newItem);
+  saveData();
+  renderProductCards();
+  closeAddCustomItemModal();
+  document.getElementById('add-custom-item-form').reset();
+  alert(`✅ "${name}" सफलतापूर्वक जोड़ दिया गया है!`);
+}
+
+// ----------------------------------------------------
+// TAB: CATTLE & FARM MANAGEMENT (पशु, चारा व डॉक्टर खर्च)
+// ----------------------------------------------------
+function renderCattleFarmTab() {
+  const summary = appData.cattleSummary || {
+    totalBuffaloes: 0,
+    milkingBuffaloes: 0,
+    dryBuffaloes: 0,
+    totalCows: 0,
+    milkingCows: 0,
+    dryCows: 0,
+    totalCalves: 0,
+    dailyMilkOutput: 0
+  };
+
+  const feed = appData.feedConsumption || {
+    dryFodderQty: 60, dryFodderRate: 8,
+    greenFodderQty: 100, greenFodderRate: 3,
+    concentrateQty: 30, concentrateRate: 32
+  };
+
+  const elBuf = document.getElementById('farm-buf-count');
+  const elCow = document.getElementById('farm-cow-count');
+  const elCalf = document.getElementById('farm-calf-count');
+  const elMilk = document.getElementById('farm-milk-output');
+
+  if (elBuf) elBuf.innerText = `${summary.totalBuffaloes} (दुधारू: ${summary.milkingBuffaloes || 0})`;
+  if (elCow) elCow.innerText = `${summary.totalCows} (दुधारू: ${summary.milkingCows || 0})`;
+  if (elCalf) elCalf.innerText = `${summary.totalCalves || 0}`;
+  if (elMilk) elMilk.innerText = `${summary.dailyMilkOutput || 0} L / दिन`;
+
+  const dryCost = (feed.dryFodderQty || 0) * (feed.dryFodderRate || 0);
+  const greenCost = (feed.greenFodderQty || 0) * (feed.greenFodderRate || 0);
+  const concentrateCost = (feed.concentrateQty || 0) * (feed.concentrateRate || 0);
+  const totalDailyFeedCost = dryCost + greenCost + concentrateCost;
+  const totalMonthlyFeedCost = totalDailyFeedCost * 30;
+
+  const totalCattleCount = (summary.totalBuffaloes || 0) + (summary.totalCows || 0);
+  const costPerAnimal = totalCattleCount > 0 ? (totalDailyFeedCost / totalCattleCount) : 0;
+
+  const elDailyFeed = document.getElementById('farm-daily-feed-cost');
+  const elMonthlyFeed = document.getElementById('farm-monthly-feed-cost');
+  const elCostPerAnimal = document.getElementById('farm-feed-per-animal');
+
+  if (elDailyFeed) elDailyFeed.innerText = `₹${totalDailyFeedCost.toFixed(2)}`;
+  if (elMonthlyFeed) elMonthlyFeed.innerText = `₹${totalMonthlyFeedCost.toFixed(2)}`;
+  if (elCostPerAnimal) elCostPerAnimal.innerText = `₹${costPerAnimal.toFixed(2)} / पशु`;
+
+  const inDryQty = document.getElementById('feed-dry-qty');
+  const inDryRate = document.getElementById('feed-dry-rate');
+  const inGreenQty = document.getElementById('feed-green-qty');
+  const inGreenRate = document.getElementById('feed-green-rate');
+  const inConcQty = document.getElementById('feed-conc-qty');
+  const inConcRate = document.getElementById('feed-conc-rate');
+
+  if (inDryQty) inDryQty.value = feed.dryFodderQty || '';
+  if (inDryRate) inDryRate.value = feed.dryFodderRate || '';
+  if (inGreenQty) inGreenQty.value = feed.greenFodderQty || '';
+  if (inGreenRate) inGreenRate.value = feed.greenFodderRate || '';
+  if (inConcQty) inConcQty.value = feed.concentrateQty || '';
+  if (inConcRate) inConcRate.value = feed.concentrateRate || '';
+
+  renderVetExpensesTable();
+  renderCattleListTable();
+}
+
+function renderVetExpensesTable() {
+  const tbody = document.getElementById('vet-expenses-body');
+  if (!tbody) return;
+
+  const expenses = appData.vetExpenses || [];
+  if (expenses.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-slate-400">कोई डॉक्टर खर्च दर्ज नहीं है।</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = expenses.map(exp => `
+    <tr class="hover:bg-slate-50 transition">
+      <td class="py-2.5 px-3 font-medium text-slate-800">${exp.date}</td>
+      <td class="py-2.5 px-3 font-bold text-slate-900">${exp.animalTag}</td>
+      <td class="py-2.5 px-3 text-slate-700">${exp.reason}</td>
+      <td class="py-2.5 px-3 font-medium text-slate-800">${exp.doctorName}</td>
+      <td class="py-2.5 px-3 text-right font-black text-red-600">₹${exp.amount.toFixed(2)}</td>
+      <td class="py-2.5 px-3 text-center">
+        <button onclick="deleteVetExpense('${exp.id}')" class="text-slate-400 hover:text-red-600 text-xs font-bold" title="हटाएं">✕</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderCattleListTable() {
+  const tbody = document.getElementById('cattle-list-body');
+  if (!tbody) return;
+
+  const list = appData.cattleList || [];
+  if (list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-slate-400">कोई पशु दर्ज नहीं है। "+ नया पशु जोड़ें" पर क्लिक करें।</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(c => `
+    <tr class="hover:bg-slate-50 transition">
+      <td class="py-2.5 px-3 font-black text-emerald-800">${c.tagNo}</td>
+      <td class="py-2.5 px-3 font-bold text-slate-900">${c.name}</td>
+      <td class="py-2.5 px-3 text-slate-600">${c.type === 'buffalo' ? '🐃 भैंस' : '🐄 गाय'} (${c.breed})</td>
+      <td class="py-2.5 px-3 font-extrabold text-slate-800">${c.dailyMilk > 0 ? c.dailyMilk + ' L/दिन' : 'सूखी'}</td>
+      <td class="py-2.5 px-3">
+        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${c.status === 'milking' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+          ${c.status === 'milking' ? 'दुधारू' : (c.status === 'pregnant' ? 'गाभिन' : 'सूखी')}
+        </span>
+      </td>
+      <td class="py-2.5 px-3 text-slate-500">${c.age || '-'}</td>
+      <td class="py-2.5 px-3 text-center">
+        <button onclick="deleteCattle('${c.id}')" class="text-slate-400 hover:text-red-600 text-xs font-bold" title="हटाएं">✕</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function handleSaveFeedSettings(e) {
+  if (e) e.preventDefault();
+  appData.feedConsumption = {
+    dryFodderQty: parseFloat(document.getElementById('feed-dry-qty').value) || 0,
+    dryFodderRate: parseFloat(document.getElementById('feed-dry-rate').value) || 0,
+    greenFodderQty: parseFloat(document.getElementById('feed-green-qty').value) || 0,
+    greenFodderRate: parseFloat(document.getElementById('feed-green-rate').value) || 0,
+    concentrateQty: parseFloat(document.getElementById('feed-conc-qty').value) || 0,
+    concentrateRate: parseFloat(document.getElementById('feed-conc-rate').value) || 0
+  };
+  saveData();
+  renderCattleFarmTab();
+  alert("✅ दैनिक चारा खपत व दर सेटिंग्स सुरक्षित हो गई!");
+}
+
+function handleAddVetExpense(e) {
+  if (e) e.preventDefault();
+  const animalTag = document.getElementById('vet-exp-tag').value.trim();
+  const reason = document.getElementById('vet-exp-reason').value.trim();
+  const doctorName = document.getElementById('vet-exp-doctor').value.trim();
+  const amount = parseFloat(document.getElementById('vet-exp-amount').value) || 0;
+  const date = document.getElementById('vet-exp-date').value || new Date().toISOString().split('T')[0];
+
+  if (!animalTag || amount <= 0) {
+    alert("कृपया पशु का नाम/टैग और खर्च राशि दर्ज करें!");
+    return;
+  }
+
+  if (!appData.vetExpenses) appData.vetExpenses = [];
+  appData.vetExpenses.unshift({
+    id: "VET-" + Date.now(),
+    date,
+    animalTag,
+    reason,
+    doctorName,
+    amount
+  });
+
+  saveData();
+  renderVetExpensesTable();
+  document.getElementById('vet-expense-form').reset();
+  alert("✅ डॉक्टर / चिकित्सा खर्च सुरक्षित हो गया!");
+}
+
+function deleteVetExpense(id) {
+  if (confirm("क्या आप यह डॉक्टर खर्च हटाना चाहते हैं?")) {
+    appData.vetExpenses = appData.vetExpenses.filter(e => e.id !== id);
+    saveData();
+    renderVetExpensesTable();
+  }
+}
+
+function openAddAnimalModal() {
+  const modal = document.getElementById('add-animal-modal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeAddAnimalModal() {
+  const modal = document.getElementById('add-animal-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function handleAddAnimal(e) {
+  if (e) e.preventDefault();
+  const tagNo = document.getElementById('add-animal-tag').value.trim();
+  const name = document.getElementById('add-animal-name').value.trim();
+  const type = document.getElementById('add-animal-type').value;
+  const breed = document.getElementById('add-animal-breed').value.trim();
+  const status = document.getElementById('add-animal-status').value;
+  const dailyMilk = parseFloat(document.getElementById('add-animal-milk').value) || 0;
+  const age = document.getElementById('add-animal-age').value.trim();
+
+  if (!tagNo || !name) {
+    alert("कृपया टैग नंबर और नाम अवश्य लिखें!");
+    return;
+  }
+
+  if (!appData.cattleList) appData.cattleList = [];
+  appData.cattleList.push({
+    id: "CAT-" + Date.now(),
+    tagNo,
+    name,
+    type,
+    breed,
+    status,
+    dailyMilk,
+    age
+  });
+
+  if (!appData.cattleSummary) appData.cattleSummary = { totalBuffaloes: 0, totalCows: 0, milkingBuffaloes: 0, milkingCows: 0, totalCalves: 0, dailyMilkOutput: 0 };
+  if (type === 'buffalo') {
+    appData.cattleSummary.totalBuffaloes = (appData.cattleSummary.totalBuffaloes || 0) + 1;
+    if (status === 'milking') appData.cattleSummary.milkingBuffaloes = (appData.cattleSummary.milkingBuffaloes || 0) + 1;
+  } else {
+    appData.cattleSummary.totalCows = (appData.cattleSummary.totalCows || 0) + 1;
+    if (status === 'milking') appData.cattleSummary.milkingCows = (appData.cattleSummary.milkingCows || 0) + 1;
+  }
+  appData.cattleSummary.dailyMilkOutput = (appData.cattleSummary.dailyMilkOutput || 0) + dailyMilk;
+
+  saveData();
+  renderCattleFarmTab();
+  closeAddAnimalModal();
+  document.getElementById('add-animal-form').reset();
+  alert(`✅ पशु "${name} (${tagNo})" सफलतापूर्वक जोड़ दिया गया!`);
+}
+
+function deleteCattle(id) {
+  if (confirm("क्या आप इस पशु को रिकॉर्ड से हटाना चाहते हैं?")) {
+    appData.cattleList = appData.cattleList.filter(c => c.id !== id);
+    saveData();
+    renderCattleFarmTab();
+  }
+}
+
+// ----------------------------------------------------
+// TAB: DIRECTORY (DOCTORS & SHOPS)
+// ----------------------------------------------------
+let currentDirectoryTab = 'doctors';
+
+function switchDirectoryTab(tab) {
+  currentDirectoryTab = tab;
+  const btnDocs = document.getElementById('dir-tab-docs-btn');
+  const btnShops = document.getElementById('dir-tab-shops-btn');
+  const secDocs = document.getElementById('dir-section-doctors');
+  const secShops = document.getElementById('dir-section-shops');
+
+  if (tab === 'doctors') {
+    if (btnDocs) btnDocs.className = "flex-1 py-2 text-center font-bold text-xs rounded-xl bg-white text-emerald-800 shadow-sm border border-emerald-100 transition";
+    if (btnShops) btnShops.className = "flex-1 py-2 text-center font-bold text-xs rounded-xl text-slate-500 hover:text-slate-800 transition";
+    if (secDocs) secDocs.classList.remove('hidden');
+    if (secShops) secShops.classList.add('hidden');
+  } else {
+    if (btnShops) btnShops.className = "flex-1 py-2 text-center font-bold text-xs rounded-xl bg-white text-emerald-800 shadow-sm border border-emerald-100 transition";
+    if (btnDocs) btnDocs.className = "flex-1 py-2 text-center font-bold text-xs rounded-xl text-slate-500 hover:text-slate-800 transition";
+    if (secShops) secShops.classList.remove('hidden');
+    if (secDocs) secDocs.classList.add('hidden');
+  }
+}
+
+function renderDirectoryTab() {
+  renderDoctorsGrid();
+  renderShopsGrid();
+}
+
+function renderDoctorsGrid() {
+  const container = document.getElementById('doctors-grid');
+  if (!container) return;
+
+  const doctors = appData.doctors || [];
+  container.innerHTML = doctors.map(doc => `
+    <div class="dairy-card p-4 bg-white border border-slate-200 hover:border-emerald-400 hover:shadow-md transition flex flex-col justify-between">
+      <div>
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="flex items-center space-x-1.5">
+              <span class="text-lg">🩺</span>
+              <h4 class="font-black text-slate-900 text-sm leading-tight">${doc.name}</h4>
+            </div>
+            <p class="text-[11px] text-emerald-800 font-bold mt-0.5">${doc.degree}</p>
+          </div>
+          <div class="text-right">
+            <span class="inline-flex items-center bg-amber-50 text-amber-900 text-[11px] font-black px-2 py-0.5 rounded-lg border border-amber-200">
+              ⭐ ${doc.rating}
+            </span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">(${doc.reviewsCount || 20} रिव्यू)</span>
+          </div>
+        </div>
+
+        <div class="mt-2.5 space-y-1 text-xs text-slate-600">
+          <p><b>विशेषज्ञता:</b> ${doc.specialty}</p>
+          <p><b>अस्पताल/क्लिनिक:</b> ${doc.clinic}</p>
+          <p class="text-[11px] text-slate-500">📍 ${doc.location}</p>
+        </div>
+
+        ${doc.isEmergency ? `
+          <div class="mt-2 inline-flex items-center space-x-1 text-[10px] font-bold text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded-md">
+            <span>🚨</span>
+            <span>24x7 आपातकालीन सेवा उपलब्ध</span>
+          </div>
+        ` : ''}
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-slate-100 grid grid-cols-2 gap-2">
+        <a href="tel:${doc.phone}" class="py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 shadow-sm">
+          <span>📞</span>
+          <span>कॉल करें</span>
+        </a>
+        <a href="https://api.whatsapp.com/send?phone=91${doc.phone}&text=नमस्ते%20डॉक्टर%20साहब,%20मुझे%20पशु%20इलाज%20हेतु%20सलाह%20चाहिए।" target="_blank" class="py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1">
+          <span>💬</span>
+          <span>WhatsApp</span>
+        </a>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderShopsGrid() {
+  const container = document.getElementById('shops-grid');
+  if (!container) return;
+
+  const shops = appData.shops || [];
+  container.innerHTML = shops.map(shp => `
+    <div class="dairy-card p-4 bg-white border border-slate-200 hover:border-emerald-400 hover:shadow-md transition flex flex-col justify-between">
+      <div>
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="flex items-center space-x-1.5">
+              <span class="text-lg">🏪</span>
+              <h4 class="font-black text-slate-900 text-sm leading-tight">${shp.name}</h4>
+            </div>
+            <span class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded mt-1 inline-block">
+              ${shp.category}
+            </span>
+          </div>
+          <div class="text-right">
+            <span class="inline-flex items-center bg-amber-50 text-amber-900 text-[11px] font-black px-2 py-0.5 rounded-lg border border-amber-200">
+              ⭐ ${shp.rating}
+            </span>
+          </div>
+        </div>
+
+        <div class="mt-2.5 space-y-1.5 text-xs text-slate-600">
+          <div class="bg-emerald-50/60 p-2 rounded-lg border border-emerald-100 text-[11px]">
+            <b class="text-emerald-900">उपलब्ध सामान:</b>
+            <p class="text-emerald-800 mt-0.5">${shp.goods}</p>
+          </div>
+          <p class="text-[11px] text-amber-800 font-semibold">${shp.qualityBadge || 'विश्वसनीय विक्रेता'}</p>
+          <p class="text-[11px] text-slate-500">📍 ${shp.address}</p>
+          <p class="text-[11px] text-slate-500">संचालक: ${shp.owner}</p>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-slate-100 grid grid-cols-2 gap-2">
+        <a href="tel:${shp.phone}" class="py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 shadow-sm">
+          <span>📞</span>
+          <span>कॉल करें</span>
+        </a>
+        <a href="https://api.whatsapp.com/send?phone=91${shp.phone}&text=नमस्ते,%20मुझे%20डेयरी%20सामान/मशीन%20की%20जानकारी%20चाहिए।" target="_blank" class="py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1">
+          <span>💬</span>
+          <span>WhatsApp</span>
+        </a>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openAddDoctorModal() {
+  const modal = document.getElementById('add-doctor-modal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeAddDoctorModal() {
+  const modal = document.getElementById('add-doctor-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function handleAddDoctor(e) {
+  if (e) e.preventDefault();
+  const name = document.getElementById('add-doc-name').value.trim();
+  const degree = document.getElementById('add-doc-degree').value.trim();
+  const specialty = document.getElementById('add-doc-specialty').value.trim();
+  const clinic = document.getElementById('add-doc-clinic').value.trim();
+  const phone = document.getElementById('add-doc-phone').value.trim();
+  const location = document.getElementById('add-doc-location').value.trim();
+  const rating = parseFloat(document.getElementById('add-doc-rating').value) || 4.8;
+  const isEmergency = document.getElementById('add-doc-emergency').checked;
+
+  if (!name || !phone) {
+    alert("कृपया डॉक्टर का नाम और मोबाइल नंबर भरें!");
+    return;
+  }
+
+  if (!appData.doctors) appData.doctors = [];
+  appData.doctors.push({
+    id: "DOC-" + Date.now(),
+    name,
+    degree,
+    specialty,
+    clinic,
+    phone,
+    whatsapp: phone,
+    location,
+    rating,
+    reviewsCount: 1,
+    isEmergency
+  });
+
+  saveData();
+  renderDoctorsGrid();
+  closeAddDoctorModal();
+  document.getElementById('add-doctor-form').reset();
+  alert(`✅ डॉ. "${name}" को निर्देशिका में जोड़ दिया गया!`);
+}
+
+function openAddShopModal() {
+  const modal = document.getElementById('add-shop-modal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeAddShopModal() {
+  const modal = document.getElementById('add-shop-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function handleAddShop(e) {
+  if (e) e.preventDefault();
+  const name = document.getElementById('add-shop-name').value.trim();
+  const category = document.getElementById('add-shop-category').value.trim();
+  const goods = document.getElementById('add-shop-goods').value.trim();
+  const owner = document.getElementById('add-shop-owner').value.trim();
+  const phone = document.getElementById('add-shop-phone').value.trim();
+  const address = document.getElementById('add-shop-address').value.trim();
+  const rating = parseFloat(document.getElementById('add-shop-rating').value) || 4.8;
+  const qualityBadge = document.getElementById('add-shop-badge').value.trim();
+
+  if (!name || !phone) {
+    alert("कृपया दुकान का नाम और मोबाइल नंबर भरें!");
+    return;
+  }
+
+  if (!appData.shops) appData.shops = [];
+  appData.shops.push({
+    id: "SHP-" + Date.now(),
+    name,
+    category,
+    goods,
+    owner,
+    phone,
+    whatsapp: phone,
+    address,
+    rating,
+    qualityBadge
+  });
+
+  saveData();
+  renderShopsGrid();
+  closeAddShopModal();
+  document.getElementById('add-shop-form').reset();
+  alert(`✅ दुकान "${name}" को सप्लायर लिस्ट में जोड़ दिया गया!`);
+}
+
+// ----------------------------------------------------
+// GOOGLE DRIVE INTEGRATION
+// ----------------------------------------------------
+function exportToGoogleDrive() {
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+  const downloadAnchor = document.createElement('a');
+  const dateStr = new Date().toISOString().split('T')[0];
+  const fileName = `dairy_hisab_backup_${dateStr}.json`;
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", fileName);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+
+  // Open Google Drive in new tab
+  window.open('https://drive.google.com/drive/u/0/my-drive', '_blank');
+
+  alert(
+    `☁️ Google Drive बैकअप शुरू हो गया!\n\n` +
+    `1. फ़ाइल "${fileName}" डाउनलोड हो गई है।\n` +
+    `2. Google Drive एक नए टैब में खुल गया है।\n` +
+    `3. इस फाइल को Google Drive में अपलोड कर दें। आपका पूरा डेयरी डेटा हमेशा के लिए सुरक्षित रहेगा!`
+  );
+}
+
 function setupEventListeners() {
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
@@ -2789,6 +3625,27 @@ function setupEventListeners() {
 
   const farmerSearchInput = document.getElementById('farmer-search');
   if (farmerSearchInput) farmerSearchInput.addEventListener('input', renderFarmersTab);
+
+  const customItemForm = document.getElementById('add-custom-item-form');
+  if (customItemForm) customItemForm.addEventListener('submit', handleAddCustomItem);
+
+  const feedForm = document.getElementById('feed-settings-form');
+  if (feedForm) feedForm.addEventListener('submit', handleSaveFeedSettings);
+
+  const vetForm = document.getElementById('vet-expense-form');
+  if (vetForm) vetForm.addEventListener('submit', handleAddVetExpense);
+
+  const animalForm = document.getElementById('add-animal-form');
+  if (animalForm) animalForm.addEventListener('submit', handleAddAnimal);
+
+  const doctorForm = document.getElementById('add-doctor-form');
+  if (doctorForm) doctorForm.addEventListener('submit', handleAddDoctor);
+
+  const shopForm = document.getElementById('add-shop-form');
+  if (shopForm) shopForm.addEventListener('submit', handleAddShop);
+
+  const publicPassbookForm = document.getElementById('public-passbook-form');
+  if (publicPassbookForm) publicPassbookForm.addEventListener('submit', (e) => { e.preventDefault(); searchPublicCustomerPassbook(); });
 
   // Initialize OTP digit input auto-navigation & paste handler
   setupOtpInputListeners();
