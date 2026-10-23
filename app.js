@@ -511,8 +511,12 @@ const DEFAULT_DATA = {
     businessMode: "all", // 'all' | 'products' | 'milk'
     smsProvider: "direct",
     smsApiKey: "",
+    defaultUnit: "ltr", // 'ltr' | 'kg'
+    rateMode: "per_fat", // 'per_fat' | 'fat_kg'
     cowRatePerFat: 7.50,
     buffaloRatePerFat: 8.40,
+    cowFatKgRate: 750,
+    buffaloFatKgRate: 840,
     standardCowSnf: 8.5,
     standardBuffaloSnf: 9.0,
     snfBonusRate: 0.50,
@@ -2274,10 +2278,10 @@ function renderCollectionTable() {
             ${milkLabel}
           </span>
         </td>
-        <td class="px-4 py-3 font-bold text-slate-800 text-right">${parseFloat(item.liters).toFixed(1)} L</td>
+        <td class="px-4 py-3 font-bold text-slate-800 text-right">${parseFloat(item.liters).toFixed(2)} ${item.unit === 'kg' ? 'Kg' : 'L'}</td>
         <td class="px-4 py-3 text-right font-medium">${parseFloat(item.fat).toFixed(1)}%</td>
         <td class="px-4 py-3 text-right text-slate-500">${item.snf ? parseFloat(item.snf).toFixed(1) : '-'}</td>
-        <td class="px-4 py-3 text-right font-semibold text-slate-700">₹${parseFloat(item.rate).toFixed(2)}</td>
+        <td class="px-4 py-3 text-right font-semibold text-slate-700">₹${parseFloat(item.rate).toFixed(2)}${item.unit === 'kg' ? '/Kg' : '/L'}</td>
         <td class="px-4 py-3 text-right font-bold text-emerald-600">₹${parseFloat(item.totalAmount).toFixed(2)}</td>
         <td class="px-4 py-3 text-center space-x-1 whitespace-nowrap">
           <button onclick="showReceiptModal('${item.id}')" class="p-1.5 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded" title="${t('btnPrintReceipt')}">🖨️</button>
@@ -2316,6 +2320,8 @@ function handleSaveMilkEntry(e) {
   const now = new Date();
   const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+  const unit = (document.getElementById('col-unit') && document.getElementById('col-unit').value) || 'ltr';
+
   const newEntry = {
     id: `COL-${Date.now().toString().slice(-6)}`,
     date,
@@ -2324,7 +2330,9 @@ function handleSaveMilkEntry(e) {
     farmerName: farmer ? farmer.name : 'Unknown',
     farmerNameEn: farmer ? (farmer.nameEn || farmer.name) : 'Unknown',
     milkType,
+    unit,
     liters,
+    qty: liters,
     fat,
     snf,
     clr,
@@ -2418,8 +2426,8 @@ function showReceiptModal(collectionId) {
     <div class="border-t-2 border-b-2 border-black py-1.5 my-2">
       <table class="w-full text-xs">
         <tr>
-          <td class="py-0.5">${isEn ? 'Quantity (Liters):' : 'मात्रा (Liters):'}</td>
-          <td class="text-right font-bold text-sm">${parseFloat(item.liters).toFixed(2)} L</td>
+          <td class="py-0.5">${isEn ? 'Quantity:' : 'मात्रा:'}</td>
+          <td class="text-right font-bold text-sm">${parseFloat(item.liters).toFixed(2)} ${item.unit === 'kg' ? 'Kg (किलो)' : 'L (लीटर)'}</td>
         </tr>
         <tr>
           <td class="py-0.5">${isEn ? 'Fat (%):' : 'फैट (Fat %):'}</td>
@@ -2431,8 +2439,8 @@ function showReceiptModal(collectionId) {
           <td class="text-right">${parseFloat(item.snf).toFixed(1)} %</td>
         </tr>` : ''}
         <tr>
-          <td class="py-0.5">${isEn ? 'Rate (₹/L):' : 'दर (Rate):'}</td>
-          <td class="text-right font-bold">₹ ${parseFloat(item.rate).toFixed(2)} / L</td>
+          <td class="py-0.5">${isEn ? 'Rate:' : 'दर (भाव):'}</td>
+          <td class="text-right font-bold">₹ ${parseFloat(item.rate).toFixed(2)} / ${item.unit === 'kg' ? 'Kg' : 'L'}</td>
         </tr>
         <tr class="border-t border-dashed border-black pt-1">
           <td class="py-1 font-bold text-sm">${isEn ? 'Total Amount:' : 'कुल राशि:'}</td>
@@ -2481,9 +2489,9 @@ function shareOnWhatsApp(collectionId) {
 तारीख: ${item.date} (${shiftText})
 किसान: ${farmerName} (कोड: #${item.farmerId})
 दूध: ${milkTypeText}
-मात्रा: *${parseFloat(item.liters).toFixed(2)} लीटर*
+मात्रा: *${parseFloat(item.liters).toFixed(2)} ${item.unit === 'kg' ? 'किलो (Kg)' : 'लीटर (L)'}*
 फैट: *${parseFloat(item.fat).toFixed(1)}%* | SNF: ${item.snf || '-'}%
-दर: ₹${parseFloat(item.rate).toFixed(2)} प्रति लीटर
+दर: ₹${parseFloat(item.rate).toFixed(2)} / ${item.unit === 'kg' ? 'Kg' : 'लीटर'}
 -----------------------------
 💰 *कुल राशि: ₹${parseFloat(item.totalAmount).toFixed(2)}*
 -----------------------------
@@ -2499,12 +2507,36 @@ ${appData.settings.receiptFooter}`;
   window.open(url, '_blank');
 }
 
-function calculateRate(milkType, fat, snf) {
+function calculateRate(milkType, fat, snf, unit = 'ltr') {
   fat = parseFloat(fat) || 0;
   snf = parseFloat(snf) || 0;
-  let baseRatePerFat = milkType === 'cow' ? appData.settings.cowRatePerFat : appData.settings.buffaloRatePerFat;
+  let rate = 0;
+
+  const rateMode = (appData.settings && appData.settings.rateMode) || 'per_fat';
+
+  if (rateMode === 'fat_kg') {
+    // Amul / Federation Fat-Kg rate system (e.g. ₹ 750 or ₹ 840 per Kg pure fat)
+    const fatKgRate = milkType === 'cow' 
+      ? (appData.settings.cowFatKgRate || 750) 
+      : (appData.settings.buffaloFatKgRate || 840);
+
+    // 1 Kg milk with X% fat has (X / 100) Kg pure fat
+    let ratePerKg = (fat / 100) * fatKgRate;
+
+    // If measured in Liters, 1 Liter weighs approx 1.03 Kg
+    if (unit === 'ltr') {
+      rate = ratePerKg * 1.03;
+    } else {
+      rate = ratePerKg;
+    }
+  } else {
+    // Standard fat multiplier rate (₹ per 1% fat, e.g. 7.50 / 8.40)
+    let baseRatePerFat = milkType === 'cow' ? appData.settings.cowRatePerFat : appData.settings.buffaloRatePerFat;
+    rate = fat * baseRatePerFat;
+  }
+
+  // SNF bonus or deduction
   let standardSnf = milkType === 'cow' ? appData.settings.standardCowSnf : appData.settings.standardBuffaloSnf;
-  let rate = fat * baseRatePerFat;
   if (snf > 0 && appData.settings.snfBonusRate) {
     let diff = (snf - standardSnf);
     let bonus = (diff * 10) * (appData.settings.snfBonusRate / 10);
@@ -2521,6 +2553,41 @@ function calculateSnfFromClr(clr, fat) {
   return parseFloat(snf.toFixed(2));
 }
 
+function setCollectionUnit(unit) {
+  const hiddenInput = document.getElementById('col-unit');
+  const btnLtr = document.getElementById('col-unit-ltr-btn');
+  const btnKg = document.getElementById('col-unit-kg-btn');
+  const qtyLabel = document.getElementById('col-qty-label');
+  const rateLabel = document.getElementById('col-rate-label');
+  const litersInput = document.getElementById('col-liters');
+
+  if (hiddenInput) hiddenInput.value = unit;
+
+  if (unit === 'kg') {
+    if (btnKg) btnKg.className = "px-2 py-0.5 rounded bg-emerald-600 text-white shadow-sm transition font-bold";
+    if (btnLtr) btnLtr.className = "px-2 py-0.5 rounded text-slate-600 hover:text-slate-900 transition font-medium";
+    if (qtyLabel) qtyLabel.innerText = "मात्रा किलो (Weight in Kg) *";
+    if (rateLabel) rateLabel.innerText = "दर Rate (₹/Kg)";
+    if (litersInput) litersInput.placeholder = "0.00 Kg";
+  } else {
+    if (btnLtr) btnLtr.className = "px-2 py-0.5 rounded bg-emerald-600 text-white shadow-sm transition font-bold";
+    if (btnKg) btnKg.className = "px-2 py-0.5 rounded text-slate-600 hover:text-slate-900 transition font-medium";
+    if (qtyLabel) qtyLabel.innerText = "मात्रा लीटर (Liters) *";
+    if (rateLabel) rateLabel.innerText = "दर Rate (₹/L)";
+    if (litersInput) litersInput.placeholder = "0.00 L";
+  }
+
+  const badge = document.getElementById('col-rate-mode-badge');
+  if (badge) {
+    const isFatKg = appData.settings && appData.settings.rateMode === 'fat_kg';
+    badge.innerText = isFatKg ? 'किलो फैट' : (unit === 'kg' ? '₹/Kg' : '₹/L');
+  }
+
+  // Trigger recalculation with new unit
+  const updateFn = window._updateMilkCalculations;
+  if (typeof updateFn === 'function') updateFn();
+}
+
 function initAutoCalculators() {
   const fatInput = document.getElementById('col-fat');
   const snfInput = document.getElementById('col-snf');
@@ -2530,12 +2597,14 @@ function initAutoCalculators() {
   const rateInput = document.getElementById('col-rate');
   const amountInput = document.getElementById('col-amount');
   const farmerSelect = document.getElementById('col-farmer-id');
+  const convertHint = document.getElementById('col-unit-convert-hint');
 
   function updateCalculations() {
     if (!fatInput || !rateInput) return;
     let fat = parseFloat(fatInput.value) || 0;
     let clr = parseFloat(clrInput.value) || 0;
     let milkType = milkTypeSelect.value;
+    let unit = (document.getElementById('col-unit') && document.getElementById('col-unit').value) || 'ltr';
     
     if (clr > 0 && fat > 0) {
       let calculatedSnf = calculateSnfFromClr(clr, fat);
@@ -2543,11 +2612,29 @@ function initAutoCalculators() {
     }
     
     let snf = parseFloat(snfInput.value) || (milkType === 'cow' ? 8.5 : 9.0);
-    let calculatedRate = calculateRate(milkType, fat, snf);
+    let calculatedRate = calculateRate(milkType, fat, snf, unit);
     rateInput.value = calculatedRate;
-    let liters = parseFloat(litersInput.value) || 0;
-    amountInput.value = (liters * calculatedRate).toFixed(2);
+    let qty = parseFloat(litersInput.value) || 0;
+    amountInput.value = (qty * calculatedRate).toFixed(2);
+
+    if (convertHint) {
+      if (qty > 0) {
+        if (unit === 'kg') {
+          let eqLtr = (qty / 1.03).toFixed(2);
+          convertHint.innerText = `≈ ${eqLtr} लीटर दूध (Equivalent Liters)`;
+          convertHint.classList.remove('hidden');
+        } else {
+          let eqKg = (qty * 1.03).toFixed(2);
+          convertHint.innerText = `≈ ${eqKg} किलो दूध (Weight in Kg)`;
+          convertHint.classList.remove('hidden');
+        }
+      } else {
+        convertHint.classList.add('hidden');
+      }
+    }
   }
+
+  window._updateMilkCalculations = updateCalculations;
 
   [fatInput, clrInput, snfInput, milkTypeSelect, litersInput].forEach(el => {
     if (el) {
@@ -2901,8 +2988,22 @@ function renderRateChartTab() {
   if (providerEl) providerEl.value = appData.settings.smsProvider || 'direct';
   if (apiKeyEl) apiKeyEl.value = appData.settings.smsApiKey || '';
 
+  const unitEl = document.getElementById('set-milk-unit');
+  const rateModeEl = document.getElementById('set-rate-mode');
+  if (unitEl) unitEl.value = appData.settings.defaultUnit || 'ltr';
+  if (rateModeEl) {
+    rateModeEl.value = appData.settings.rateMode || 'per_fat';
+    toggleRateModeSettings(rateModeEl.value);
+  }
+
   document.getElementById('set-cow-rate-fat').value = appData.settings.cowRatePerFat || 7.5;
   document.getElementById('set-buf-rate-fat').value = appData.settings.buffaloRatePerFat || 8.4;
+
+  const cowFatKgEl = document.getElementById('set-cow-fat-kg');
+  const bufFatKgEl = document.getElementById('set-buf-fat-kg');
+  if (cowFatKgEl) cowFatKgEl.value = appData.settings.cowFatKgRate || 750;
+  if (bufFatKgEl) bufFatKgEl.value = appData.settings.buffaloFatKgRate || 840;
+
   document.getElementById('set-snf-bonus').value = appData.settings.snfBonusRate || 0.5;
   document.getElementById('set-receipt-footer').value = appData.settings.receiptFooter || '';
 }
@@ -2923,9 +3024,25 @@ function handleSaveSettings(e) {
   if (providerEl) appData.settings.smsProvider = providerEl.value;
   if (apiKeyEl) appData.settings.smsApiKey = apiKeyEl.value.trim();
 
+  const unitEl = document.getElementById('set-milk-unit');
+  const rateModeEl = document.getElementById('set-rate-mode');
+  if (unitEl) appData.settings.defaultUnit = unitEl.value;
+  if (rateModeEl) appData.settings.rateMode = rateModeEl.value;
+
   appData.settings.cowRatePerFat = parseFloat(document.getElementById('set-cow-rate-fat').value) || 7.5;
   appData.settings.buffaloRatePerFat = parseFloat(document.getElementById('set-buf-rate-fat').value) || 8.4;
+
+  const cowFatKgEl = document.getElementById('set-cow-fat-kg');
+  const bufFatKgEl = document.getElementById('set-buf-fat-kg');
+  if (cowFatKgEl) appData.settings.cowFatKgRate = parseFloat(cowFatKgEl.value) || 750;
+  if (bufFatKgEl) appData.settings.buffaloFatKgRate = parseFloat(bufFatKgEl.value) || 840;
+
   appData.settings.snfBonusRate = parseFloat(document.getElementById('set-snf-bonus').value) || 0.5;
+
+  // Apply default unit to active collection form
+  if (appData.settings.defaultUnit) {
+    setCollectionUnit(appData.settings.defaultUnit);
+  }
   appData.settings.receiptFooter = document.getElementById('set-receipt-footer').value.trim();
 
   // If user is logged in, sync current user profile & user directory
@@ -4138,4 +4255,17 @@ function handleUpdateDoctorProfile(e) {
   renderDoctorPortalTab();
   renderDoctorsGrid();
   alert("डॉक्टर प्रोफाइल सफलतापूर्वक अपडेट हो गई!");
+}
+
+
+function toggleRateModeSettings(mode) {
+  const perFatBox = document.getElementById('rate-mode-per-fat-box');
+  const fatKgBox = document.getElementById('rate-mode-fat-kg-box');
+  if (mode === 'fat_kg') {
+    if (fatKgBox) fatKgBox.classList.remove('hidden');
+    if (perFatBox) perFatBox.classList.add('hidden');
+  } else {
+    if (perFatBox) perFatBox.classList.remove('hidden');
+    if (fatKgBox) fatKgBox.classList.add('hidden');
+  }
 }
