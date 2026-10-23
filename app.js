@@ -2366,6 +2366,9 @@ function handleSaveMilkEntry(e) {
   appData.collections.push(newEntry);
   saveData();
 
+  isRateManuallyEdited = false;
+  const resetBtn = document.getElementById('btn-reset-auto-rate');
+  if (resetBtn) resetBtn.classList.add('hidden');
   document.getElementById('col-liters').value = '';
   document.getElementById('col-fat').value = '';
   document.getElementById('col-clr').value = '';
@@ -2616,6 +2619,32 @@ function setCollectionUnit(unit) {
   if (typeof updateFn === 'function') updateFn();
 }
 
+let isRateManuallyEdited = false;
+
+function resetRateToAuto() {
+  isRateManuallyEdited = false;
+  const resetBtn = document.getElementById('btn-reset-auto-rate');
+  if (resetBtn) resetBtn.classList.add('hidden');
+  const badge = document.getElementById('col-rate-mode-badge');
+  const pricingMode = (document.getElementById('col-pricing-mode') && document.getElementById('col-pricing-mode').value) || 'fat';
+
+  if (badge) {
+    if (pricingMode === 'fixed') {
+      badge.innerText = "फिक्स भाव";
+      badge.className = "text-[9px] font-bold text-purple-800 bg-purple-100 px-1.5 py-0.2 rounded";
+    } else {
+      badge.innerText = "फैट दर";
+      badge.className = "text-[9px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.2 rounded";
+    }
+  }
+
+  const rateInput = document.getElementById('col-rate');
+  if (rateInput) rateInput.value = '';
+
+  const updateFn = window._updateMilkCalculations;
+  if (typeof updateFn === 'function') updateFn();
+}
+
 function setCollectionPricingMode(mode) {
   const hiddenInput = document.getElementById('col-pricing-mode');
   const btnFat = document.getElementById('col-mode-fat-btn');
@@ -2717,16 +2746,14 @@ function initAutoCalculators() {
     const pricingMode = (document.getElementById('col-pricing-mode') && document.getElementById('col-pricing-mode').value) || 'fat';
 
     let rate = 0;
-    if (pricingMode === 'fixed') {
-      // In fixed mode, use either the manually entered rate or default from settings
-      if (!rateInput.value) {
-        rate = milkType === 'cow'
-          ? (appData.settings && appData.settings.cowFixedRate ? appData.settings.cowFixedRate : 45)
-          : (appData.settings && appData.settings.buffaloFixedRate ? appData.settings.buffaloFixedRate : 65);
-        rateInput.value = rate;
-      } else {
-        rate = parseFloat(rateInput.value) || 0;
-      }
+    if (isRateManuallyEdited && rateInput.value !== '') {
+      // Keep user's manually entered rate!
+      rate = parseFloat(rateInput.value) || 0;
+    } else if (pricingMode === 'fixed') {
+      rate = milkType === 'cow'
+        ? (appData.settings && appData.settings.cowFixedRate ? appData.settings.cowFixedRate : 45)
+        : (appData.settings && appData.settings.buffaloFixedRate ? appData.settings.buffaloFixedRate : 65);
+      rateInput.value = rate;
     } else {
       let snf = parseFloat(snfInput.value) || (milkType === 'cow' ? 8.5 : 9.0);
       rate = calculateRate(milkType, fat, snf, unit);
@@ -2755,12 +2782,28 @@ function initAutoCalculators() {
 
   window._updateMilkCalculations = updateCalculations;
 
-  [fatInput, clrInput, snfInput, milkTypeSelect, litersInput, rateInput].forEach(el => {
+  [fatInput, clrInput, snfInput, milkTypeSelect, litersInput].forEach(el => {
     if (el) {
       el.addEventListener('input', updateCalculations);
       el.addEventListener('change', updateCalculations);
     }
   });
+
+  if (rateInput) {
+    rateInput.addEventListener('input', () => {
+      isRateManuallyEdited = true;
+      const resetBtn = document.getElementById('btn-reset-auto-rate');
+      if (resetBtn) resetBtn.classList.remove('hidden');
+      const badge = document.getElementById('col-rate-mode-badge');
+      if (badge) {
+        badge.innerText = "✏️ खुद का भाव";
+        badge.className = "text-[9px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.2 rounded border border-amber-300";
+      }
+      let qty = parseFloat(litersInput.value) || 0;
+      let manualRate = parseFloat(rateInput.value) || 0;
+      amountInput.value = (qty * manualRate).toFixed(2);
+    });
+  }
 
   if (farmerSelect) {
     farmerSelect.addEventListener('change', (e) => {
