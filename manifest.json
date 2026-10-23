@@ -1,0 +1,16 @@
+{
+  "name": "Dairy Hisab - डेयरी हिसाब",
+  "short_name": "DairyHisab",
+  "description": "दूध संकलन, डेयरी उत्पाद (पनीर, घी, दही), GST बिलिंग एवं ग्राहक हिसाब-किताब",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#064e3b",
+  "theme_color": "#059669",
+  "icons": [
+    {
+      "src": "./public/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

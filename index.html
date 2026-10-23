@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Dairy Hisab (डेयरी हिसाब) - दूध व डेयरी उत्पाद GST बिलिंग</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./public/favicon.svg">
+  <meta name="theme-color" content="#059669">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            emerald: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 pb-20 md:pb-8 flex flex-col">
+
+  <!-- ======================================================== -->
+  <!-- AUTHENTICATION SCREEN (LOGIN & SIGN UP)                  -->
+  <!-- ======================================================== -->
+  <div id="auth-screen" class="min-h-screen auth-bg flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl p-6 sm:p-8 modal-fade-in border border-emerald-100">
+      
+      <!-- Logo and App Title -->
+      <div class="text-center pb-5 border-b border-slate-100">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center text-3xl mx-auto shadow-lg mb-3">
+          🧀
+        </div>
+        <h2 class="text-2xl font-black text-slate-900 tracking-tight">Dairy Hisab (डेयरी हिसाब)</h2>
+        <p class="text-xs text-slate-500 mt-1 leading-relaxed" data-i18n="authSub">
+          दूध संकलन, पनीर/घी बिक्री, GST बिलिंग एवं हिसाब-किताब का संपूर्ण समाधान
+        </p>
+      </div>
+
+      <!-- Segmented Toggle: OTP Login vs Password vs Sign Up -->
+      <div class="flex bg-slate-100 p-1 rounded-2xl my-5 text-xs">
+        <button id="auth-tab-otp-btn" onclick="switchAuthMode('otp')" class="flex-1 py-2 text-center font-bold rounded-xl bg-white text-emerald-800 shadow-sm border border-emerald-100 transition">
+          <span data-i18n="tabOtpLogin">📱 OTP लॉगिन</span>
+        </button>
+        <button id="auth-tab-login-btn" onclick="switchAuthMode('login')" class="flex-1 py-2 text-center font-bold rounded-xl text-slate-500 hover:text-slate-800 transition">
+          <span data-i18n="tabPasswordLogin">🔑 पासवर्ड</span>
+        </button>
+        <button id="auth-tab-signup-btn" onclick="switchAuthMode('signup')" class="flex-1 py-2 text-center font-bold rounded-xl text-slate-500 hover:text-slate-800 transition">
+          <span data-i18n="tabSignup">✨ नया खाता</span>
+        </button>
+      </div>
+
+      <!-- 1. OTP LOGIN FORM (DEFAULT) -->
+      <div id="auth-otp-form" class="space-y-4 text-xs">
+        
+        <!-- STEP 1: Enter Phone Number -->
+        <div id="otp-step-phone" class="space-y-4">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1" data-i18n="lblEnterPhone">मोबाइल नंबर दर्ज करें (10 Digits) *</label>
+            <div class="flex">
+              <span class="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-slate-200 bg-slate-100 text-slate-600 font-bold text-xs">
+                🇮🇳 +91
+              </span>
+              <input type="tel" id="otp-phone-input" maxlength="10" placeholder="9829012345" class="dairy-input flex-1 px-3.5 py-2.5 border rounded-r-xl font-bold text-slate-800 text-sm tracking-wider" required>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-1">
+              लॉगिन के लिए आपके मोबाइल नंबर पर 6-अंकों का रियल OTP भेजा जाएगा।
+            </p>
+          </div>
+
+          <div class="space-y-2 pt-1">
+            <button type="button" onclick="handleSendOtp('sms')" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md transition transform active:scale-95 flex items-center justify-center space-x-2">
+              <span>📲</span>
+              <span data-i18n="btnSendRealOtp">रियल SMS OTP भेजें (Send SMS OTP)</span>
+            </button>
+
+            <button type="button" onclick="handleSendOtp('whatsapp')" class="w-full py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 shadow-sm">
+              <span>💬</span>
+              <span data-i18n="btnSendWhatsAppOtp">WhatsApp पर OTP प्राप्त करें (Send on WhatsApp)</span>
+            </button>
+          </div>
+
+          <!-- Quick Demo Login Button -->
+          <div class="pt-2 border-t border-slate-100">
+            <button type="button" onclick="quickDemoLogin()" class="w-full py-2 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow-sm">
+              <span>⚡</span>
+              <span data-i18n="btnDemoLogin">सीधे डेमो अकाउंट से लॉगिन करें (Quick Demo)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 2: Enter & Verify OTP -->
+        <div id="otp-step-verify" class="space-y-4 hidden">
+          <!-- Live Real OTP Banner -->
+          <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-400 p-3.5 rounded-2xl shadow-sm text-center">
+            <div class="text-[11px] font-bold text-emerald-900 uppercase tracking-wide flex items-center justify-center space-x-1">
+              <span>📩</span>
+              <span data-i18n="liveOtpAlert">रियल SMS OTP भेजा गया (Real SMS Sent)</span>
+            </div>
+            <div class="text-xs text-emerald-800 mt-1">
+              मोबाइल <strong id="otp-target-phone" class="text-slate-900">+91-9829012345</strong> के लिए आपका कोड:
+            </div>
+            <div class="mt-2 inline-block bg-white px-4 py-1 rounded-xl border border-emerald-300 shadow-inner font-black text-2xl text-emerald-700 tracking-widest" id="otp-live-display">
+              ------
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="block font-bold text-slate-700" data-i18n="lblEnterOtpCode">6-अंकों का OTP कोड दर्ज करें *</label>
+              <button type="button" onclick="handleBackToOtpPhone()" class="text-emerald-700 font-bold hover:underline text-[11px]">
+                ✏️ <span data-i18n="changePhone">नंबर बदलें</span>
+              </button>
+            </div>
+
+            <!-- 6 Split Digit Inputs -->
+            <div class="flex justify-between space-x-1.5 sm:space-x-2" id="otp-boxes-container">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-box w-10 sm:w-11 h-12 text-center text-xl font-black rounded-xl border-2 border-slate-200 text-slate-800 shadow-sm" autofocus>
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-box w-10 sm:w-11 h-12 text-center text-xl font-black rounded-xl border-2 border-slate-200 text-slate-800 shadow-sm">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-box w-10 sm:w-11 h-12 text-center text-xl font-black rounded-xl border-2 border-slate-200 text-slate-800 shadow-sm">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-box w-10 sm:w-11 h-12 text-center text-xl font-black rounded-xl border-2 border-slate-200 text-slate-800 shadow-sm">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-box w-10 sm:w-11 h-12 text-center text-xl font-black rounded-xl border-2 border-slate-200 text-slate-800 shadow-sm">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-box w-10 sm:w-11 h-12 text-center text-xl font-black rounded-xl border-2 border-slate-200 text-slate-800 shadow-sm">
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs text-slate-500 pt-1">
+            <div id="otp-timer-box" class="font-medium">
+              ⏳ <span id="otp-timer-count" class="font-bold text-slate-800">00:59</span> <span data-i18n="resendIn">बाद पुनः भेजें</span>
+            </div>
+            <button type="button" id="otp-resend-btn" onclick="handleResendOtp()" class="text-emerald-700 font-bold hover:underline opacity-50 cursor-not-allowed" disabled>
+              🔄 <span data-i18n="btnResendOtp">पुनः OTP भेजें</span>
+            </button>
+          </div>
+
+          <button type="button" onclick="handleVerifyOtp()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md transition transform active:scale-95 flex items-center justify-center space-x-2">
+            <span>✅</span>
+            <span data-i18n="btnVerifyLogin">OTP सत्यापित करें और लॉगिन करें</span>
+          </button>
+
+          <div class="text-center pt-1">
+            <button type="button" onclick="handleSendOtp('whatsapp')" class="text-emerald-800 hover:underline font-bold text-xs flex items-center justify-center space-x-1 mx-auto">
+              <span>📲</span>
+              <span>WhatsApp पर OTP दोबारा प्राप्त करें</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 2. PASSWORD LOGIN FORM -->
+      <form id="auth-login-form" onsubmit="handleLogin(event)" class="space-y-4 text-xs hidden">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1" data-i18n="lblAuthPhone">मोबाइल नंबर (Mobile Number) *</label>
+          <input type="tel" id="login-phone" placeholder="10 अंक का मोबाइल नंबर (e.g. 9829012345)" class="dairy-input w-full px-3.5 py-2.5 border rounded-xl font-bold text-slate-800 text-sm" required>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1" data-i18n="lblAuthPassword">पासवर्ड (Password) *</label>
+          <div class="relative">
+            <input type="password" id="login-password" placeholder="पासवर्ड लिखें (उदा. 123)" class="dairy-input w-full px-3.5 py-2.5 border rounded-xl font-bold text-slate-800 text-sm pr-10" required>
+            <button type="button" onclick="togglePasswordVisibility('login-password', this)" class="absolute right-3 top-2.5 text-base text-slate-400 hover:text-slate-600 focus:outline-none">
+              👁️
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md transition transform active:scale-95 flex items-center justify-center space-x-2">
+          <span>🚀</span>
+          <span data-i18n="btnLoginSubmit">पासवर्ड से लॉग इन करें (Log In)</span>
+        </button>
+
+        <!-- Quick Demo Login Button -->
+        <div class="pt-2">
+          <button type="button" onclick="quickDemoLogin()" class="w-full py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow-sm">
+            <span>⚡</span>
+            <span data-i18n="btnDemoLogin">सीधे डेमो अकाउंट से लॉग इन करें (Quick Demo Login)</span>
+          </button>
+        </div>
+
+        <div class="text-center pt-2 text-xs">
+          <button type="button" onclick="switchAuthMode('signup')" class="text-emerald-700 hover:underline font-bold" data-i18n="dontHaveAccount">
+            खाता नहीं है? यहाँ नया रजिस्ट्रेशन करें (Sign Up)
+          </button>
+        </div>
+      </form>
+
+      <!-- 3. SIGN UP FORM -->
+      <form id="auth-signup-form" onsubmit="handleSignup(event)" class="space-y-3 text-xs hidden max-h-[60vh] overflow-y-auto pr-1">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1" data-i18n="lblAuthDairyName">डेयरी / व्यापार का नाम (Dairy Name) *</label>
+          <input type="text" id="signup-dairy-name" placeholder="उदा. अपनी डेयरी का नाम लिखें (उदा. बालाजी डेयरी)" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold text-slate-800" required>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1" data-i18n="lblAuthOwnerName">संचालक का नाम (Owner Name) *</label>
+            <input type="text" id="signup-owner-name" placeholder="आपका नाम" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium" required>
+          </div>
+          <div>
+            <label class="flex items-center font-bold text-slate-700 mb-1">
+              <span data-i18n="lblAuthPhone">मोबाइल नंबर (10 अंक) *</span>
+              <span id="signup-verified-badge" class="hidden ml-1.5 px-1.5 py-0.2 bg-emerald-100 text-emerald-800 text-[10px] rounded font-bold">✅ OTP सत्यापित</span>
+            </label>
+            <input type="tel" id="signup-phone" placeholder="9829000000" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold text-emerald-800" required>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1" data-i18n="lblAuthPassword">पासवर्ड *</label>
+            <input type="password" id="signup-password" placeholder="नया पासवर्ड..." class="dairy-input w-full px-3 py-2 border rounded-xl font-bold" required>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1" data-i18n="lblAuthConfirmPassword">पासवर्ड दोबारा लिखें *</label>
+            <input type="password" id="signup-confirm-password" placeholder="वही पासवर्ड लिखें..." class="dairy-input w-full px-3 py-2 border rounded-xl font-bold" required>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1" data-i18n="lblAuthGstin">GSTIN नंबर (यदि हो तो)</label>
+            <input type="text" id="signup-gstin" placeholder="08AAAAA0000A1Z5" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold uppercase text-slate-800">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1" data-i18n="lblAuthBusinessType">व्यापार प्रकार *</label>
+            <select id="signup-business-mode" class="dairy-input w-full px-3 py-2 border rounded-xl font-semibold bg-white">
+              <option value="all">ऑल-इन-वन (दूध + पनीर/घी बिक्री)</option>
+              <option value="products">डेयरी उत्पाद स्टोर (पनीर, घी, दही)</option>
+              <option value="milk">दूध संकलन केंद्र (मिल्क कलेक्शन)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1" data-i18n="lblAuthAddress">गाँव / शहर / पूरा पता *</label>
+          <input type="text" id="signup-address" placeholder="मुख्य बाजार, ग्राम/शहर" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium" required>
+        </div>
+
+        <div class="pt-2">
+          <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md transition transform active:scale-95 flex items-center justify-center space-x-2">
+            <span>✨</span>
+            <span data-i18n="btnSignupSubmit">खाता बनाएं व शुरू करें (Register)</span>
+          </button>
+        </div>
+
+        <div class="text-center pt-2 text-xs">
+          <button type="button" onclick="switchAuthMode('otp')" class="text-emerald-700 hover:underline font-bold" data-i18n="alreadyHaveAccount">
+            पहले से खाता है? यहाँ OTP से लॉग इन करें (Log In)
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MAIN APP TOP HEADER (SHOWN WHEN LOGGED IN)               -->
+  <!-- ======================================================== -->
+  <header id="app-header" class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white shadow-md sticky top-0 z-40 no-print hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+      
+      <!-- Logo and App Name -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-2xl shadow-inner">
+          🧀
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 id="app-header-title" class="text-lg sm:text-xl font-black tracking-tight leading-none text-white drop-shadow-sm">
+              Dairy Hisab (डेयरी हिसाब)
+            </h1>
+            <span id="app-header-badge" class="bg-emerald-500/80 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow uppercase">
+              डेयरी ऐप
+            </span>
+          </div>
+          <p id="app-header-tag" class="text-xs text-emerald-100 font-medium mt-0.5 opacity-90 hidden sm:block">
+            दूध संकलन, पनीर, घी, दही GST बिलिंग एवं ग्राहक हिसाब
+          </p>
+        </div>
+      </div>
+
+      <!-- Right Controls: User Profile, Business Mode & Language Switcher -->
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        
+        <!-- Logged-in User Profile & Logout -->
+        <div class="flex items-center bg-white/10 px-2.5 py-1 rounded-xl border border-white/20 text-xs">
+          <span class="mr-1.5">👤</span>
+          <span id="header-user-name" class="font-bold text-white max-w-[120px] truncate">Admin</span>
+          <button onclick="handleLogout()" class="ml-2 px-2 py-0.5 bg-red-500/80 hover:bg-red-600 text-white rounded text-[11px] font-bold transition shadow-sm" title="Logout">
+            🚪 <span class="hidden sm:inline" data-i18n="logoutBtn">लॉग आउट</span>
+          </button>
+        </div>
+
+        <!-- Business Mode Pill -->
+        <div class="hidden lg:flex items-center space-x-1.5 bg-emerald-900/60 px-2.5 py-1 rounded-lg border border-emerald-600/50 text-xs">
+          <span class="text-emerald-200" data-i18n="businessModeLabel">डेयरी मोड:</span>
+          <select id="business-mode-select" onchange="setBusinessMode(this.value)" class="bg-transparent text-white font-bold text-xs focus:outline-none cursor-pointer">
+            <option value="all" class="text-slate-900" data-i18n="modeAll">ऑल-इन-वन संपूर्ण डेयरी</option>
+            <option value="products" class="text-slate-900" data-i18n="modeProducts">डेयरी उत्पाद स्टोर (पनीर, घी, दही)</option>
+            <option value="milk" class="text-slate-900" data-i18n="modeMilk">दूध संकलन केंद्र (मिल्क कलेक्शन)</option>
+          </select>
+        </div>
+
+        <!-- Language Switcher -->
+        <div class="bg-white/10 p-0.5 rounded-lg flex items-center border border-white/20 backdrop-blur">
+          <button id="lang-btn-hi" onclick="setLanguage('hi')" class="px-2 py-1 text-xs font-bold rounded-md bg-white text-emerald-800 shadow transition">
+            हिन्दी
+          </button>
+          <button id="lang-btn-en" onclick="setLanguage('en')" class="px-2 py-1 text-xs font-semibold rounded-md text-emerald-100 hover:text-white transition">
+            EN
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DESKTOP NAVIGATION BAR -->
+    <nav id="app-navbar" class="bg-white border-b border-slate-200 hidden md:block">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex space-x-1 py-1.5 overflow-x-auto text-sm font-semibold">
+          <button class="tab-btn nav-tab-active px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="products-pos">
+            <span>🧀</span>
+            <span data-i18n="tabProductsPos">डेयरी उत्पाद व GST बिलिंग</span>
+          </button>
+          <button class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="customer-portal">
+            <span>🔍</span>
+            <span data-i18n="tabCustomerPortal">ग्राहक पासबुक (Customer Portal)</span>
+          </button>
+          <button class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="collection">
+            <span>🥛</span>
+            <span data-i18n="tabCollection">दूध संकलन (Collection)</span>
+          </button>
+          <button class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="farmers">
+            <span>👨‍🌾</span>
+            <span data-i18n="tabFarmers">किसान रजिस्टर (Farmers)</span>
+          </button>
+          <button class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="billing">
+            <span>🧾</span>
+            <span data-i18n="tabBilling">पखवाड़ा बिलिंग (Billing)</span>
+          </button>
+          <button class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="rate-chart">
+            <span>⚙️</span>
+            <span data-i18n="tabRateChart">GST व सेटिंग्स (Settings)</span>
+          </button>
+          <button class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="dashboard">
+            <span>📊</span>
+            <span data-i18n="tabDashboard">डैशबोर्ड (Dashboard)</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- MAIN CONTAINER (SHOWN WHEN LOGGED IN)                    -->
+  <!-- ======================================================== -->
+  <main id="main-container" class="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 flex-1 no-print hidden">
+
+    <!-- ======================================================== -->
+    <!-- TAB: DAIRY PRODUCTS & GST BILLING (POS)                  -->
+    <!-- ======================================================== -->
+    <section id="tab-section-products-pos" class="tab-content space-y-6">
+      
+      <!-- POS Top Summary -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="dairy-card p-4 border-l-4 border-l-amber-500 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider" data-i18n="todayProductSales">आज की उत्पाद बिक्री</p>
+            <h3 id="sum-product-sales" class="text-xl sm:text-2xl font-black text-slate-800 mt-1">₹ 0.00</h3>
+            <p class="text-[11px] text-slate-500 mt-0.5">पनीर, घी, दही आदि</p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+            🧀
+          </div>
+        </div>
+
+        <div class="dairy-card p-4 border-l-4 border-l-emerald-500 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider" data-i18n="todayTotalMilk">आज का कुल दूध संकलन</p>
+            <h3 id="pos-sum-milk" class="text-xl sm:text-2xl font-black text-emerald-700 mt-1">0.0 L</h3>
+            <p class="text-[11px] text-slate-500 mt-0.5">किसान दूध आपूर्ति</p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+            🥛
+          </div>
+        </div>
+
+        <div class="dairy-card p-4 border-l-4 border-l-blue-500 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">GST इनवॉइस स्थिति</p>
+            <h3 class="text-base font-bold text-blue-700 mt-1">GST बिलिंग सक्रिय</h3>
+            <p class="text-[11px] text-slate-500 mt-0.5">HSN & कर विवरण सहित</p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+            🧾
+          </div>
+        </div>
+
+        <div class="dairy-card p-4 border-l-4 border-l-purple-500 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">ग्राहक सेवा पोर्टल</p>
+            <button onclick="switchTab('customer-portal')" class="mt-1 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold transition shadow flex items-center space-x-1">
+              <span>🔍 ग्राहक पासबुक देखें</span>
+            </button>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center text-xl">
+            👤
+          </div>
+        </div>
+      </div>
+
+      <!-- Main POS Interface: Left Product Grid, Right Billing Cart -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left: Products Catalog & Quick Selection -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="dairy-card p-5 bg-white">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+              <div>
+                <h3 class="font-bold text-slate-800 text-sm sm:text-base flex items-center space-x-1.5">
+                  <span>🧀</span>
+                  <span data-i18n="posTitle">डेयरी उत्पाद बिलिंग व GST काउंटर</span>
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5" data-i18n="posSubtitle">पनीर, शुद्ध घी, दही, मक्खन, छाछ एवं अन्य उत्पाद</p>
+              </div>
+              <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
+                क्लिक कर कार्ट में जोड़ें
+              </span>
+            </div>
+
+            <!-- Products Grid -->
+            <div id="products-pos-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Recent Invoices Log -->
+          <div class="dairy-card p-5 bg-white">
+            <h4 class="font-bold text-slate-800 text-sm mb-3">हाल ही में जारी किए गए GST बिल (Recent Invoices)</h4>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs whitespace-nowrap">
+                <thead class="bg-slate-50 text-slate-600 font-bold border-b">
+                  <tr>
+                    <th class="py-2.5 px-3">बिल नं</th>
+                    <th class="py-2.5 px-3">तारीख</th>
+                    <th class="py-2.5 px-3">ग्राहक</th>
+                    <th class="py-2.5 px-3 text-right">कुल रकम</th>
+                    <th class="py-2.5 px-3 text-right">जमा</th>
+                    <th class="py-2.5 px-3 text-center">स्थिति</th>
+                    <th class="py-2.5 px-3 text-center">एक्शन</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-invoices-body" class="divide-y divide-slate-100">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Real-time Cart & GST Billing -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="dairy-card p-5 bg-white border border-emerald-100 shadow-sm sticky top-24">
+            
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+              <h3 class="font-bold text-slate-900 text-sm flex items-center space-x-1.5">
+                <span>🛒</span>
+                <span data-i18n="cartTitle">बिलिंग कार्ट (Billing Cart)</span>
+              </h3>
+              <button onclick="clearCart()" class="text-xs text-red-500 hover:underline">कार्ट खाली करें</button>
+            </div>
+
+            <!-- Customer Details Form in POS -->
+            <div class="space-y-2 bg-slate-50 p-3 rounded-xl mb-4 border border-slate-200 text-xs">
+              <div>
+                <label class="block font-bold text-slate-700 mb-1" data-i18n="customerInfo">ग्राहक चुनें या नया दर्ज करें</label>
+                <select id="pos-customer-select" class="dairy-input w-full px-2.5 py-1.5 border rounded-lg bg-white text-xs font-semibold">
+                  <!-- Dynamically populated -->
+                </select>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <div>
+                  <input type="text" id="pos-cust-name" placeholder="ग्राहक का नाम..." class="dairy-input w-full px-2.5 py-1.5 border rounded-lg bg-white text-xs">
+                </div>
+                <div>
+                  <input type="tel" id="pos-cust-phone" placeholder="मोबाइल नंबर (10 अंक)..." class="dairy-input w-full px-2.5 py-1.5 border rounded-lg bg-white text-xs font-bold text-emerald-800">
+                </div>
+              </div>
+
+              <div>
+                <input type="text" id="pos-cust-gst" placeholder="ग्राहक GSTIN (यदि B2B फर्म है)..." class="dairy-input w-full px-2.5 py-1.5 border rounded-lg bg-white text-xs uppercase font-medium">
+              </div>
+            </div>
+
+            <!-- Cart Table -->
+            <div class="overflow-x-auto max-h-56 overflow-y-auto border border-slate-100 rounded-xl mb-4">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-100 text-slate-600 font-bold sticky top-0">
+                  <tr>
+                    <th class="py-2 px-2">सामान</th>
+                    <th class="py-2 px-1 text-center">मात्रा</th>
+                    <th class="py-2 px-1 text-right">दर</th>
+                    <th class="py-2 px-2 text-right">रुपये</th>
+                    <th class="py-2 px-1 text-center"></th>
+                  </tr>
+                </thead>
+                <tbody id="cart-items-body" class="divide-y divide-slate-100">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Cart GST Summary Box -->
+            <div id="cart-summary-box" class="space-y-2 text-xs border-t border-slate-200 pt-3">
+              <div class="flex justify-between text-slate-600">
+                <span data-i18n="taxableValue">कर योग्य मूल्य (Taxable Value):</span>
+                <span id="pos-taxable-amount" class="font-bold text-slate-800">₹ 0.00</span>
+              </div>
+              <div class="flex justify-between text-slate-600">
+                <span data-i18n="cgstLabel">CGST:</span>
+                <span id="pos-cgst-amount" class="font-bold text-slate-700">₹ 0.00</span>
+              </div>
+              <div class="flex justify-between text-slate-600">
+                <span data-i18n="sgstLabel">SGST:</span>
+                <span id="pos-sgst-amount" class="font-bold text-slate-700">₹ 0.00</span>
+              </div>
+              <div class="flex justify-between text-base font-black border-t border-dashed border-slate-300 pt-2 text-slate-900">
+                <span data-i18n="grandTotalLabel">कुल बिल राशि (Grand Total):</span>
+                <span id="pos-grand-total" class="text-emerald-700">₹ 0.00</span>
+              </div>
+
+              <!-- Payment details -->
+              <div class="grid grid-cols-2 gap-2 pt-2">
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 mb-0.5">भुगतान माध्यम</label>
+                  <select id="pos-payment-method" class="dairy-input w-full px-2 py-1.5 border rounded-lg text-xs font-semibold">
+                    <option value="Cash">💵 नकद (Cash)</option>
+                    <option value="UPI / PhonePe / GPay">📱 UPI / QR Code</option>
+                    <option value="Bank Transfer">🏦 बैंक ट्रांसफर</option>
+                    <option value="Credit / Khata">📝 उधार (Khata)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 mb-0.5">प्राप्त रकम (₹)</label>
+                  <input type="number" step="1" id="pos-paid-amount" class="dairy-input w-full px-2 py-1.5 border rounded-lg text-xs font-bold text-emerald-700">
+                </div>
+              </div>
+
+              <div class="pt-3">
+                <button onclick="handleGenerateGstInvoice()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-lg transition transform active:scale-95 flex items-center justify-center space-x-2">
+                  <span data-i18n="btnGenerateGstBill">🧾 GST बिल बनाएं व प्रिंट करें</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB: CUSTOMER PORTAL & RECORD LOOKUP                     -->
+    <!-- ======================================================== -->
+    <section id="tab-section-customer-portal" class="tab-content space-y-6 hidden">
+      
+      <div class="dairy-card p-6 bg-white border border-emerald-100">
+        <div class="max-w-2xl mx-auto text-center space-y-3">
+          <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-3xl mx-auto shadow-inner">
+            🔍
+          </div>
+          <h2 class="text-xl font-black text-slate-900" data-i18n="portalTitle">
+            ग्राहक रिकॉर्ड व पासबुक पोर्टल (Customer Portal)
+          </h2>
+          <p class="text-xs text-slate-500 leading-relaxed" data-i18n="portalSubtitle">
+            ग्राहक अपना मोबाइल नंबर डालकर अपना पूरा रिकॉर्ड, पूर्व बिल, पनीर/घी/दूध खरीदारी और बकाया हिसाब देख सकते हैं
+          </p>
+
+          <!-- Search Input Box -->
+          <div class="flex items-center space-x-2 pt-2">
+            <input type="tel" id="portal-phone-input" placeholder="10 अंक का मोबाइल नंबर दर्ज करें (e.g. 9414001122)..." class="dairy-input flex-1 px-4 py-3 border-2 border-emerald-400 rounded-xl text-sm sm:text-base font-bold text-slate-800 shadow-sm">
+            <button onclick="searchCustomerRecord()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md transition flex items-center space-x-1 whitespace-nowrap">
+              <span data-i18n="btnSearchRecord">🔍 रिकॉर्ड देखें (Search)</span>
+            </button>
+          </div>
+
+          <!-- Quick Test Numbers -->
+          <div class="flex flex-wrap items-center justify-center gap-2 pt-1 text-xs text-slate-400">
+            <span>डेमो नंबर पर क्लिक करें:</span>
+            <button onclick="document.getElementById('portal-phone-input').value='9414001122'; searchCustomerRecord();" class="text-emerald-600 font-bold underline">9414001122 (सुरेश हलवाई)</button>
+            <span>•</span>
+            <button onclick="document.getElementById('portal-phone-input').value='9414003344'; searchCustomerRecord();" class="text-emerald-600 font-bold underline">9414003344 (शर्मा जी)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer Lookup Result Container -->
+      <div id="portal-result-container">
+        <!-- Dynamically rendered -->
+      </div>
+
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 1: MILK COLLECTION SECTION                           -->
+    <!-- ======================================================== -->
+    <section id="tab-section-collection" class="tab-content space-y-6 hidden">
+      
+      <!-- Top Summary Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="dairy-card p-4 border-l-4 border-l-emerald-500 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider" data-i18n="todayTotalMilk">आज का कुल दूध</p>
+            <h3 id="sum-total-liters" class="text-xl sm:text-2xl font-black text-slate-800 mt-1">0.0 L</h3>
+            <p id="sum-cow-buf" class="text-[11px] text-slate-500 mt-0.5">गाय: 0L | भैंस: 0L</p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+            🥛
+          </div>
+        </div>
+
+        <div class="dairy-card p-4 border-l-4 border-l-amber-500 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider" data-i18n="avgFat">औसत फैट (Avg Fat)</p>
+            <h3 id="sum-avg-fat" class="text-xl sm:text-2xl font-black text-amber-600 mt-1">0.00%</h3>
+            <p class="text-[11px] text-slate-500 mt-0.5" data-i18n="standardPurity">मानक अनुसार शुद्धता</p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+            ✨
+          </div>
+        </div>
+
+        <div class="dairy-card p-4 border-l-4 border-l-blue-500 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider" data-i18n="todayMilkValue">आज का दूध संकलन मूल्य</p>
+            <h3 id="sum-total-amount" class="text-xl sm:text-2xl font-black text-blue-700 mt-1">₹ 0.00</h3>
+            <p class="text-[11px] text-slate-500 mt-0.5" data-i18n="farmerPayable">किसानों का देय मूल्य</p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+            💰
+          </div>
+        </div>
+
+        <div class="dairy-card p-4 border-l-4 border-l-purple-500 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider" data-i18n="quickAction">क्विक एक्शन</p>
+            <button onclick="exportCollectionsToExcel()" class="mt-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition shadow flex items-center space-x-1">
+              <span data-i18n="downloadExcel">📥 एक्सेल डाउनलोड</span>
+            </button>
+            <p class="text-[10px] text-slate-400 mt-1" data-i18n="excelReport">Excel/CSV रिपोर्ट</p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center text-xl">
+            📊
+          </div>
+        </div>
+      </div>
+
+      <!-- Milk Entry Form -->
+      <div class="dairy-card p-5 sm:p-6 bg-white border border-emerald-100 shadow-sm">
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+          <div class="flex items-center space-x-2">
+            <span class="text-xl">📝</span>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900" data-i18n="milkEntryTitle">दूध संकलन एंट्री (Milk Entry)</h2>
+          </div>
+          <span class="text-xs font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full" data-i18n="autoRateBadge">
+            ऑटोमैटिक फैट/रेट कैलकुलेटर
+          </span>
+        </div>
+
+        <form id="milk-collection-form" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1" data-i18n="labelDate">दिनांक (Date)</label>
+              <input type="date" id="col-date" class="dairy-input w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-slate-50 font-medium" required>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1" data-i18n="labelShift">पाली / शिफ्ट (Shift)</label>
+              <select id="col-shift" class="dairy-input w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-slate-50 font-semibold" required>
+                <option value="morning" data-i18n="optMorning">🌅 सुबह (Morning)</option>
+                <option value="evening" data-i18n="optEvening">🌆 शाम (Evening)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 mb-1" data-i18n="labelMilkType">दूध का प्रकार (Milk Type)</label>
+              <select id="col-milk-type" class="dairy-input w-full px-3 py-2 text-sm border border-slate-300 rounded-lg bg-slate-50 font-semibold" required>
+                <option value="buffalo" data-i18n="optBuffalo">भैंस का दूध (Buffalo)</option>
+                <option value="cow" data-i18n="optCow">गाय का दूध (Cow)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-emerald-50/50 p-3 rounded-xl border border-emerald-100">
+            <div class="sm:col-span-3">
+              <label class="block text-xs font-bold text-emerald-900 mb-1" data-i18n="labelQuickCode">किसान कोड लिखें (Quick Code)</label>
+              <input type="text" id="col-quick-farmer-code" data-i18n-placeholder="phQuickCode" placeholder="जैसे 101, 102..." class="dairy-input w-full px-3 py-2 text-sm border border-emerald-300 rounded-lg bg-white font-bold text-emerald-800">
+            </div>
+            <div class="sm:col-span-9">
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-xs font-bold text-emerald-900" data-i18n="labelSelectFarmer">किसान चुनें (Select Farmer)</label>
+                <span id="col-farmer-code-display" class="text-xs font-bold text-emerald-700"></span>
+              </div>
+              <select id="col-farmer-id" class="dairy-input w-full px-3 py-2 text-sm border border-emerald-300 rounded-lg bg-white font-semibold" required>
+                <!-- Filled dynamically -->
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-6 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="labelLiters">मात्रा लीटर (Liters) *</label>
+              <input type="number" step="0.1" id="col-liters" placeholder="0.0" class="dairy-input w-full px-3 py-2 text-base font-black border border-slate-300 rounded-lg text-slate-800" required>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="labelFat">फैट Fat (%) *</label>
+              <input type="number" step="0.1" id="col-fat" placeholder="e.g. 6.5" class="dairy-input w-full px-3 py-2 text-base font-black border border-slate-300 rounded-lg text-amber-700" required>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="labelClr">लैक्टोमीटर (CLR)</label>
+              <input type="number" step="0.5" id="col-clr" placeholder="e.g. 29" class="dairy-input w-full px-3 py-2 text-base font-medium border border-slate-300 rounded-lg text-slate-700">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="labelSnf">एस.एन.एफ (SNF)</label>
+              <input type="number" step="0.1" id="col-snf" placeholder="e.g. 8.8" class="dairy-input w-full px-3 py-2 text-base font-medium border border-slate-300 rounded-lg text-slate-700">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="labelRate">दर Rate (₹/L)</label>
+              <input type="number" step="0.01" id="col-rate" placeholder="0.00" class="dairy-input w-full px-3 py-2 text-base font-bold border border-slate-300 rounded-lg text-blue-700 bg-slate-50" required>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="labelTotalAmount">कुल रुपये (Total ₹)</label>
+              <input type="number" step="0.01" id="col-amount" placeholder="0.00" class="w-full px-3 py-2 text-base font-black border border-emerald-300 rounded-lg text-emerald-700 bg-emerald-50" readonly>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-end gap-3 pt-2">
+            <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md transition transform active:scale-95 flex items-center justify-center space-x-2">
+              <span data-i18n="btnSaveEntry">💾 एंट्री सेव करें (Save & Print)</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Collection Table -->
+      <div class="dairy-card overflow-hidden bg-white">
+        <div class="p-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50/60">
+          <div class="flex items-center space-x-2">
+            <span class="text-base">📋</span>
+            <h3 class="text-sm font-bold text-slate-800" data-i18n="collectionListTitle">दूध संकलन रजिस्टर (Milk Entries List)</h3>
+          </div>
+          
+          <div class="flex items-center space-x-2">
+            <input type="date" id="col-filter-date" class="px-2.5 py-1 text-xs border border-slate-300 rounded-lg bg-white">
+            <select id="col-filter-shift" class="px-2.5 py-1 text-xs border border-slate-300 rounded-lg bg-white">
+              <option value="all" data-i18n="filterAllShifts">सभी शिफ्ट</option>
+              <option value="morning" data-i18n="filterMorning">सुबह</option>
+              <option value="evening" data-i18n="filterEvening">शाम</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs whitespace-nowrap">
+            <thead class="bg-slate-100/75 text-slate-600 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3" data-i18n="thDate">तारीख</th>
+                <th class="px-4 py-3" data-i18n="thShift">पाली</th>
+                <th class="px-4 py-3" data-i18n="thFarmer">किसान विवरण</th>
+                <th class="px-4 py-3" data-i18n="thType">प्रकार</th>
+                <th class="px-4 py-3 text-right" data-i18n="thLiters">मात्रा</th>
+                <th class="px-4 py-3 text-right" data-i18n="thFat">फैट %</th>
+                <th class="px-4 py-3 text-right" data-i18n="thSnf">SNF %</th>
+                <th class="px-4 py-3 text-right" data-i18n="thRate">दर (₹/L)</th>
+                <th class="px-4 py-3 text-right" data-i18n="thTotal">कुल रकम (₹)</th>
+                <th class="px-4 py-3 text-center" data-i18n="thActions">एक्शन</th>
+              </tr>
+            </thead>
+            <tbody id="collection-table-body" class="divide-y divide-slate-100">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 2: FARMERS REGISTER SECTION                          -->
+    <!-- ======================================================== -->
+    <section id="tab-section-farmers" class="tab-content space-y-6 hidden">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center space-x-3 w-full sm:w-auto">
+          <input type="text" id="farmer-search" data-i18n-placeholder="phSearchFarmer" placeholder="किसान खोजें (नाम, कोड, फोन, गाँव)..." class="dairy-input px-4 py-2 border border-slate-300 rounded-xl text-xs w-full sm:w-80 bg-white">
+        </div>
+        <button onclick="openAddFarmerModal()" class="w-full sm:w-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow transition flex items-center justify-center space-x-2">
+          <span data-i18n="btnAddFarmer">+ नया किसान जोड़ें (Add Farmer)</span>
+        </button>
+      </div>
+
+      <div id="farmers-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Dynamically populated -->
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 3: BILLING & PAYMENT SLIPS SECTION                   -->
+    <!-- ======================================================== -->
+    <section id="tab-section-billing" class="tab-content space-y-6 hidden">
+      <div class="dairy-card p-6 bg-white border border-slate-200">
+        <div class="flex items-center space-x-2 pb-3 mb-4 border-b border-slate-100">
+          <span class="text-xl">🧾</span>
+          <h2 class="text-base sm:text-lg font-bold text-slate-900" data-i18n="billingTitle">10-दिवसीय पखवाड़ा एवं बिलिंग पर्ची जनरेटर</h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
+          <div>
+            <label class="block font-bold text-slate-600 mb-1" data-i18n="labelSelectFarmer">किसान चुनें</label>
+            <select id="bill-farmer-select" class="dairy-input w-full px-3 py-2 border rounded-lg font-semibold">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-600 mb-1" data-i18n="lblStartDate">शुरुआती तारीख (Start Date)</label>
+            <input type="date" id="bill-start-date" class="dairy-input w-full px-3 py-2 border rounded-lg font-semibold">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-600 mb-1" data-i18n="lblEndDate">अंतिम तारीख (End Date)</label>
+            <input type="date" id="bill-end-date" class="dairy-input w-full px-3 py-2 border rounded-lg font-semibold">
+          </div>
+          <div class="flex items-end">
+            <button onclick="handleGenerateBills()" class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold shadow flex items-center justify-center space-x-1">
+              <span data-i18n="btnGenerateBills">⚡ बिल तैयार करें</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="bills-results-container">
+        <!-- Dynamically populated -->
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB: RATE CHART & GST SETTINGS SECTION                   -->
+    <!-- ======================================================== -->
+    <section id="tab-section-rate-chart" class="tab-content space-y-6 hidden">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Business Profile & GST Form -->
+        <div class="dairy-card p-6 bg-white">
+          <div class="flex items-center space-x-2 pb-3 mb-4 border-b border-slate-100">
+            <span class="text-xl">⚙️</span>
+            <h3 class="font-bold text-slate-900 text-base" data-i18n="settingsTitle">डेयरी प्रोफाइल, GST एवं रेट सेटिंग्स</h3>
+          </div>
+
+          <form id="settings-form" onsubmit="handleSaveSettings(event)" class="space-y-4 text-xs">
+            
+            <div class="space-y-3">
+              <h4 class="font-bold text-emerald-800 border-b pb-1 text-xs uppercase tracking-wide" data-i18n="section1Dairy">1. डेयरी व व्यापार विवरण (Business Profile)</h4>
+              
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block font-bold text-slate-600 mb-1" data-i18n="lblDairyName">डेयरी / व्यापार का नाम *</label>
+                  <input type="text" id="set-dairy-name" class="dairy-input w-full px-3 py-2 border rounded-lg font-bold text-slate-800" required>
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-600 mb-1" data-i18n="lblOwnerName">संचालक का नाम</label>
+                  <input type="text" id="set-owner-name" class="dairy-input w-full px-3 py-2 border rounded-lg font-medium">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block font-bold text-slate-600 mb-1" data-i18n="lblPhoneSettings">मोबाइल नंबर *</label>
+                  <input type="text" id="set-phone" class="dairy-input w-full px-3 py-2 border rounded-lg font-bold text-slate-800" required>
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-600 mb-1" data-i18n="lblBusinessType">व्यापार प्रकार (Business Mode)</label>
+                  <select id="set-business-mode" class="dairy-input w-full px-3 py-2 border rounded-lg font-bold text-emerald-800">
+                    <option value="all">ऑल-इन-वन (दूध + पनीर/घी बिक्री)</option>
+                    <option value="products">डेयरी उत्पाद स्टोर (पनीर, घी, दही, मक्खन)</option>
+                    <option value="milk">दूध संकलन केंद्र (मिल्क कलेक्शन)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- GST & FSSAI Fields -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-amber-50/50 p-3 rounded-xl border border-amber-200">
+                <div>
+                  <label class="block font-bold text-amber-900 mb-1" data-i18n="lblGstin">GSTIN नंबर (GST Number)</label>
+                  <input type="text" id="set-gstin" placeholder="08AAAAA0000A1Z5" class="dairy-input w-full px-3 py-2 border border-amber-300 rounded-lg font-bold text-slate-800 uppercase">
+                </div>
+                <div>
+                  <label class="block font-bold text-amber-900 mb-1" data-i18n="lblFssai">FSSAI लाइसेंस नंबर</label>
+                  <input type="text" id="set-fssai" placeholder="122240..." class="dairy-input w-full px-3 py-2 border border-amber-300 rounded-lg font-medium text-slate-800">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block font-bold text-slate-600 mb-1" data-i18n="lblAddressSettings">डेयरी का पूरा पता</label>
+                  <input type="text" id="set-address" class="dairy-input w-full px-3 py-2 border rounded-lg font-medium">
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-600 mb-1" data-i18n="lblState">राज्य व कोड</label>
+                  <input type="text" id="set-state" placeholder="Rajasthan (08)" class="dairy-input w-full px-3 py-2 border rounded-lg font-medium">
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-3 pt-3">
+              <h4 class="font-bold text-emerald-800 border-b pb-1 text-xs uppercase tracking-wide" data-i18n="section2Rate">2. दूध रेट निर्धारण फॉर्मूला (Rate Matrix)</h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="bg-amber-50 p-3 rounded-lg border border-amber-200">
+                  <label class="block font-bold text-amber-900 mb-1" data-i18n="lblCowRateFat">गाय दूध: दर प्रति 1% फैट (₹)</label>
+                  <input type="number" step="0.1" id="set-cow-rate-fat" class="dairy-input w-full px-3 py-2 border border-amber-300 rounded-lg font-black text-amber-800 text-sm" required>
+                </div>
+                <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                  <label class="block font-bold text-blue-900 mb-1" data-i18n="lblBufRateFat">भैंस दूध: दर प्रति 1% फैट (₹)</label>
+                  <input type="number" step="0.1" id="set-buf-rate-fat" class="dairy-input w-full px-3 py-2 border border-blue-300 rounded-lg font-black text-blue-800 text-sm" required>
+                </div>
+              </div>
+              <div>
+                <label class="block font-bold text-slate-600 mb-1" data-i18n="lblSnfBonus">SNF बोनस / कटौती दर (प्रति 0.1 SNF ₹)</label>
+                <input type="number" step="0.05" id="set-snf-bonus" class="dairy-input w-full px-3 py-2 border rounded-lg font-medium">
+              </div>
+            </div>
+
+            <div class="space-y-3 pt-3">
+              <h4 class="font-bold text-emerald-800 border-b pb-1 text-xs uppercase tracking-wide" data-i18n="section3Footer">3. बिल व पर्ची फूटर संदेश (Receipt Footer)</h4>
+              <div>
+                <input type="text" id="set-receipt-footer" class="dairy-input w-full px-3 py-2 border rounded-lg font-medium">
+              </div>
+            </div>
+
+            <!-- 4. REAL SMS GATEWAY & OTP SETTINGS -->
+            <div class="space-y-3 pt-3">
+              <h4 class="font-bold text-emerald-800 border-b pb-1 text-xs uppercase tracking-wide flex items-center justify-between">
+                <span>4. 📡 रियल SMS गेटवे व OTP सेटिंग्स (Real SMS Gateway)</span>
+                <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">Fast2SMS / 2Factor / WhatsApp</span>
+              </h4>
+              <p class="text-[11px] text-slate-500">
+                असली मोबाइल पर SMS OTP भेजने के लिए अपनी Fast2SMS या 2Factor API Key दर्ज करें। (बिना Key के भी स्क्रीन व WhatsApp पर रियल OTP तुरंत दिखेगा)।
+              </p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block font-bold text-slate-600 mb-1">SMS सर्विस प्रोवाइडर</label>
+                  <select id="set-sms-provider" class="dairy-input w-full px-3 py-2 border rounded-lg font-semibold bg-white">
+                    <option value="direct">स्क्रीन अलर्ट + WhatsApp रियल OTP (फ्री)</option>
+                    <option value="fast2sms">Fast2SMS API (भारत में रियल SMS)</option>
+                    <option value="twofactor">2Factor.in OTP API</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-600 mb-1">API Key (यदि उपलब्ध हो)</label>
+                  <input type="password" id="set-sms-api-key" placeholder="आपकी SMS API Key..." class="dairy-input w-full px-3 py-2 border rounded-lg font-mono text-slate-800">
+                </div>
+              </div>
+              <div class="flex items-center space-x-2 pt-1">
+                <input type="tel" id="sms-test-phone" placeholder="टेस्ट के लिए 10 अंक का मोबाइल" class="dairy-input flex-1 px-3 py-1.5 border rounded-lg text-xs">
+                <button type="button" onclick="testLiveSms()" class="px-3 py-1.5 bg-teal-700 hover:bg-teal-800 text-white rounded-lg font-bold text-xs shadow-sm transition">
+                  📲 लाइव SMS टेस्ट करें
+                </button>
+              </div>
+            </div>
+
+            <div class="pt-3">
+              <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow text-sm">
+                <span data-i18n="btnSaveSettings">💾 सेटिंग्स सुरक्षित करें (Save Settings)</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right: Backup & Data Security -->
+        <div class="space-y-6">
+          <div class="dairy-card p-5 bg-white border border-slate-200">
+            <h4 class="font-bold text-slate-800 text-sm pb-2 mb-3 border-b border-slate-100" data-i18n="backupTitle">
+              💾 डेटा सुरक्षा एवं बैकअप (Backup & Restore)
+            </h4>
+            <p class="text-xs text-slate-500 mb-4 leading-relaxed" data-i18n="backupDesc">
+              आपका सारा डेयरी डेटा (GST बिल, पनीर/घी बिक्री, किसान, दूध एंट्री) सुरक्षित रहता है। एक क्लिक से बैकअप डाउनलोड करें।
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button onclick="exportBackupJson()" class="p-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold shadow flex flex-col items-center justify-center text-center">
+                <span class="text-base mb-1">⬇️</span>
+                <span data-i18n="btnDownloadBackup">पूरा बैकअप डाउनलोड करें</span>
+                <span class="text-[10px] text-slate-300 font-normal">JSON Backup File</span>
+              </button>
+
+              <label class="p-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold shadow-sm flex flex-col items-center justify-center text-center cursor-pointer">
+                <span class="text-base mb-1">⬆️</span>
+                <span data-i18n="btnRestoreBackup">बैकअप फाइल रिस्टोर करें</span>
+                <span class="text-[10px] text-emerald-600 font-normal">Select JSON File</span>
+                <input type="file" accept=".json" onchange="importBackupJson(event)" class="hidden">
+              </label>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <button onclick="resetToDemoData()" class="text-slate-400 hover:text-slate-600 underline" data-i18n="btnReloadDemo">
+                डेमो डेटा दोबारा लोड करें (Reload Demo Data)
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB: DASHBOARD & REPORTS SECTION                         -->
+    <!-- ======================================================== -->
+    <section id="tab-section-dashboard" class="tab-content space-y-6 hidden">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="dairy-card p-5 bg-white border-l-4 border-l-emerald-600">
+          <span class="text-xs text-slate-400 font-bold uppercase tracking-wider" data-i18n="totalRegisteredFarmers">कुल पंजीकृत किसान</span>
+          <div id="dash-total-farmers" class="text-2xl font-black text-slate-800 mt-1">0</div>
+        </div>
+        <div class="dairy-card p-5 bg-white border-l-4 border-l-blue-600">
+          <span class="text-xs text-slate-400 font-bold uppercase tracking-wider" data-i18n="lifetimeMilk">कुल संकलित दूध</span>
+          <div id="dash-total-liters" class="text-2xl font-black text-blue-700 mt-1">0.0 L</div>
+        </div>
+        <div class="dairy-card p-5 bg-white border-l-4 border-l-amber-600">
+          <span class="text-xs text-slate-400 font-bold uppercase tracking-wider" data-i18n="lifetimeCost">कुल दूध खरीद मूल्य</span>
+          <div id="dash-total-purchase" class="text-2xl font-black text-amber-700 mt-1">₹ 0</div>
+        </div>
+        <div class="dairy-card p-5 bg-white border-l-4 border-l-teal-600">
+          <span class="text-xs text-slate-400 font-bold uppercase tracking-wider" data-i18n="retailRevenue">कुल उत्पाद बिक्री राजस्व</span>
+          <div id="dash-total-sales" class="text-2xl font-black text-teal-700 mt-1">₹ 0</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- MOBILE BOTTOM NAVIGATION BAR (SHOWN WHEN LOGGED IN)      -->
+  <!-- ======================================================== -->
+  <nav id="mobile-nav" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 px-2 py-1.5 flex justify-around shadow-lg no-print hidden">
+    <button class="mobile-tab-btn text-emerald-600 font-bold flex flex-col items-center text-[10px]" data-tab="products-pos">
+      <span class="text-base">🧀</span>
+      <span data-i18n="mobProducts">पनीर/घी POS</span>
+    </button>
+    <button class="mobile-tab-btn text-slate-500 flex flex-col items-center text-[10px]" data-tab="customer-portal">
+      <span class="text-base">🔍</span>
+      <span data-i18n="mobCustomer">ग्राहक खाता</span>
+    </button>
+    <button class="mobile-tab-btn text-slate-500 flex flex-col items-center text-[10px]" data-tab="collection">
+      <span class="text-base">🥛</span>
+      <span data-i18n="mobCollection">दूध संकलन</span>
+    </button>
+    <button class="mobile-tab-btn text-slate-500 flex flex-col items-center text-[10px]" data-tab="billing">
+      <span class="text-base">🧾</span>
+      <span data-i18n="mobBilling">बिलिंग</span>
+    </button>
+    <button class="mobile-tab-btn text-slate-500 flex flex-col items-center text-[10px]" data-tab="rate-chart">
+      <span class="text-base">⚙️</span>
+      <span data-i18n="mobSettings">GST सेटिंग्स</span>
+    </button>
+  </nav>
+
+  <!-- ======================================================== -->
+  <!-- MODALS (THERMAL SLIP, GST INVOICE, ADD FARMER, PASSBOOK) -->
+  <!-- ======================================================== -->
+
+  <!-- 1. RECEIPT / GST INVOICE PRINT MODAL -->
+  <div id="receipt-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-5 shadow-2xl modal-fade-in flex flex-col max-h-[92vh]">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 no-print">
+        <h3 class="font-bold text-slate-800 text-sm flex items-center space-x-1">
+          <span>🧾</span>
+          <span data-i18n="receiptPreviewTitle">रसीद / GST टैक्स इनवॉइस पूर्वावलोकन</span>
+        </h3>
+        <button onclick="closeReceiptModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center font-bold">
+          ✕
+        </button>
+      </div>
+
+      <!-- Printable Area -->
+      <div id="print-area" class="overflow-y-auto py-2 my-2 bg-white flex-1">
+        <!-- Filled dynamically -->
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="pt-3 border-t border-slate-100 grid grid-cols-2 gap-2 no-print">
+        <button id="btn-print-receipt" class="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center space-x-1 shadow">
+          <span data-i18n="btnPrintReceipt">🖨️ पर्ची / बिल प्रिंट करें</span>
+        </button>
+        <button id="btn-whatsapp-receipt" class="py-2.5 px-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl text-xs flex items-center justify-center space-x-1 shadow">
+          <span data-i18n="btnWhatsappReceipt">📲 WhatsApp पर भेजें</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. ADD FARMER MODAL -->
+  <div id="add-farmer-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl modal-fade-in">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h3 class="font-bold text-slate-900 text-base" data-i18n="modalAddFarmerTitle">नया किसान / पशुपालक जोड़ें</h3>
+        <button onclick="closeAddFarmerModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center font-bold">
+          ✕
+        </button>
+      </div>
+
+      <form id="add-farmer-form" class="space-y-3 mt-4 text-xs">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-600 mb-1" data-i18n="lblFarmerCode">किसान कोड *</label>
+            <input type="text" id="new-farmer-id" class="dairy-input w-full px-3 py-2 border rounded-lg font-bold" required>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-600 mb-1" data-i18n="lblDefaultMilk">दूध प्रकार</label>
+            <select id="new-farmer-milk-type" class="dairy-input w-full px-3 py-2 border rounded-lg">
+              <option value="buffalo">भैंस का दूध</option>
+              <option value="cow">गाय का दूध</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-600 mb-1" data-i18n="lblFullName">किसान का नाम *</label>
+          <input type="text" id="new-farmer-name" placeholder="उदा. रामकिशन यादव" class="dairy-input w-full px-3 py-2 border rounded-lg font-bold" required>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-600 mb-1" data-i18n="lblMobileNumber">मोबाइल नंबर</label>
+            <input type="tel" id="new-farmer-phone" placeholder="10 अंक का मोबाइल" class="dairy-input w-full px-3 py-2 border rounded-lg">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-600 mb-1" data-i18n="lblVillage">गाँव / ढाणी</label>
+            <input type="text" id="new-farmer-village" placeholder="गाँव का नाम" class="dairy-input w-full px-3 py-2 border rounded-lg">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-600 mb-1" data-i18n="lblInitialAdvance">आरंभिक पेशगी (₹)</label>
+            <input type="number" step="1" id="new-farmer-advance" value="0" class="dairy-input w-full px-3 py-2 border rounded-lg">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-600 mb-1" data-i18n="lblBankUpi">बैंक / UPI</label>
+            <input type="text" id="new-farmer-bank" placeholder="A/c या UPI ID" class="dairy-input w-full px-3 py-2 border rounded-lg">
+          </div>
+        </div>
+
+        <div class="pt-3">
+          <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow text-sm">
+            <span data-i18n="btnSaveFarmer">किसान जोड़ें (Save Farmer)</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. FARMER PASSBOOK MODAL -->
+  <div id="passbook-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl modal-fade-in flex flex-col max-h-[90vh]">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 id="passbook-farmer-name" class="font-bold text-slate-900 text-base">रामकिशन यादव</h3>
+          <p class="text-xs text-slate-500">गाँव: <span id="passbook-village">-</span> | मो: <span id="passbook-phone">-</span></p>
+        </div>
+        <button onclick="closePassbookModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center font-bold">
+          ✕
+        </button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 my-4 text-xs">
+        <div class="bg-slate-50 p-3 rounded-xl">
+          <span class="text-slate-400" data-i18n="lblTotalDelivered">कुल संकलित दूध:</span>
+          <div id="passbook-total-liters" class="text-base font-bold text-slate-800">0 L</div>
+        </div>
+        <div class="bg-slate-50 p-3 rounded-xl">
+          <span class="text-slate-400" data-i18n="lblGrossMilkValue">सकल दूध मूल्य:</span>
+          <div id="passbook-total-milk" class="text-base font-bold text-emerald-600">₹ 0</div>
+        </div>
+        <div class="bg-slate-50 p-3 rounded-xl">
+          <span class="text-slate-400" data-i18n="lblCurrentAdvance">वर्तमान पेशगी:</span>
+          <div id="passbook-advance" class="text-base font-bold text-amber-600">₹ 0</div>
+        </div>
+      </div>
+
+      <div class="overflow-y-auto flex-1 border border-slate-100 rounded-xl">
+        <table class="w-full text-left text-xs whitespace-nowrap">
+          <thead class="bg-slate-100 text-slate-600 font-bold sticky top-0">
+            <tr>
+              <th class="py-2 px-3" data-i18n="thDate">तारीख</th>
+              <th class="py-2 px-3" data-i18n="thShift">पाली</th>
+              <th class="py-2 px-3" data-i18n="thType">प्रकार</th>
+              <th class="py-2 px-3 text-right" data-i18n="thLiters">लीटर</th>
+              <th class="py-2 px-3 text-right" data-i18n="thFat">फैट</th>
+              <th class="py-2 px-3 text-right" data-i18n="thRate">दर</th>
+              <th class="py-2 px-3 text-right" data-i18n="thTotal">कुल रकम</th>
+            </tr>
+          </thead>
+          <tbody id="passbook-entries-body" class="divide-y divide-slate-100">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pt-4 border-t border-slate-100 flex justify-end">
+        <button onclick="closePassbookModal()" class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg text-xs font-bold" data-i18n="btnClose">
+          बंद करें (Close)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
