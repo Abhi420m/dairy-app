@@ -48,7 +48,6 @@ const I18N = {
     lblAuthAddress: "गाँव / शहर / पूरा पता *",
     btnLoginSubmit: "लॉग इन करें (Log In)",
     btnSignupSubmit: "खाता बनाएं व शुरू करें (Register)",
-    btnDemoLogin: "⚡ सीधे डेमो अकाउंट से लॉग इन करें (Quick Demo Login)",
     dontHaveAccount: "खाता नहीं है? यहाँ नया खाता बनाएं (Sign Up)",
     alreadyHaveAccount: "पहले से खाता है? यहाँ लॉग इन करें (Log In)",
     logoutBtn: "लॉग आउट (Logout)",
@@ -227,7 +226,6 @@ const I18N = {
     backupDesc: "आपका सारा डेयरी डेटा (GST बिल, पनीर/घी बिक्री, किसान, दूध एंट्री) सुरक्षित रहता है। एक क्लिक से बैकअप डाउनलोड करें।",
     btnDownloadBackup: "पूरा बैकअप डाउनलोड करें",
     btnRestoreBackup: "बैकअप फाइल रिस्टोर करें",
-    btnReloadDemo: "डेमो डेटा दोबारा लोड करें (Reload Demo Data)",
 
     // Dashboard & Reports
     totalRegisteredFarmers: "कुल पंजीकृत किसान",
@@ -283,7 +281,6 @@ const I18N = {
     lblAuthAddress: "Village / City / Full Address *",
     btnLoginSubmit: "Log In to Dairy Hisab",
     btnSignupSubmit: "Register & Get Started",
-    btnDemoLogin: "⚡ Quick Demo Account Login",
     dontHaveAccount: "Don't have an account? Sign Up here",
     alreadyHaveAccount: "Already have an account? Log In here",
     logoutBtn: "Log Out",
@@ -462,7 +459,6 @@ const I18N = {
     backupDesc: "All your data (GST invoices, Paneer/Ghee sales, farmer entries) is saved safely on your device. Download a full JSON backup anytime.",
     btnDownloadBackup: "Download JSON Backup",
     btnRestoreBackup: "Restore from JSON File",
-    btnReloadDemo: "Reload Demo Data",
 
     // Dashboard & Reports
     totalRegisteredFarmers: "Registered Farmers",
@@ -569,6 +565,7 @@ const DEFAULT_DATA = {
     concentrateQty: 35,
     concentrateRate: 34.0
   },
+  doctorCases: [],
   vetExpenses: [
     { id: "VET-1", date: "2026-10-18", animalTag: "TAG-101 (काली)", reason: "FMD खुरपका-मुंहपका टीका (Vaccination)", doctorName: "डॉ. रमेश वर्मा", amount: 450, notes: "सालाना अनिवार्य टीका" },
     { id: "VET-2", date: "2026-10-12", animalTag: "TAG-103 (लक्ष्मी)", reason: "कृत्रिम गर्भाधान (AI - Artificial Insemination)", doctorName: "डॉ. सुरेश यादव", amount: 600, notes: "उच्च नस्ल मुर्राह सीमन" },
@@ -756,6 +753,31 @@ function updateHeaderBranding() {
     displayName = appData.settings.dairyName;
   }
 
+  if (currentUser && currentUser.role === 'doctor') {
+    displayName = currentUser.clinic || currentUser.name;
+    if (titleEl) titleEl.innerText = displayName;
+    if (badgeEl) {
+      badgeEl.innerText = "🩺 पशु चिकित्सक";
+      badgeEl.className = "bg-teal-400 text-teal-950 text-[10px] font-black px-2 py-0.5 rounded shadow uppercase";
+    }
+    if (tagEl) {
+      tagEl.innerText = `${currentUser.degree || 'B.V.Sc & A.H'} | ${currentUser.specialty || 'पशु चिकित्सा'} | ${currentUser.location || currentUser.address || ''}`;
+    }
+    if (userEl) {
+      userEl.innerText = currentUser.name;
+    }
+    const modeSelect = document.getElementById('business-mode-select');
+    if (modeSelect && modeSelect.parentElement) {
+      modeSelect.parentElement.classList.add('hidden');
+    }
+    return;
+  }
+
+  const modeSelect = document.getElementById('business-mode-select');
+  if (modeSelect && modeSelect.parentElement) {
+    modeSelect.parentElement.classList.remove('hidden');
+  }
+
   if (titleEl) {
     titleEl.innerText = displayName;
   }
@@ -820,6 +842,10 @@ function checkAuthSession() {
     updateHeaderBranding();
     updateLanguageUI();
     setupBusinessMode();
+    updateNavForRole(currentUser.role || 'dairy');
+    if (currentUser.role === 'doctor' && (currentTab === 'products-pos' || currentTab === 'collection' || currentTab === 'billing')) {
+      switchTab('doctor-portal');
+    }
   } else {
     // Not logged in -> Show login/signup screen
     if (authScreen) authScreen.classList.remove('hidden');
@@ -1100,10 +1126,13 @@ function handleVerifyOtp() {
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUser));
     checkAuthSession();
     renderApp();
+    if (currentUser.role === 'doctor') {
+      switchTab('doctor-portal');
+    }
 
     const welcomeMsg = currentLang === 'en'
       ? `Welcome! Logged in as ${currentUser.dairyName || currentUser.name}.`
-      : `सत्यापन सफल! आपकी डेयरी "${currentUser.dairyName || currentUser.name}" में लॉगिन हो गया है।`;
+      : `सत्यापन सफल! स्वागत है, ${currentUser.dairyName || currentUser.name}!`;
     alert(welcomeMsg);
   } else {
     // New user -> Prompt to set dairy name and complete registration
@@ -1145,6 +1174,9 @@ function handleLogin(e) {
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUser));
     checkAuthSession();
     renderApp();
+    if (currentUser.role === 'doctor') {
+      switchTab('doctor-portal');
+    }
     const welcomeMsg = currentLang === 'en'
       ? `Welcome back, ${matched.name || matched.dairyName}!`
       : `स्वागत है, ${matched.name || matched.dairyName}!`;
@@ -1158,64 +1190,156 @@ function handleLogin(e) {
 
 function handleSignup(e) {
   if (e) e.preventDefault();
-  const dairyName = document.getElementById('signup-dairy-name').value.trim();
-  const name = document.getElementById('signup-owner-name').value.trim();
-  const phone = document.getElementById('signup-phone').value.trim();
+  const userType = (document.getElementById('signup-user-type') && document.getElementById('signup-user-type').value) || 'dairy';
+  const phone = document.getElementById('signup-phone').value.trim().replace(/\D/g, '');
   const password = document.getElementById('signup-password').value.trim();
   const confirmPassword = document.getElementById('signup-confirm-password').value.trim();
-  const gstin = document.getElementById('signup-gstin').value.trim().toUpperCase();
-  const businessMode = document.getElementById('signup-business-mode').value;
   const address = document.getElementById('signup-address').value.trim();
 
-  if (!dairyName || !name || !phone || !password) {
-    alert(currentLang === 'en' ? "Please fill all required fields!" : "कृपया सभी आवश्यक जानकारी भरें!");
+  if (phone.length !== 10) {
+    alert(currentLang === 'en' ? "Please enter valid 10-digit mobile number!" : "कृपया 10 अंकों का सही मोबाइल नंबर दर्ज करें!");
     return;
   }
 
-  if (phone.length < 10) {
-    alert(currentLang === 'en' ? "Please enter a valid 10-digit mobile number!" : "कृपया सही 10-अंकों का मोबाइल नंबर लिखें!");
+  if (!password || !confirmPassword) {
+    alert("कृपया पासवर्ड दर्ज करें!");
     return;
   }
 
   if (password !== confirmPassword) {
-    alert(currentLang === 'en' ? "Passwords do not match!" : "दोनों पासवर्ड मेल नहीं खाते!");
+    alert(currentLang === 'en' ? "Passwords do not match!" : "दोनों पासवर्ड एक समान नहीं हैं!");
     return;
   }
 
   const users = getUsersList();
-  if (users.some(u => u.phone === phone)) {
-    alert(currentLang === 'en' ? "An account with this mobile number already exists! Please Log In." : "इस मोबाइल नंबर पर पहले से खाता मौजूद है! कृपया लॉग इन करें।");
+  const existing = users.find(u => u.phone === phone);
+  if (existing) {
+    alert(currentLang === 'en' ? "Account already exists with this mobile! Please log in." : "इस मोबाइल नंबर पर पहले से खाता उपलब्ध है! कृपया लॉग इन करें।");
     switchAuthMode('login');
     document.getElementById('login-phone').value = phone;
     return;
   }
 
-  const newUser = {
-    phone,
-    password,
-    name,
-    nameEn: name,
-    dairyName,
-    dairyNameEn: dairyName,
-    gstin,
-    businessMode,
-    address,
-    state: "India"
-  };
+  if (userType === 'doctor') {
+    // DOCTOR REGISTRATION
+    const docName = document.getElementById('signup-doc-name').value.trim();
+    const degree = document.getElementById('signup-doc-degree').value.trim();
+    const specialty = document.getElementById('signup-doc-specialty').value.trim();
+    const clinic = document.getElementById('signup-doc-clinic').value.trim();
+    const fee = parseFloat(document.getElementById('signup-doc-fee').value) || 200;
+    const isEmergency = document.getElementById('signup-doc-emergency') ? document.getElementById('signup-doc-emergency').checked : false;
 
-  users.push(newUser);
-  saveUsersList(users);
+    if (!docName || !degree) {
+      alert("कृपया डॉक्टर का नाम व डिग्री दर्ज करें!");
+      return;
+    }
 
-  // Auto login
-  currentUser = newUser;
-  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUser));
-  checkAuthSession();
-  renderApp();
+    const formattedName = docName.startsWith("डॉ.") ? docName : `डॉ. ${docName}`;
 
-  const msg = currentLang === 'en' 
-    ? `Congratulations! Your Dairy Hisab account for "${dairyName}" is registered successfully.`
-    : `बधाई हो! आपकी डेयरी "${dairyName}" का खाता सफलतापूर्वक बन गया है।`;
-  alert(msg);
+    const newUser = {
+      id: "DOC-" + Date.now(),
+      role: "doctor",
+      name: formattedName,
+      phone: phone,
+      password: password,
+      degree: degree,
+      specialty: specialty || "पशु चिकित्सा व उपचार",
+      clinic: clinic || "पशु चिकित्सालय",
+      location: address,
+      address: address,
+      isEmergency: isEmergency,
+      fee: fee,
+      rating: 5.0,
+      createdAt: new Date().toISOString()
+    };
+
+    users.push(newUser);
+    saveUsersList(users);
+
+    // Also add to doctors directory
+    if (!appData.doctors) appData.doctors = [];
+    const existingDocIdx = appData.doctors.findIndex(d => d.phone === phone);
+    const docItem = {
+      id: "DOC-" + phone,
+      name: newUser.name,
+      degree: newUser.degree,
+      specialty: newUser.specialty,
+      clinic: newUser.clinic,
+      phone: newUser.phone,
+      location: newUser.location,
+      rating: 5.0,
+      isEmergency: newUser.isEmergency,
+      isRegistered: true,
+      fee: newUser.fee
+    };
+
+    if (existingDocIdx !== -1) {
+      appData.doctors[existingDocIdx] = docItem;
+    } else {
+      appData.doctors.unshift(docItem);
+    }
+    saveData();
+
+    currentUser = newUser;
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUser));
+
+    checkAuthSession();
+    renderApp();
+    switchTab('doctor-portal');
+
+    alert(`पशु चिकित्सक के रूप में आपका पंजीकरण सफल रहा! डॉक्टर क्लिनिक पोर्टल में आपका स्वागत है, ${newUser.name}।`);
+  } else {
+    // DAIRY OWNER REGISTRATION
+    const dairyName = document.getElementById('signup-dairy-name').value.trim();
+    const ownerName = document.getElementById('signup-owner-name').value.trim();
+    const gstin = document.getElementById('signup-gstin').value.trim().toUpperCase();
+    const businessMode = document.getElementById('signup-business-mode').value;
+
+    if (!dairyName || !ownerName) {
+      alert("कृपया डेयरी का नाम और संचालक का नाम भरें!");
+      return;
+    }
+
+    const newUser = {
+      id: "USR-" + Date.now(),
+      role: "dairy",
+      phone: phone,
+      password: password,
+      dairyName: dairyName,
+      dairyNameEn: dairyName,
+      name: ownerName,
+      nameEn: ownerName,
+      gstin: gstin,
+      businessMode: businessMode,
+      address: address,
+      addressEn: address,
+      state: "India",
+      createdAt: new Date().toISOString()
+    };
+
+    users.push(newUser);
+    saveUsersList(users);
+
+    appData.settings.dairyName = dairyName;
+    appData.settings.ownerName = ownerName;
+    appData.settings.phone = phone;
+    appData.settings.gstin = gstin;
+    appData.settings.businessMode = businessMode;
+    appData.settings.address = address;
+    saveData();
+
+    currentUser = newUser;
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUser));
+
+    checkAuthSession();
+    renderApp();
+    switchTab('products-pos');
+
+    const welcomeMsg = currentLang === 'en'
+      ? `Registration successful! Welcome to Dairy Hisab, ${dairyName}.`
+      : `रजिस्ट्रेशन सफल! "${dairyName}" में आपका स्वागत है।`;
+    alert(welcomeMsg);
+  }
 }
 
 function handleLogout() {
@@ -1227,13 +1351,7 @@ function handleLogout() {
   }
 }
 
-function quickDemoLogin() {
-  const users = getUsersList();
-  currentUser = users[0] || DEFAULT_USERS[0];
-  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUser));
-  checkAuthSession();
-  renderApp();
-}
+// Demo login removed - Only real authenticated users and OTP supported
 
 function togglePasswordVisibility(inputId, btn) {
   const input = document.getElementById(inputId);
@@ -1410,7 +1528,8 @@ function switchTab(tabName) {
     activeSection.classList.remove('hidden');
   }
 
-  if (tabName === 'products-pos') renderProductsPosTab();
+  if (tabName === 'doctor-portal') renderDoctorPortalTab();
+  else if (tabName === 'products-pos') renderProductsPosTab();
   else if (tabName === 'customer-portal') renderCustomerPortalTab();
   else if (tabName === 'collection') renderCollectionTab();
   else if (tabName === 'cattle-farm') renderCattleFarmTab();
@@ -2896,14 +3015,7 @@ function importBackupJson(event) {
   reader.readAsText(file);
 }
 
-function resetToDemoData() {
-  if (confirm("क्या आप डेमो डेटा दोबारा लोड करना चाहते हैं?")) {
-    appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    saveData();
-    renderApp();
-    alert("डेमो डेटा लोड हो गया!");
-  }
-}
+// Demo reset removed
 
 // ----------------------------------------------------
 // DASHBOARD & REPORTS
@@ -3263,6 +3375,7 @@ function handleAddVetExpense(e) {
   }
 
   if (!appData.vetExpenses) appData.vetExpenses = [];
+    if (!appData.doctorCases) appData.doctorCases = [];
   appData.vetExpenses.unshift({
     id: "VET-" + Date.now(),
     date,
@@ -3658,3 +3771,371 @@ function renderApp() {
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
+
+
+// ============================================================================
+// DOCTOR REGISTRATION, LOGIN & DOCTOR PORTAL LOGIC
+// ============================================================================
+
+function setSignupUserType(type) {
+  const hiddenInput = document.getElementById('signup-user-type');
+  const btnDairy = document.getElementById('signup-type-dairy-btn');
+  const btnDoc = document.getElementById('signup-type-doctor-btn');
+  const dairyFields = document.getElementById('signup-dairy-fields');
+  const docFields = document.getElementById('signup-doctor-fields');
+  const submitText = document.getElementById('signup-submit-text');
+
+  if (hiddenInput) hiddenInput.value = type;
+
+  if (type === 'doctor') {
+    if (btnDoc) {
+      btnDoc.className = "py-2 px-2 text-center font-bold rounded-lg bg-teal-700 text-white shadow-sm transition text-xs flex items-center justify-center space-x-1";
+    }
+    if (btnDairy) {
+      btnDairy.className = "py-2 px-2 text-center font-bold rounded-lg text-slate-600 hover:text-slate-900 transition text-xs flex items-center justify-center space-x-1";
+    }
+    if (dairyFields) dairyFields.classList.add('hidden');
+    if (docFields) docFields.classList.remove('hidden');
+    if (submitText) submitText.innerText = "🩺 डॉक्टर रजिस्ट्रेशन करें (Register as Doctor)";
+  } else {
+    if (btnDairy) {
+      btnDairy.className = "py-2 px-2 text-center font-bold rounded-lg bg-white text-emerald-800 shadow-sm transition text-xs flex items-center justify-center space-x-1 border border-emerald-100";
+    }
+    if (btnDoc) {
+      btnDoc.className = "py-2 px-2 text-center font-bold rounded-lg text-slate-600 hover:text-slate-900 transition text-xs flex items-center justify-center space-x-1";
+    }
+    if (dairyFields) dairyFields.classList.remove('hidden');
+    if (docFields) docFields.classList.add('hidden');
+    if (submitText) submitText.innerText = "✨ डेयरी खाता बनाएं व शुरू करें (Register Dairy)";
+  }
+}
+
+function updateNavForRole(role) {
+  const docNavBtn = document.getElementById('nav-btn-doctor-portal');
+  const docMobBtn = document.getElementById('mob-btn-doctor-portal');
+
+  const dairyTabs = ['products-pos', 'collection', 'billing', 'rate-chart', 'dashboard'];
+  const commonTabs = ['cattle-farm', 'directory', 'farmers', 'customer-portal'];
+
+  if (role === 'doctor') {
+    if (docNavBtn) docNavBtn.classList.remove('hidden');
+    if (docMobBtn) docMobBtn.classList.remove('hidden');
+
+    // Hide dairy-specific tabs in navbar
+    document.querySelectorAll('#app-navbar .tab-btn').forEach(btn => {
+      const tab = btn.dataset.tab;
+      if (dairyTabs.includes(tab)) {
+        btn.classList.add('hidden');
+      } else {
+        btn.classList.remove('hidden');
+      }
+    });
+
+    // Adjust mobile navbar
+    document.querySelectorAll('#mobile-nav .mobile-tab-btn').forEach(btn => {
+      const tab = btn.dataset.tab;
+      if (tab === 'products-pos' || tab === 'collection' || tab === 'billing' || tab === 'rate-chart') {
+        btn.classList.add('hidden');
+      } else {
+        btn.classList.remove('hidden');
+      }
+    });
+  } else {
+    if (docNavBtn) docNavBtn.classList.add('hidden');
+    if (docMobBtn) docMobBtn.classList.add('hidden');
+
+    document.querySelectorAll('#app-navbar .tab-btn').forEach(btn => {
+      if (btn.id === 'nav-btn-doctor-portal') {
+        btn.classList.add('hidden');
+      } else {
+        btn.classList.remove('hidden');
+      }
+    });
+
+    document.querySelectorAll('#mobile-nav .mobile-tab-btn').forEach(btn => {
+      if (btn.id === 'mob-btn-doctor-portal') {
+        btn.classList.add('hidden');
+      } else {
+        btn.classList.remove('hidden');
+      }
+    });
+  }
+}
+
+function renderDoctorPortalTab() {
+  if (!currentUser || currentUser.role !== 'doctor') return;
+
+  const nameEl = document.getElementById('doc-profile-name');
+  const degreeEl = document.getElementById('doc-profile-degree');
+  const clinicEl = document.getElementById('doc-profile-clinic');
+  const phoneEl = document.getElementById('doc-profile-phone');
+  const locEl = document.getElementById('doc-profile-location');
+  const feeEl = document.getElementById('doc-profile-fee');
+  const emerBadge = document.getElementById('doc-profile-emergency-badge');
+
+  if (nameEl) nameEl.innerText = currentUser.name;
+  if (degreeEl) degreeEl.innerText = `${currentUser.degree || 'B.V.Sc & A.H'} | ${currentUser.specialty || 'पशु शल्य व चिकित्सा'}`;
+  if (clinicEl) clinicEl.innerText = currentUser.clinic || 'पशु चिकित्सालय';
+  if (phoneEl) phoneEl.innerText = currentUser.phone;
+  if (locEl) locEl.innerText = currentUser.location || currentUser.address || 'क्षेत्र';
+  if (feeEl) feeEl.innerText = `₹ ${currentUser.fee || 200}`;
+
+  if (emerBadge) {
+    if (currentUser.isEmergency) {
+      emerBadge.classList.remove('hidden');
+    } else {
+      emerBadge.classList.add('hidden');
+    }
+  }
+
+  // Calculate doctor statistics
+  const cases = appData.doctorCases || [];
+  const myCases = cases.filter(c => !c.doctorPhone || c.doctorPhone === currentUser.phone);
+
+  const totalCases = myCases.length;
+  const currentMonthPrefix = new Date().toISOString().substring(0, 7);
+  const monthCases = myCases.filter(c => c.date && c.date.startsWith(currentMonthPrefix)).length;
+  const totalFees = myCases.reduce((sum, c) => sum + (parseFloat(c.fee) || 0), 0);
+
+  const statTotal = document.getElementById('doc-stat-total-cases');
+  const statMonth = document.getElementById('doc-stat-month-cases');
+  const statFees = document.getElementById('doc-stat-total-fees');
+
+  if (statTotal) statTotal.innerText = totalCases;
+  if (statMonth) statMonth.innerText = monthCases;
+  if (statFees) statFees.innerText = `₹ ${totalFees.toFixed(2)}`;
+
+  // Render treated cases table
+  const tbody = document.getElementById('doc-cases-table-body');
+  if (!tbody) return;
+
+  if (myCases.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" class="text-center py-6 text-slate-400 font-medium">
+          अभी कोई इलाज केस दर्ज नहीं है। बाईं तरफ का फॉर्म भरकर नया केस व WhatsApp पर्ची जारी करें।
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = myCases.map(c => `
+    <tr class="hover:bg-slate-50 transition">
+      <td class="py-2.5 px-3 font-semibold text-slate-800">${c.date}</td>
+      <td class="py-2.5 px-3">
+        <b class="text-slate-900">${c.farmerName}</b>
+        <span class="block text-[11px] text-slate-500">${c.farmerPhone}</span>
+      </td>
+      <td class="py-2.5 px-3 font-bold text-teal-800">${c.animalTag}</td>
+      <td class="py-2.5 px-3">
+        <b class="text-slate-800">${c.diagnosis}</b>
+        <span class="block text-[11px] text-slate-600 truncate max-w-xs" title="${c.prescription}">${c.prescription}</span>
+      </td>
+      <td class="py-2.5 px-3 text-right font-black text-emerald-700">₹ ${parseFloat(c.fee || 0).toFixed(2)}</td>
+      <td class="py-2.5 px-3 text-center">
+        <button onclick="sendCaseToWhatsApp('${c.id}')" class="px-2 py-1 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg text-[10px] shadow-sm flex items-center space-x-1 mx-auto">
+          <span>📲</span>
+          <span>पर्ची</span>
+        </button>
+      </td>
+      <td class="py-2.5 px-3 text-center">
+        <button onclick="deleteDoctorCase('${c.id}')" class="text-slate-400 hover:text-red-600 font-bold text-xs" title="हटाएं">✕</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function handleDoctorTreatment(e) {
+  if (e) e.preventDefault();
+  const farmerName = document.getElementById('doc-treat-farmer-name').value.trim();
+  const farmerPhone = document.getElementById('doc-treat-farmer-phone').value.trim().replace(/\D/g, '');
+  const animalTag = document.getElementById('doc-treat-animal-tag').value.trim();
+  const diagnosis = document.getElementById('doc-treat-diagnosis').value.trim();
+  const prescription = document.getElementById('doc-treat-prescription').value.trim();
+  const fee = parseFloat(document.getElementById('doc-treat-fee').value) || 0;
+  const followUpDate = document.getElementById('doc-treat-followup').value;
+
+  if (!farmerName || farmerPhone.length !== 10 || !animalTag || !diagnosis || !prescription) {
+    alert("कृपया किसान का नाम, 10-अंकों का मोबाइल, पशु टैग, रोग व दवा का पूरा विवरण भरें!");
+    return;
+  }
+
+  const newCase = {
+    id: "CASE-" + Date.now(),
+    doctorPhone: currentUser ? currentUser.phone : "",
+    doctorName: currentUser ? currentUser.name : "डॉ. पशु चिकित्सक",
+    farmerName,
+    farmerPhone,
+    animalTag,
+    diagnosis,
+    prescription,
+    fee,
+    followUpDate,
+    date: new Date().toISOString().split('T')[0],
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  };
+
+  if (!appData.doctorCases) appData.doctorCases = [];
+  appData.doctorCases.unshift(newCase);
+
+  // Also sync into general vetExpenses table for the dairy farm
+  if (!appData.vetExpenses) appData.vetExpenses = [];
+  appData.vetExpenses.unshift({
+    id: "VET-" + Date.now(),
+    animalTag: animalTag,
+    reason: `${diagnosis} (${prescription.substring(0, 35)}...)`,
+    doctorName: newCase.doctorName,
+    amount: fee,
+    date: newCase.date
+  });
+
+  saveData();
+  renderDoctorPortalTab();
+  renderVetExpensesTable();
+
+  // Reset form
+  const form = document.getElementById('doctor-treatment-form');
+  if (form) form.reset();
+
+  // Open WhatsApp digital prescription slip
+  sendCaseToWhatsApp(newCase.id);
+  alert("केस सफलतापूर्वक दर्ज हो गया और किसान को WhatsApp पर्ची तैयार कर दी गई!");
+}
+
+function sendCaseToWhatsApp(caseId) {
+  const item = (appData.doctorCases || []).find(c => c.id === caseId);
+  if (!item) return;
+
+  const doc = currentUser || { name: item.doctorName, phone: item.doctorPhone, clinic: "पशु चिकित्सालय", degree: "B.V.Sc & A.H" };
+
+  const message = 
+`🩺 *पशु चिकित्सा व दवा पर्ची (Veterinary Prescription)* 🩺\n` +
+`━━━━━━━━━━━━━━━━━━━━\n` +
+`🏥 *चिकित्सक:* ${doc.name} (${doc.degree || 'B.V.Sc & A.H'})\n` +
+`🏥 *क्लीनिक:* ${doc.clinic || 'पशु चिकित्सालय'}\n` +
+`📞 *फोन:* ${doc.phone}\n` +
+`━━━━━━━━━━━━━━━━━━━━\n` +
+`👤 *पशुपालक:* ${item.farmerName}\n` +
+`📱 *मोबाइल:* ${item.farmerPhone}\n` +
+`🐄 *पशु टैग/पहचान:* ${item.animalTag}\n` +
+`📅 *तारीख:* ${item.date} (${item.time || ''})\n` +
+`━━━━━━━━━━━━━━━━━━━━\n` +
+`🔬 *रोग / जांच:* ${item.diagnosis}\n\n` +
+`💊 *सुझाई गई दवा व खुराक:*\n` +
+`${item.prescription}\n\n` +
+`💰 *उपचार फीस:* ₹ ${item.fee}\n` +
+`📅 *अगला फॉलो-अप:* ${item.followUpDate || 'आवश्यकतानुसार'}\n` +
+`━━━━━━━━━━━━━━━━━━━━\n` +
+`_Dairy Hisab डिजिटल डॉक्टर पर्ची_`;
+
+  const waUrl = `https://wa.me/91${item.farmerPhone}?text=${encodeURIComponent(message)}`;
+  window.open(waUrl, '_blank');
+}
+
+function deleteDoctorCase(caseId) {
+  if (confirm("क्या आप इस केस रिकॉर्ड को हटाना चाहते हैं?")) {
+    appData.doctorCases = (appData.doctorCases || []).filter(c => c.id !== caseId);
+    saveData();
+    renderDoctorPortalTab();
+  }
+}
+
+function openEditDoctorProfileModal() {
+  if (!currentUser || currentUser.role !== 'doctor') return;
+  const modal = document.getElementById('edit-doctor-profile-modal');
+  if (!modal) return;
+
+  const nameIn = document.getElementById('edit-doc-name');
+  const degIn = document.getElementById('edit-doc-degree');
+  const specIn = document.getElementById('edit-doc-specialty');
+  const clinicIn = document.getElementById('edit-doc-clinic');
+  const feeIn = document.getElementById('edit-doc-fee');
+  const phoneIn = document.getElementById('edit-doc-phone');
+  const locIn = document.getElementById('edit-doc-location');
+  const emerIn = document.getElementById('edit-doc-emergency');
+
+  if (nameIn) nameIn.value = currentUser.name || '';
+  if (degIn) degIn.value = currentUser.degree || '';
+  if (specIn) specIn.value = currentUser.specialty || '';
+  if (clinicIn) clinicIn.value = currentUser.clinic || '';
+  if (feeIn) feeIn.value = currentUser.fee || 200;
+  if (phoneIn) phoneIn.value = currentUser.phone || '';
+  if (locIn) locIn.value = currentUser.location || currentUser.address || '';
+  if (emerIn) emerIn.checked = !!currentUser.isEmergency;
+
+  modal.classList.remove('hidden');
+}
+
+function closeEditDoctorProfileModal() {
+  const modal = document.getElementById('edit-doctor-profile-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function handleUpdateDoctorProfile(e) {
+  if (e) e.preventDefault();
+  if (!currentUser) return;
+
+  const name = document.getElementById('edit-doc-name').value.trim();
+  const degree = document.getElementById('edit-doc-degree').value.trim();
+  const specialty = document.getElementById('edit-doc-specialty').value.trim();
+  const clinic = document.getElementById('edit-doc-clinic').value.trim();
+  const fee = parseFloat(document.getElementById('edit-doc-fee').value) || 200;
+  const phone = document.getElementById('edit-doc-phone').value.trim().replace(/\D/g, '');
+  const location = document.getElementById('edit-doc-location').value.trim();
+  const isEmergency = document.getElementById('edit-doc-emergency').checked;
+
+  if (!name || phone.length !== 10 || !degree) {
+    alert("कृपया नाम, सही 10-अंकों का मोबाइल व डिग्री दर्ज करें!");
+    return;
+  }
+
+  currentUser.name = name.startsWith("डॉ.") ? name : `डॉ. ${name}`;
+  currentUser.degree = degree;
+  currentUser.specialty = specialty;
+  currentUser.clinic = clinic;
+  currentUser.fee = fee;
+  currentUser.phone = phone;
+  currentUser.location = location;
+  currentUser.address = location;
+  currentUser.isEmergency = isEmergency;
+
+  // Update in users storage
+  const users = getUsersList();
+  const idx = users.findIndex(u => u.phone === currentUser.phone || u.id === currentUser.id);
+  if (idx !== -1) {
+    users[idx] = { ...users[idx], ...currentUser };
+    saveUsersList(users);
+  }
+  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUser));
+
+  // Update in appData.doctors
+  if (!appData.doctors) appData.doctors = [];
+  const docIdx = appData.doctors.findIndex(d => d.phone === currentUser.phone);
+  const docObj = {
+    id: "DOC-" + currentUser.phone,
+    name: currentUser.name,
+    degree: currentUser.degree,
+    specialty: currentUser.specialty,
+    clinic: currentUser.clinic,
+    phone: currentUser.phone,
+    location: currentUser.location,
+    rating: currentUser.rating || 5.0,
+    isEmergency: currentUser.isEmergency,
+    isRegistered: true,
+    fee: currentUser.fee
+  };
+
+  if (docIdx !== -1) {
+    appData.doctors[docIdx] = { ...appData.doctors[docIdx], ...docObj };
+  } else {
+    appData.doctors.unshift(docObj);
+  }
+  saveData();
+
+  closeEditDoctorProfileModal();
+  updateHeaderBranding();
+  renderDoctorPortalTab();
+  renderDoctorsGrid();
+  alert("डॉक्टर प्रोफाइल सफलतापूर्वक अपडेट हो गई!");
+}

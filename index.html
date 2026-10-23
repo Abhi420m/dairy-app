@@ -98,13 +98,7 @@
             </button>
           </div>
 
-          <!-- Quick Demo Login Button -->
-          <div class="pt-2 border-t border-slate-100">
-            <button type="button" onclick="quickDemoLogin()" class="w-full py-2 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow-sm">
-              <span>⚡</span>
-              <span data-i18n="btnDemoLogin">सीधे डेमो अकाउंट से लॉगिन करें (Quick Demo)</span>
-            </button>
-          </div>
+
         </div>
 
         <!-- STEP 2: Enter & Verify OTP -->
@@ -188,13 +182,7 @@
           <span data-i18n="btnLoginSubmit">पासवर्ड से लॉग इन करें (Log In)</span>
         </button>
 
-        <!-- Quick Demo Login Button -->
-        <div class="pt-2">
-          <button type="button" onclick="quickDemoLogin()" class="w-full py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow-sm">
-            <span>⚡</span>
-            <span data-i18n="btnDemoLogin">सीधे डेमो अकाउंट से लॉग इन करें (Quick Demo Login)</span>
-          </button>
-        </div>
+
 
         <div class="text-center pt-2 text-xs">
           <button type="button" onclick="switchAuthMode('signup')" class="text-emerald-700 hover:underline font-bold" data-i18n="dontHaveAccount">
@@ -203,24 +191,105 @@
         </div>
       </form>
 
-      <!-- 3. SIGN UP FORM -->
-      <form id="auth-signup-form" onsubmit="handleSignup(event)" class="space-y-3 text-xs hidden max-h-[60vh] overflow-y-auto pr-1">
+      <!-- 3. SIGN UP FORM (DAIRY OWNER OR VETERINARY DOCTOR) -->
+      <form id="auth-signup-form" onsubmit="handleSignup(event)" class="space-y-3 text-xs hidden max-h-[62vh] overflow-y-auto pr-1">
+        
+        <!-- Account Role Selection: Dairy Owner vs Doctor -->
         <div>
-          <label class="block font-bold text-slate-700 mb-1" data-i18n="lblAuthDairyName">डेयरी / व्यापार का नाम (Dairy Name) *</label>
-          <input type="text" id="signup-dairy-name" placeholder="उदा. अपनी डेयरी का नाम लिखें (उदा. बालाजी डेयरी)" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold text-slate-800" required>
+          <label class="block font-bold text-slate-700 mb-1">खाते का प्रकार (Select Account Type) *</label>
+          <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
+            <button type="button" id="signup-type-dairy-btn" onclick="setSignupUserType('dairy')" class="py-2 px-2 text-center font-bold rounded-lg bg-white text-emerald-800 shadow-sm transition text-xs flex items-center justify-center space-x-1 border border-emerald-100">
+              <span>🥛</span>
+              <span>डेयरी संचालक</span>
+            </button>
+            <button type="button" id="signup-type-doctor-btn" onclick="setSignupUserType('doctor')" class="py-2 px-2 text-center font-bold rounded-lg text-slate-600 hover:text-slate-900 transition text-xs flex items-center justify-center space-x-1">
+              <span>🩺</span>
+              <span>पशु चिकित्सक (Doctor)</span>
+            </button>
+          </div>
+          <input type="hidden" id="signup-user-type" value="dairy">
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <!-- 3A. DAIRY OWNER SPECIFIC FIELDS -->
+        <div id="signup-dairy-fields" class="space-y-3">
           <div>
-            <label class="block font-bold text-slate-700 mb-1" data-i18n="lblAuthOwnerName">संचालक का नाम (Owner Name) *</label>
-            <input type="text" id="signup-owner-name" placeholder="आपका नाम" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium" required>
+            <label class="block font-bold text-slate-700 mb-1" data-i18n="lblAuthDairyName">डेयरी / व्यापार का नाम (Dairy Name) *</label>
+            <input type="text" id="signup-dairy-name" placeholder="उदा. अपनी डेयरी का नाम (उदा. बालाजी डेयरी)" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold text-slate-800">
           </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1" data-i18n="lblAuthOwnerName">संचालक का नाम (Owner Name) *</label>
+              <input type="text" id="signup-owner-name" placeholder="आपका नाम" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1" data-i18n="lblAuthBusinessType">व्यापार प्रकार *</label>
+              <select id="signup-business-mode" class="dairy-input w-full px-3 py-2 border rounded-xl font-semibold bg-white">
+                <option value="all">ऑल-इन-वन (दूध + पनीर/घी बिक्री)</option>
+                <option value="products">डेयरी उत्पाद स्टोर (पनीर, घी, दही)</option>
+                <option value="milk">दूध संकलन केंद्र (मिल्क कलेक्शन)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1" data-i18n="lblAuthGstin">GSTIN नंबर (यदि हो तो)</label>
+            <input type="text" id="signup-gstin" placeholder="08AAAAA0000A1Z5" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold uppercase text-slate-800">
+          </div>
+        </div>
+
+        <!-- 3B. DOCTOR SPECIFIC FIELDS -->
+        <div id="signup-doctor-fields" class="space-y-3 hidden bg-teal-50/60 p-3 rounded-2xl border border-teal-200">
+          <div class="flex items-center space-x-1.5 pb-1 border-b border-teal-200 text-teal-900 font-bold">
+            <span class="text-base">🩺</span>
+            <span>पशु चिकित्सक (Doctor) प्रोफाइल विवरण</span>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">डॉक्टर का पूरा नाम (Doctor Full Name) *</label>
+            <input type="text" id="signup-doc-name" placeholder="उदा. डॉ. राजेश कुमार" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold text-slate-900 bg-white">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">डिग्री / योग्यता (Qualification) *</label>
+              <input type="text" id="signup-doc-degree" placeholder="B.V.Sc & A.H / LSA" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium bg-white">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">विशेषज्ञता (Specialization)</label>
+              <input type="text" id="signup-doc-specialty" placeholder="कृत्रिम गर्भाधान AI, सर्जरी, गाय-भैंस" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium bg-white">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">क्लीनिक / अस्पताल का नाम</label>
+              <input type="text" id="signup-doc-clinic" placeholder="सरकारी / निजी पशु चिकित्सालय" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium bg-white">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">परामर्श शुल्क / फीस (₹)</label>
+              <input type="number" step="1" id="signup-doc-fee" placeholder="उदा. 200" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold text-emerald-800 bg-white">
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-2 pt-1">
+            <input type="checkbox" id="signup-doc-emergency" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500">
+            <label for="signup-doc-emergency" class="font-bold text-slate-700 cursor-pointer">🚨 24x7 इमरजेंसी सेवा उपलब्ध है</label>
+          </div>
+        </div>
+
+        <!-- 3C. COMMON FIELDS: MOBILE, ADDRESS, PASSWORD -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <div>
             <label class="flex items-center font-bold text-slate-700 mb-1">
               <span data-i18n="lblAuthPhone">मोबाइल नंबर (10 अंक) *</span>
               <span id="signup-verified-badge" class="hidden ml-1.5 px-1.5 py-0.2 bg-emerald-100 text-emerald-800 text-[10px] rounded font-bold">✅ OTP सत्यापित</span>
             </label>
-            <input type="tel" id="signup-phone" placeholder="9829000000" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold text-emerald-800" required>
+            <input type="tel" id="signup-phone" maxlength="10" placeholder="9829000000" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold text-emerald-800" required>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1" data-i18n="lblAuthAddress">गाँव / शहर / क्लिनिक पता *</label>
+            <input type="text" id="signup-address" placeholder="मुख्य बाजार, ग्राम/शहर" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium" required>
           </div>
         </div>
 
@@ -235,30 +304,10 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <div>
-            <label class="block font-bold text-slate-700 mb-1" data-i18n="lblAuthGstin">GSTIN नंबर (यदि हो तो)</label>
-            <input type="text" id="signup-gstin" placeholder="08AAAAA0000A1Z5" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold uppercase text-slate-800">
-          </div>
-          <div>
-            <label class="block font-bold text-slate-700 mb-1" data-i18n="lblAuthBusinessType">व्यापार प्रकार *</label>
-            <select id="signup-business-mode" class="dairy-input w-full px-3 py-2 border rounded-xl font-semibold bg-white">
-              <option value="all">ऑल-इन-वन (दूध + पनीर/घी बिक्री)</option>
-              <option value="products">डेयरी उत्पाद स्टोर (पनीर, घी, दही)</option>
-              <option value="milk">दूध संकलन केंद्र (मिल्क कलेक्शन)</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label class="block font-bold text-slate-700 mb-1" data-i18n="lblAuthAddress">गाँव / शहर / पूरा पता *</label>
-          <input type="text" id="signup-address" placeholder="मुख्य बाजार, ग्राम/शहर" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium" required>
-        </div>
-
         <div class="pt-2">
-          <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md transition transform active:scale-95 flex items-center justify-center space-x-2">
+          <button type="submit" id="signup-submit-btn" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md transition transform active:scale-95 flex items-center justify-center space-x-2">
             <span>✨</span>
-            <span data-i18n="btnSignupSubmit">खाता बनाएं व शुरू करें (Register)</span>
+            <span id="signup-submit-text">खाता बनाएं व शुरू करें (Register)</span>
           </button>
         </div>
 
@@ -288,12 +337,7 @@
               </span>
               <input type="tel" id="public-search-phone" maxlength="10" placeholder="9414001122" class="dairy-input flex-1 px-3.5 py-2.5 border rounded-r-xl font-bold text-slate-800 text-sm tracking-wider" required>
             </div>
-            <div class="flex items-center space-x-2 pt-1 text-[11px] text-slate-400">
-              <span>डेमो नंबर:</span>
-              <button type="button" onclick="document.getElementById('public-search-phone').value='9414001122'; searchPublicCustomerPassbook();" class="text-emerald-700 font-bold underline">9414001122</button>
-              <span>•</span>
-              <button type="button" onclick="document.getElementById('public-search-phone').value='9829012345'; searchPublicCustomerPassbook();" class="text-emerald-700 font-bold underline">9829012345</button>
-            </div>
+            <p class="text-[11px] text-slate-500 mt-1">अपना 10-अंकों का पंजीकृत मोबाइल नंबर दर्ज कर सर्च करें।</p>
           </div>
 
           <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md transition transform active:scale-95 flex items-center justify-center space-x-2">
@@ -384,6 +428,10 @@
     <nav id="app-navbar" class="bg-white border-b border-slate-200 hidden md:block">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex space-x-1 py-1.5 overflow-x-auto text-sm font-semibold">
+          <button id="nav-btn-doctor-portal" class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition hidden" data-tab="doctor-portal">
+            <span>🩺</span>
+            <span>डॉक्टर क्लिनिक व पर्ची</span>
+          </button>
           <button class="tab-btn nav-tab-active px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="products-pos">
             <span>🧀</span>
             <span data-i18n="tabProductsPos">डेयरी उत्पाद व GST बिलिंग</span>
@@ -429,6 +477,178 @@
   <!-- MAIN CONTAINER (SHOWN WHEN LOGGED IN)                    -->
   <!-- ======================================================== -->
   <main id="main-container" class="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 flex-1 no-print hidden">
+
+    <!-- ======================================================== -->
+    <!-- TAB: DOCTOR PORTAL (पशु चिकित्सक कार्यक्षेत्र व दवाई पर्ची) -->
+    <!-- ======================================================== -->
+    <section id="tab-section-doctor-portal" class="tab-content space-y-6 hidden">
+      
+      <!-- Doctor Profile Header Card -->
+      <div class="dairy-card p-5 sm:p-6 bg-gradient-to-r from-teal-800 via-emerald-800 to-slate-900 text-white rounded-3xl shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="flex items-center space-x-4">
+          <div class="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-3xl shadow-inner">
+            🩺
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <h2 id="doc-profile-name" class="text-xl sm:text-2xl font-black text-white tracking-tight">डॉ. पशु चिकित्सक</h2>
+              <span id="doc-profile-emergency-badge" class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase shadow">
+                🚨 24x7 इमरजेंसी
+              </span>
+            </div>
+            <p id="doc-profile-degree" class="text-xs text-teal-200 font-bold mt-0.5">B.V.Sc & A.H | पशु शल्य व चिकित्सा</p>
+            <p id="doc-profile-clinic" class="text-xs text-emerald-100 opacity-90 mt-0.5">क्लीनिक / अस्पताल</p>
+            <div class="flex flex-wrap items-center gap-3 text-[11px] text-teal-100 mt-2 font-medium">
+              <span>📞 <b id="doc-profile-phone" class="text-white">-</b></span>
+              <span>📍 <span id="doc-profile-location">गाँव / कस्बा</span></span>
+              <span>💰 फीस: <b id="doc-profile-fee" class="text-amber-300">₹ 200</b></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 self-stretch md:self-auto justify-end">
+          <button onclick="openEditDoctorProfileModal()" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-xs font-bold text-white transition flex items-center space-x-1.5 shadow-sm">
+            <span>✏️</span>
+            <span>प्रोफाइल संपादित करें (Edit Profile)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Doctor Top Counters -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="dairy-card p-4 bg-white border-l-4 border-l-teal-600 flex items-center justify-between shadow-sm">
+          <div>
+            <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">कुल इलाज / केस दर्ज</span>
+            <div id="doc-stat-total-cases" class="text-2xl font-black text-slate-900 mt-1">0</div>
+            <p class="text-[11px] text-slate-500 mt-0.5">पशु चिकित्सा हिस्ट्री</p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-teal-50 text-teal-700 flex items-center justify-center text-xl">
+            📋
+          </div>
+        </div>
+
+        <div class="dairy-card p-4 bg-white border-l-4 border-l-blue-600 flex items-center justify-between shadow-sm">
+          <div>
+            <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">इस महीने के केस</span>
+            <div id="doc-stat-month-cases" class="text-2xl font-black text-blue-700 mt-1">0</div>
+            <p class="text-[11px] text-slate-500 mt-0.5">सक्रिय पशु उपचार</p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center text-xl">
+            💉
+          </div>
+        </div>
+
+        <div class="dairy-card p-4 bg-white border-l-4 border-l-emerald-600 flex items-center justify-between shadow-sm">
+          <div>
+            <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">कुल प्राप्त परामर्श शुल्क</span>
+            <div id="doc-stat-total-fees" class="text-2xl font-black text-emerald-700 mt-1">₹ 0</div>
+            <p class="text-[11px] text-slate-500 mt-0.5">डॉक्टर फीस आय</p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center text-xl">
+            💰
+          </div>
+        </div>
+      </div>
+
+      <!-- New Treatment Form & Recent Cases Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left: Issue Prescription / Treatment Form -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="dairy-card p-5 bg-white border border-teal-100 shadow-sm">
+            <div class="flex items-center space-x-2 pb-3 mb-3 border-b border-slate-100">
+              <span class="text-2xl">📝</span>
+              <div>
+                <h3 class="font-black text-slate-900 text-sm">पशु इलाज व डिजिटल दवाई पर्ची जारी करें</h3>
+                <p class="text-[11px] text-slate-500">पर्चे की पर्ची सीधे किसान के WhatsApp पर जाएगी</p>
+              </div>
+            </div>
+
+            <form id="doctor-treatment-form" onsubmit="handleDoctorTreatment(event)" class="space-y-3 text-xs">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">पशुपालक / किसान का नाम *</label>
+                  <input type="text" id="doc-treat-farmer-name" placeholder="उदा. रामकिशन यादव" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold" required>
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">किसान का WhatsApp मोबाइल *</label>
+                  <input type="tel" id="doc-treat-farmer-phone" maxlength="10" placeholder="10 अंक मोबाइल" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold text-emerald-800" required>
+                </div>
+              </div>
+
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">पशु टैग / पहचान (Animal Tag/Details) *</label>
+                <input type="text" id="doc-treat-animal-tag" placeholder="उदा. BF-101 (काली मुर्रा भैंस, 2 ब्यात)" class="dairy-input w-full px-3 py-2 border rounded-xl font-semibold" required>
+              </div>
+
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">रोग / लक्षण (Diagnosis / Symptoms) *</label>
+                <input type="text" id="doc-treat-diagnosis" placeholder="उदा. थनैला (Mastitis), तेज बुखार, आफरा, कृत्रिम गर्भाधान AI" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium" required>
+              </div>
+
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">सुझाई गई दवा व खुराक (Prescription & Dosage) *</label>
+                <textarea id="doc-treat-prescription" rows="3" placeholder="उदा. Inj. Intacef Tazo 4.5g IM, Inj. Melonex 15ml, Bolus Bovilact 2-2 गोली सुबह शाम 3 दिन" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium leading-relaxed" required></textarea>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">इलाज / परामर्श शुल्क (₹) *</label>
+                  <input type="number" step="1" id="doc-treat-fee" placeholder="उदा. 200" class="dairy-input w-full px-3 py-2 border rounded-xl font-black text-emerald-800" required>
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">अगली जांच / फॉलो-अप तारीख</label>
+                  <input type="date" id="doc-treat-followup" class="dairy-input w-full px-3 py-2 border rounded-xl font-semibold">
+                </div>
+              </div>
+
+              <div class="pt-2">
+                <button type="submit" id="doc-treat-submit-btn" class="w-full py-3 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white rounded-xl text-xs font-black shadow-lg transition transform active:scale-95 flex items-center justify-center space-x-2">
+                  <span>📲</span>
+                  <span>केस सेव करें व WhatsApp पर्ची भेजें</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Right: Recent Treated Cases Log -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="dairy-card p-5 bg-white border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+              <h3 class="font-black text-slate-900 text-sm flex items-center space-x-2">
+                <span>📋</span>
+                <span>इलाज हिस्ट्री व मरीज रजिस्टर (Cases Treated)</span>
+              </h3>
+              <span class="text-[11px] font-bold text-teal-800 bg-teal-50 px-2.5 py-1 rounded-full">
+                डिजिटल रिकॉर्ड
+              </span>
+            </div>
+
+            <div class="overflow-x-auto max-h-96 overflow-y-auto">
+              <table class="w-full text-left text-xs whitespace-nowrap">
+                <thead class="bg-slate-50 text-slate-600 font-bold border-b sticky top-0">
+                  <tr>
+                    <th class="py-2.5 px-3">तारीख</th>
+                    <th class="py-2.5 px-3">किसान विवरण</th>
+                    <th class="py-2.5 px-3">पशु</th>
+                    <th class="py-2.5 px-3">रोग / लक्षण</th>
+                    <th class="py-2.5 px-3 text-right">शुल्क</th>
+                    <th class="py-2.5 px-3 text-center">पर्ची</th>
+                    <th class="py-2.5 px-3 text-center">हटाएं</th>
+                  </tr>
+                </thead>
+                <tbody id="doc-cases-table-body" class="divide-y divide-slate-100">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
 
     <!-- ======================================================== -->
     <!-- TAB: DAIRY PRODUCTS & GST BILLING (POS)                  -->
@@ -681,13 +901,7 @@
             </button>
           </div>
 
-          <!-- Quick Test Numbers -->
-          <div class="flex flex-wrap items-center justify-center gap-2 pt-1 text-xs text-slate-400">
-            <span>डेमो नंबर पर क्लिक करें:</span>
-            <button onclick="document.getElementById('portal-phone-input').value='9414001122'; searchCustomerRecord();" class="text-emerald-600 font-bold underline">9414001122 (सुरेश हलवाई)</button>
-            <span>•</span>
-            <button onclick="document.getElementById('portal-phone-input').value='9414003344'; searchCustomerRecord();" class="text-emerald-600 font-bold underline">9414003344 (शर्मा जी)</button>
-          </div>
+<p class="text-xs text-slate-400 mt-1">ग्राहक अथवा किसान का 10-अंकों का मोबाइल नंबर दर्ज कर सर्च करें।</p>
         </div>
       </div>
 
@@ -1094,11 +1308,7 @@
               </label>
             </div>
 
-            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-              <button onclick="resetToDemoData()" class="text-slate-400 hover:text-slate-600 underline" data-i18n="btnReloadDemo">
-                डेमो डेटा दोबारा लोड करें (Reload Demo Data)
-              </button>
-            </div>
+
           </div>
 
           <!-- Google Drive Cloud Backup Card -->
@@ -1507,6 +1717,10 @@
   <!-- MOBILE BOTTOM NAVIGATION BAR (SHOWN WHEN LOGGED IN)      -->
   <!-- ======================================================== -->
   <nav id="mobile-nav" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 px-2 py-1.5 flex justify-around shadow-lg no-print hidden">
+    <button id="mob-btn-doctor-portal" class="mobile-tab-btn text-slate-500 flex flex-col items-center text-[10px] hidden" data-tab="doctor-portal">
+      <span class="text-base">🩺</span>
+      <span>क्लिनिक</span>
+    </button>
     <button class="mobile-tab-btn text-emerald-600 font-bold flex flex-col items-center text-[10px]" data-tab="products-pos">
       <span class="text-base">🧀</span>
       <span data-i18n="mobProducts">पनीर/घी POS</span>
@@ -1963,6 +2177,75 @@
           <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow text-xs flex items-center justify-center space-x-1.5 transition">
             <span>💾</span>
             <span>दुकान डायरेक्टरी में जोड़ें (Save Shop)</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+    <!-- ======================================================== -->
+  <!-- 8. EDIT DOCTOR PROFILE MODAL                             -->
+  <!-- ======================================================== -->
+  <div id="edit-doctor-profile-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl modal-fade-in border border-slate-100">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h3 class="font-black text-slate-900 text-base flex items-center space-x-1.5">
+          <span>🩺</span>
+          <span>डॉक्टर प्रोफाइल संपादित करें</span>
+        </h3>
+        <button onclick="closeEditDoctorProfileModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center font-bold">
+          ✕
+        </button>
+      </div>
+
+      <form id="edit-doctor-profile-form" onsubmit="handleUpdateDoctorProfile(event)" class="space-y-3 mt-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">डॉक्टर का नाम *</label>
+          <input type="text" id="edit-doc-name" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold text-slate-900" required>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">डिग्री / योग्यता *</label>
+            <input type="text" id="edit-doc-degree" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium" required>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">विशेषज्ञता</label>
+            <input type="text" id="edit-doc-specialty" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">अस्पताल / क्लीनिक</label>
+            <input type="text" id="edit-doc-clinic" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">परामर्श फीस (₹)</label>
+            <input type="number" step="1" id="edit-doc-fee" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold text-emerald-800">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">मोबाइल नंबर *</label>
+            <input type="tel" id="edit-doc-phone" maxlength="10" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold text-slate-900" required>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">गाँव / शहर / पता *</label>
+            <input type="text" id="edit-doc-location" class="dairy-input w-full px-3 py-2 border rounded-xl font-medium" required>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2 pt-1">
+          <input type="checkbox" id="edit-doc-emergency" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500">
+          <label for="edit-doc-emergency" class="font-bold text-slate-700 cursor-pointer">🚨 24x7 आपातकालीन (Emergency) सेवा सक्रिय</label>
+        </div>
+
+        <div class="pt-3">
+          <button type="submit" class="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold shadow text-xs flex items-center justify-center space-x-1.5 transition">
+            <span>💾</span>
+            <span>प्रोफाइल सुरक्षित करें (Update Profile)</span>
           </button>
         </div>
       </form>
