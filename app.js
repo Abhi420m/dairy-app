@@ -517,6 +517,8 @@ const DEFAULT_DATA = {
     buffaloRatePerFat: 8.40,
     cowFatKgRate: 750,
     buffaloFatKgRate: 840,
+    cowFixedRate: 45, // Without Fat Fixed Rate (₹/L or ₹/Kg)
+    buffaloFixedRate: 65, // Without Fat Fixed Rate (₹/L or ₹/Kg)
     standardCowSnf: 8.5,
     standardBuffaloSnf: 9.0,
     snfBonusRate: 0.50,
@@ -2279,9 +2281,13 @@ function renderCollectionTable() {
           </span>
         </td>
         <td class="px-4 py-3 font-bold text-slate-800 text-right">${parseFloat(item.liters).toFixed(2)} ${item.unit === 'kg' ? 'Kg' : 'L'}</td>
-        <td class="px-4 py-3 text-right font-medium">${parseFloat(item.fat).toFixed(1)}%</td>
-        <td class="px-4 py-3 text-right text-slate-500">${item.snf ? parseFloat(item.snf).toFixed(1) : '-'}</td>
-        <td class="px-4 py-3 text-right font-semibold text-slate-700">₹${parseFloat(item.rate).toFixed(2)}${item.unit === 'kg' ? '/Kg' : '/L'}</td>
+        <td class="px-4 py-3 text-right font-medium">
+          ${(item.pricingMode === 'fixed' || !item.fat || item.fat === 0) 
+            ? '<span class="px-1.5 py-0.5 text-[10px] font-bold rounded bg-purple-100 text-purple-900 border border-purple-200">बिना फैट</span>' 
+            : parseFloat(item.fat).toFixed(1) + '%'}
+        </td>
+        <td class="px-4 py-3 text-right text-slate-500">${(item.pricingMode === 'fixed' || !item.snf) ? '-' : parseFloat(item.snf).toFixed(1)}</td>
+        <td class="px-4 py-3 text-right font-semibold text-slate-700">₹${parseFloat(item.rate).toFixed(2)}${item.unit === 'kg' ? '/Kg' : '/L'}${item.pricingMode === 'fixed' ? ' <span class="text-[10px] text-purple-700 font-bold">(फिक्स)</span>' : ''}</td>
         <td class="px-4 py-3 text-right font-bold text-emerald-600">₹${parseFloat(item.totalAmount).toFixed(2)}</td>
         <td class="px-4 py-3 text-center space-x-1 whitespace-nowrap">
           <button onclick="showReceiptModal('${item.id}')" class="p-1.5 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded" title="${t('btnPrintReceipt')}">🖨️</button>
@@ -2312,9 +2318,24 @@ function handleSaveMilkEntry(e) {
   const shift = document.getElementById('col-shift').value;
   const milkType = document.getElementById('col-milk-type').value;
 
-  if (!liters || liters <= 0 || !fat || fat <= 0) {
-    alert("कृपया सही मात्रा (लीटर) और फैट (%) दर्ज करें!");
+  const pricingMode = (document.getElementById('col-pricing-mode') && document.getElementById('col-pricing-mode').value) || 'fat';
+
+  if (!liters || liters <= 0) {
+    alert("कृपया सही मात्रा दर्ज करें!");
     return;
+  }
+
+  if (pricingMode === 'fat') {
+    if (!fat || fat <= 0) {
+      alert("कृपया सही फैट (%) दर्ज करें!");
+      return;
+    }
+  } else {
+    // Fixed rate mode without fat
+    if (!rate || rate <= 0) {
+      alert("कृपया फिक्स दर (भाव) दर्ज करें!");
+      return;
+    }
   }
 
   const now = new Date();
@@ -2331,9 +2352,10 @@ function handleSaveMilkEntry(e) {
     farmerNameEn: farmer ? (farmer.nameEn || farmer.name) : 'Unknown',
     milkType,
     unit,
+    pricingMode,
     liters,
     qty: liters,
-    fat,
+    fat: pricingMode === 'fixed' ? 0 : fat,
     snf,
     clr,
     rate,
@@ -2429,6 +2451,11 @@ function showReceiptModal(collectionId) {
           <td class="py-0.5">${isEn ? 'Quantity:' : 'मात्रा:'}</td>
           <td class="text-right font-bold text-sm">${parseFloat(item.liters).toFixed(2)} ${item.unit === 'kg' ? 'Kg (किलो)' : 'L (लीटर)'}</td>
         </tr>
+        ${(item.pricingMode === 'fixed' || !item.fat || item.fat === 0) ? `
+        <tr>
+          <td class="py-0.5">${isEn ? 'Rate Mode:' : 'रेट प्रणाली:'}</td>
+          <td class="text-right font-bold text-purple-800">${isEn ? 'Fixed Flat Rate (No Fat)' : 'बिना फैट (फिक्स भाव)'}</td>
+        </tr>` : `
         <tr>
           <td class="py-0.5">${isEn ? 'Fat (%):' : 'फैट (Fat %):'}</td>
           <td class="text-right font-bold">${parseFloat(item.fat).toFixed(1)} %</td>
@@ -2437,10 +2464,10 @@ function showReceiptModal(collectionId) {
         <tr>
           <td class="py-0.5">${isEn ? 'SNF (%):' : 'एस.एन.एफ (SNF):'}</td>
           <td class="text-right">${parseFloat(item.snf).toFixed(1)} %</td>
-        </tr>` : ''}
+        </tr>` : ''}`}
         <tr>
           <td class="py-0.5">${isEn ? 'Rate:' : 'दर (भाव):'}</td>
-          <td class="text-right font-bold">₹ ${parseFloat(item.rate).toFixed(2)} / ${item.unit === 'kg' ? 'Kg' : 'L'}</td>
+          <td class="text-right font-bold">₹ ${parseFloat(item.rate).toFixed(2)} / ${item.unit === 'kg' ? 'Kg' : 'L'}${item.pricingMode === 'fixed' ? ' (फिक्स)' : ''}</td>
         </tr>
         <tr class="border-t border-dashed border-black pt-1">
           <td class="py-1 font-bold text-sm">${isEn ? 'Total Amount:' : 'कुल राशि:'}</td>
@@ -2489,9 +2516,10 @@ function shareOnWhatsApp(collectionId) {
 तारीख: ${item.date} (${shiftText})
 किसान: ${farmerName} (कोड: #${item.farmerId})
 दूध: ${milkTypeText}
-मात्रा: *${parseFloat(item.liters).toFixed(2)} ${item.unit === 'kg' ? 'किलो (Kg)' : 'लीटर (L)'}*
+${(item.pricingMode === 'fixed' || !item.fat || item.fat === 0) ? `मात्रा: *${parseFloat(item.liters).toFixed(2)} ${item.unit === 'kg' ? 'किलो (Kg)' : 'लीटर (L)'}*
+दर: ₹${parseFloat(item.rate).toFixed(2)} / ${item.unit === 'kg' ? 'Kg' : 'लीटर'} (बिना फैट फिक्स भाव)` : `मात्रा: *${parseFloat(item.liters).toFixed(2)} ${item.unit === 'kg' ? 'किलो (Kg)' : 'लीटर (L)'}*
 फैट: *${parseFloat(item.fat).toFixed(1)}%* | SNF: ${item.snf || '-'}%
-दर: ₹${parseFloat(item.rate).toFixed(2)} / ${item.unit === 'kg' ? 'Kg' : 'लीटर'}
+दर: ₹${parseFloat(item.rate).toFixed(2)} / ${item.unit === 'kg' ? 'Kg' : 'लीटर'}`}
 -----------------------------
 💰 *कुल राशि: ₹${parseFloat(item.totalAmount).toFixed(2)}*
 -----------------------------
@@ -2588,6 +2616,81 @@ function setCollectionUnit(unit) {
   if (typeof updateFn === 'function') updateFn();
 }
 
+function setCollectionPricingMode(mode) {
+  const hiddenInput = document.getElementById('col-pricing-mode');
+  const btnFat = document.getElementById('col-mode-fat-btn');
+  const btnFixed = document.getElementById('col-mode-fixed-btn');
+  const fatInput = document.getElementById('col-fat');
+  const clrInput = document.getElementById('col-clr');
+  const snfInput = document.getElementById('col-snf');
+  const rateInput = document.getElementById('col-rate');
+  const rateBadge = document.getElementById('col-rate-mode-badge');
+  const milkTypeSelect = document.getElementById('col-milk-type');
+
+  if (hiddenInput) hiddenInput.value = mode;
+
+  if (mode === 'fixed') {
+    if (btnFixed) btnFixed.className = "px-3 py-1.5 rounded-lg bg-purple-700 text-white shadow-sm transition font-bold flex items-center space-x-1";
+    if (btnFat) btnFat.className = "px-3 py-1.5 rounded-lg text-slate-700 hover:text-slate-900 transition font-medium flex items-center space-x-1";
+    
+    if (fatInput) {
+      fatInput.required = false;
+      fatInput.placeholder = "बिना फैट";
+      fatInput.value = "";
+      fatInput.classList.add('bg-slate-100', 'opacity-60');
+    }
+    if (clrInput) {
+      clrInput.value = "";
+      clrInput.disabled = true;
+      clrInput.classList.add('bg-slate-100', 'opacity-60');
+    }
+    if (snfInput) {
+      snfInput.value = "";
+      snfInput.disabled = true;
+      snfInput.classList.add('bg-slate-100', 'opacity-60');
+    }
+
+    if (rateBadge) {
+      rateBadge.innerText = "फिक्स भाव";
+      rateBadge.className = "text-[9px] font-bold text-purple-800 bg-purple-100 px-1.5 py-0.2 rounded";
+    }
+
+    // Populate fixed rate from settings
+    const milkType = milkTypeSelect ? milkTypeSelect.value : 'buffalo';
+    const fixedRate = milkType === 'cow' 
+      ? (appData.settings && appData.settings.cowFixedRate ? appData.settings.cowFixedRate : 45)
+      : (appData.settings && appData.settings.buffaloFixedRate ? appData.settings.buffaloFixedRate : 65);
+
+    if (rateInput) rateInput.value = fixedRate;
+
+  } else {
+    if (btnFat) btnFat.className = "px-3 py-1.5 rounded-lg bg-emerald-600 text-white shadow-sm transition font-bold flex items-center space-x-1";
+    if (btnFixed) btnFixed.className = "px-3 py-1.5 rounded-lg text-slate-700 hover:text-slate-900 transition font-medium flex items-center space-x-1";
+
+    if (fatInput) {
+      fatInput.required = true;
+      fatInput.placeholder = "e.g. 6.5";
+      fatInput.classList.remove('bg-slate-100', 'opacity-60');
+    }
+    if (clrInput) {
+      clrInput.disabled = false;
+      clrInput.classList.remove('bg-slate-100', 'opacity-60');
+    }
+    if (snfInput) {
+      snfInput.disabled = false;
+      snfInput.classList.remove('bg-slate-100', 'opacity-60');
+    }
+
+    if (rateBadge) {
+      rateBadge.innerText = "फैट दर";
+      rateBadge.className = "text-[9px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.2 rounded";
+    }
+  }
+
+  const updateFn = window._updateMilkCalculations;
+  if (typeof updateFn === 'function') updateFn();
+}
+
 function initAutoCalculators() {
   const fatInput = document.getElementById('col-fat');
   const snfInput = document.getElementById('col-snf');
@@ -2611,11 +2714,27 @@ function initAutoCalculators() {
       snfInput.value = calculatedSnf;
     }
     
-    let snf = parseFloat(snfInput.value) || (milkType === 'cow' ? 8.5 : 9.0);
-    let calculatedRate = calculateRate(milkType, fat, snf, unit);
-    rateInput.value = calculatedRate;
+    const pricingMode = (document.getElementById('col-pricing-mode') && document.getElementById('col-pricing-mode').value) || 'fat';
+
+    let rate = 0;
+    if (pricingMode === 'fixed') {
+      // In fixed mode, use either the manually entered rate or default from settings
+      if (!rateInput.value) {
+        rate = milkType === 'cow'
+          ? (appData.settings && appData.settings.cowFixedRate ? appData.settings.cowFixedRate : 45)
+          : (appData.settings && appData.settings.buffaloFixedRate ? appData.settings.buffaloFixedRate : 65);
+        rateInput.value = rate;
+      } else {
+        rate = parseFloat(rateInput.value) || 0;
+      }
+    } else {
+      let snf = parseFloat(snfInput.value) || (milkType === 'cow' ? 8.5 : 9.0);
+      rate = calculateRate(milkType, fat, snf, unit);
+      rateInput.value = rate;
+    }
+
     let qty = parseFloat(litersInput.value) || 0;
-    amountInput.value = (qty * calculatedRate).toFixed(2);
+    amountInput.value = (qty * rate).toFixed(2);
 
     if (convertHint) {
       if (qty > 0) {
@@ -2636,7 +2755,7 @@ function initAutoCalculators() {
 
   window._updateMilkCalculations = updateCalculations;
 
-  [fatInput, clrInput, snfInput, milkTypeSelect, litersInput].forEach(el => {
+  [fatInput, clrInput, snfInput, milkTypeSelect, litersInput, rateInput].forEach(el => {
     if (el) {
       el.addEventListener('input', updateCalculations);
       el.addEventListener('change', updateCalculations);
@@ -3005,6 +3124,11 @@ function renderRateChartTab() {
   if (bufFatKgEl) bufFatKgEl.value = appData.settings.buffaloFatKgRate || 840;
 
   document.getElementById('set-snf-bonus').value = appData.settings.snfBonusRate || 0.5;
+  const cowFixedEl = document.getElementById('set-cow-fixed-rate');
+  const bufFixedEl = document.getElementById('set-buf-fixed-rate');
+  if (cowFixedEl) cowFixedEl.value = appData.settings.cowFixedRate || 45;
+  if (bufFixedEl) bufFixedEl.value = appData.settings.buffaloFixedRate || 65;
+
   document.getElementById('set-receipt-footer').value = appData.settings.receiptFooter || '';
 }
 
@@ -3038,6 +3162,11 @@ function handleSaveSettings(e) {
   if (bufFatKgEl) appData.settings.buffaloFatKgRate = parseFloat(bufFatKgEl.value) || 840;
 
   appData.settings.snfBonusRate = parseFloat(document.getElementById('set-snf-bonus').value) || 0.5;
+
+  const cowFixedEl = document.getElementById('set-cow-fixed-rate');
+  const bufFixedEl = document.getElementById('set-buf-fixed-rate');
+  if (cowFixedEl) appData.settings.cowFixedRate = parseFloat(cowFixedEl.value) || 45;
+  if (bufFixedEl) appData.settings.buffaloFixedRate = parseFloat(bufFixedEl.value) || 65;
 
   // Apply default unit to active collection form
   if (appData.settings.defaultUnit) {

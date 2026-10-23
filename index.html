@@ -1016,6 +1016,25 @@
             </div>
           </div>
 
+          <!-- Pricing Mode Selector: Fat Based vs Fixed Rate (Without Fat) -->
+          <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-100/80 p-2.5 rounded-xl border border-slate-200 text-xs">
+            <div class="flex items-center space-x-1.5 font-bold text-slate-800">
+              <span>💰</span>
+              <span>रेट निर्धारण तरीका:</span>
+            </div>
+            <div class="flex bg-slate-200 p-0.5 rounded-xl text-xs font-bold">
+              <button type="button" id="col-mode-fat-btn" onclick="setCollectionPricingMode('fat')" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white shadow-sm transition flex items-center space-x-1">
+                <span>📊</span>
+                <span>फैट / SNF अनुसार</span>
+              </button>
+              <button type="button" id="col-mode-fixed-btn" onclick="setCollectionPricingMode('fixed')" class="px-3 py-1.5 rounded-lg text-slate-700 hover:text-slate-900 transition flex items-center space-x-1">
+                <span>🏷️</span>
+                <span>बिना फैट फिक्स भाव (Fixed Rate)</span>
+              </button>
+            </div>
+            <input type="hidden" id="col-pricing-mode" value="fat">
+          </div>
+
           <div class="grid grid-cols-2 sm:grid-cols-6 gap-3">
             <div>
               <div class="flex items-center justify-between mb-1">
@@ -1289,6 +1308,30 @@
               <div>
                 <label class="block font-bold text-slate-600 mb-1" data-i18n="lblSnfBonus">SNF बोनस / कटौती दर (प्रति 0.1 SNF ₹)</label>
                 <input type="number" step="0.05" id="set-snf-bonus" class="dairy-input w-full px-3 py-2 border rounded-lg font-medium">
+              </div>
+
+              <!-- Fixed Rate Settings (Without Fat) -->
+              <div class="bg-purple-50/70 p-3.5 rounded-xl border border-purple-200 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-purple-950 text-xs flex items-center space-x-1">
+                    <span>🏷️</span>
+                    <span>बिना फैट फिक्स भाव (Fixed Rate Without Fat - ₹ प्रति लीटर/किलो)</span>
+                  </span>
+                  <span class="text-[10px] text-purple-800 bg-purple-100 px-2 py-0.5 rounded font-bold">सीधा भाव</span>
+                </div>
+                <p class="text-[11px] text-purple-900 leading-relaxed">
+                  यदि किसी किसान से बिना फैट जांचे सीधा प्रति लीटर या किलो का फिक्स भाव तय है, तो यहाँ डिफ़ॉल्ट दर सेट करें:
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div>
+                    <label class="block font-bold text-slate-700 mb-1">गाय दूध: फिक्स भाव (₹/L या ₹/Kg)</label>
+                    <input type="number" step="0.5" id="set-cow-fixed-rate" placeholder="45" class="dairy-input w-full px-3 py-2 border border-purple-300 rounded-lg font-black text-purple-900 text-sm bg-white">
+                  </div>
+                  <div>
+                    <label class="block font-bold text-slate-700 mb-1">भैंस दूध: फिक्स भाव (₹/L या ₹/Kg)</label>
+                    <input type="number" step="0.5" id="set-buf-fixed-rate" placeholder="65" class="dairy-input w-full px-3 py-2 border border-purple-300 rounded-lg font-black text-purple-900 text-sm bg-white">
+                  </div>
+                </div>
               </div>
             </div>
 
