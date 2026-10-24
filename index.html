@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="hi" class="overflow-x-hidden max-w-full">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Dairy Hisab (डेयरी हिसाब) - दूध व डेयरी उत्पाद GST बिलिंग</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="./public/favicon.svg">
@@ -33,38 +33,38 @@
 
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 pb-20 md:pb-8 flex flex-col">
+<body class="bg-slate-50 min-h-screen text-slate-800 pb-20 md:pb-8 flex flex-col w-full max-w-full overflow-x-hidden relative">
 
   <!-- ======================================================== -->
   <!-- AUTHENTICATION SCREEN (LOGIN & SIGN UP)                  -->
   <!-- ======================================================== -->
-  <div id="auth-screen" class="min-h-screen auth-bg flex items-center justify-center p-4">
-    <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl p-6 sm:p-8 modal-fade-in border border-emerald-100">
+  <div id="auth-screen" class="min-h-screen auth-bg flex items-center justify-center p-3 sm:p-4">
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl p-4 sm:p-8 modal-fade-in border border-emerald-100">
       
       <!-- Logo and App Title -->
-      <div class="text-center pb-5 border-b border-slate-100">
-        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center text-3xl mx-auto shadow-lg mb-3">
+      <div class="text-center pb-4 sm:pb-5 border-b border-slate-100">
+        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center text-2xl sm:text-3xl mx-auto shadow-lg mb-2.5">
           🧀
         </div>
-        <h2 class="text-2xl font-black text-slate-900 tracking-tight">Dairy Hisab (डेयरी हिसाब)</h2>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Dairy Hisab (डेयरी हिसाब)</h2>
         <p class="text-xs text-slate-500 mt-1 leading-relaxed" data-i18n="authSub">
           दूध संकलन, पनीर/घी बिक्री, GST बिलिंग एवं हिसाब-किताब का संपूर्ण समाधान
         </p>
       </div>
 
       <!-- Segmented Toggle: OTP Login vs Password vs Sign Up -->
-      <div class="flex bg-slate-100 p-1 rounded-2xl my-5 text-xs">
-        <button id="auth-tab-otp-btn" onclick="switchAuthMode('otp')" class="flex-1 py-2 text-center font-bold rounded-xl bg-white text-emerald-800 shadow-sm border border-emerald-100 transition">
-          <span data-i18n="tabOtpLogin">📱 OTP लॉगिन</span>
+      <div class="grid grid-cols-4 gap-1 bg-slate-100 p-1 rounded-2xl my-4 text-[11px] sm:text-xs">
+        <button id="auth-tab-otp-btn" onclick="switchAuthMode('otp')" class="py-2 text-center font-bold rounded-xl bg-white text-emerald-800 shadow-sm border border-emerald-100 transition truncate">
+          <span data-i18n="tabOtpLogin">📱 OTP</span>
         </button>
-        <button id="auth-tab-login-btn" onclick="switchAuthMode('login')" class="flex-1 py-2 text-center font-bold rounded-xl text-slate-500 hover:text-slate-800 transition">
+        <button id="auth-tab-login-btn" onclick="switchAuthMode('login')" class="py-2 text-center font-bold rounded-xl text-slate-500 hover:text-slate-800 transition truncate">
           <span data-i18n="tabPasswordLogin">🔑 पासवर्ड</span>
         </button>
-        <button id="auth-tab-signup-btn" onclick="switchAuthMode('signup')" class="flex-1 py-2 text-center font-bold rounded-xl text-slate-500 hover:text-slate-800 transition">
-          <span data-i18n="tabSignup">✨ नया खाता</span>
+        <button id="auth-tab-signup-btn" onclick="switchAuthMode('signup')" class="py-2 text-center font-bold rounded-xl text-slate-500 hover:text-slate-800 transition truncate">
+          <span data-i18n="tabSignup">✨ नया</span>
         </button>
-        <button id="auth-tab-passbook-btn" onclick="switchAuthMode('passbook')" class="flex-1 py-2 text-center font-bold rounded-xl text-slate-500 hover:text-slate-800 transition">
-          <span>🔍 ग्राहक हिसाब</span>
+        <button id="auth-tab-passbook-btn" onclick="switchAuthMode('passbook')" class="py-2 text-center font-bold rounded-xl text-slate-500 hover:text-slate-800 transition truncate">
+          <span>🔍 हिसाब</span>
         </button>
       </div>
 
@@ -126,13 +126,13 @@
             </div>
 
             <!-- 6 Split Digit Inputs -->
-            <div class="flex justify-between space-x-1.5 sm:space-x-2" id="otp-boxes-container">
-              <input type="text" maxlength="1" inputmode="numeric" class="otp-box w-10 sm:w-11 h-12 text-center text-xl font-black rounded-xl border-2 border-slate-200 text-slate-800 shadow-sm" autofocus>
-              <input type="text" maxlength="1" inputmode="numeric" class="otp-box w-10 sm:w-11 h-12 text-center text-xl font-black rounded-xl border-2 border-slate-200 text-slate-800 shadow-sm">
-              <input type="text" maxlength="1" inputmode="numeric" class="otp-box w-10 sm:w-11 h-12 text-center text-xl font-black rounded-xl border-2 border-slate-200 text-slate-800 shadow-sm">
-              <input type="text" maxlength="1" inputmode="numeric" class="otp-box w-10 sm:w-11 h-12 text-center text-xl font-black rounded-xl border-2 border-slate-200 text-slate-800 shadow-sm">
-              <input type="text" maxlength="1" inputmode="numeric" class="otp-box w-10 sm:w-11 h-12 text-center text-xl font-black rounded-xl border-2 border-slate-200 text-slate-800 shadow-sm">
-              <input type="text" maxlength="1" inputmode="numeric" class="otp-box w-10 sm:w-11 h-12 text-center text-xl font-black rounded-xl border-2 border-slate-200 text-slate-800 shadow-sm">
+            <div class="flex justify-between space-x-1 sm:space-x-2" id="otp-boxes-container">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-box w-8 sm:w-11 h-10 sm:h-12 text-center text-lg sm:text-xl font-black rounded-xl border-2 border-slate-200 text-slate-800 shadow-sm flex-1 max-w-[42px]" autofocus>
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-box w-8 sm:w-11 h-10 sm:h-12 text-center text-lg sm:text-xl font-black rounded-xl border-2 border-slate-200 text-slate-800 shadow-sm flex-1 max-w-[42px]">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-box w-8 sm:w-11 h-10 sm:h-12 text-center text-lg sm:text-xl font-black rounded-xl border-2 border-slate-200 text-slate-800 shadow-sm flex-1 max-w-[42px]">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-box w-8 sm:w-11 h-10 sm:h-12 text-center text-lg sm:text-xl font-black rounded-xl border-2 border-slate-200 text-slate-800 shadow-sm flex-1 max-w-[42px]">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-box w-8 sm:w-11 h-10 sm:h-12 text-center text-lg sm:text-xl font-black rounded-xl border-2 border-slate-200 text-slate-800 shadow-sm flex-1 max-w-[42px]">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-box w-8 sm:w-11 h-10 sm:h-12 text-center text-lg sm:text-xl font-black rounded-xl border-2 border-slate-200 text-slate-800 shadow-sm flex-1 max-w-[42px]">
             </div>
           </div>
 
@@ -363,51 +363,51 @@
   <!-- ======================================================== -->
   <!-- MAIN APP TOP HEADER (SHOWN WHEN LOGGED IN)               -->
   <!-- ======================================================== -->
-  <header id="app-header" class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white shadow-md sticky top-0 z-40 no-print hidden">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+  <header id="app-header" class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white shadow-md sticky top-0 z-40 no-print hidden w-full max-w-full overflow-x-hidden">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex items-center justify-between gap-2">
       
       <!-- Logo and App Name with 3-Line (☰) Menu Button -->
-      <div class="flex items-center space-x-2.5 sm:space-x-3">
+      <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1 mr-1 sm:mr-2">
         <!-- 3-Line Hamburger Menu Button -->
-        <button id="menu-toggle-btn" onclick="toggleSidebarMenu()" class="w-10 h-10 rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 flex items-center justify-center text-white text-2xl border border-white/30 shadow-md transition cursor-pointer select-none" title="मेनू खोलें (3 Lines Menu)">
+        <button id="menu-toggle-btn" onclick="toggleSidebarMenu()" class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 flex items-center justify-center text-white text-xl sm:text-2xl border border-white/30 shadow-md transition cursor-pointer select-none" title="मेनू खोलें (3 Lines Menu)">
           ☰
         </button>
 
-        <div class="w-10 h-10 rounded-xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-2xl shadow-inner cursor-pointer" onclick="toggleSidebarMenu()" title="Dairy Hisab">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-xl bg-white/10 backdrop-blur border border-white/20 hidden sm:flex items-center justify-center text-xl sm:text-2xl shadow-inner cursor-pointer" onclick="toggleSidebarMenu()" title="Dairy Hisab">
           🧀
         </div>
-        <div>
-          <div class="flex items-center space-x-2">
-            <h1 id="app-header-title" class="text-lg sm:text-xl font-black tracking-tight leading-none text-white drop-shadow-sm">
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center space-x-1.5 sm:space-x-2">
+            <h1 id="app-header-title" class="text-sm sm:text-lg lg:text-xl font-black tracking-tight leading-none text-white drop-shadow-sm truncate max-w-[150px] xs:max-w-[210px] sm:max-w-none">
               Dairy Hisab (डेयरी हिसाब)
             </h1>
-            <span id="app-header-badge" class="bg-emerald-500/80 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow uppercase">
+            <span id="app-header-badge" class="hidden md:inline-block bg-emerald-500/80 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow uppercase shrink-0">
               डेयरी ऐप
             </span>
-            <span id="header-shift-badge" class="bg-amber-400/90 text-amber-950 text-[10px] font-black px-1.5 py-0.5 rounded shadow">
+            <span id="header-shift-badge" class="hidden sm:inline-block bg-amber-400/90 text-amber-950 text-[10px] font-black px-1.5 py-0.5 rounded shadow shrink-0">
               🌅 सुबह
             </span>
           </div>
-          <p id="app-header-tag" class="text-xs text-emerald-100 font-medium mt-0.5 opacity-90 hidden sm:block">
+          <p id="app-header-tag" class="text-xs text-emerald-100 font-medium mt-0.5 opacity-90 hidden lg:block truncate">
             दूध संकलन, पनीर, घी, दही GST बिलिंग एवं ग्राहक हिसाब
           </p>
         </div>
       </div>
 
       <!-- Right Controls: User Profile, Business Mode & Language Switcher -->
-      <div class="flex items-center space-x-2 sm:space-x-3">
+      <div class="flex items-center space-x-1.5 sm:space-x-3 shrink-0">
         
-        <!-- Logged-in User Profile & Logout -->
-        <div class="flex items-center bg-white/10 px-2.5 py-1 rounded-xl border border-white/20 text-xs">
+        <!-- Logged-in User Profile & Logout (hidden on mobile, visible in drawer & desktop) -->
+        <div class="hidden sm:flex items-center bg-white/10 px-2.5 py-1 rounded-xl border border-white/20 text-xs shrink-0">
           <span class="mr-1.5">👤</span>
-          <span id="header-user-name" class="font-bold text-white max-w-[120px] truncate">Admin</span>
+          <span id="header-user-name" class="font-bold text-white max-w-[90px] md:max-w-[120px] truncate">Admin</span>
           <button onclick="handleLogout()" class="ml-2 px-2 py-0.5 bg-red-500/80 hover:bg-red-600 text-white rounded text-[11px] font-bold transition shadow-sm" title="Logout">
-            🚪 <span class="hidden sm:inline" data-i18n="logoutBtn">लॉग आउट</span>
+            🚪 <span class="hidden md:inline" data-i18n="logoutBtn">लॉग आउट</span>
           </button>
         </div>
 
         <!-- Business Mode Pill -->
-        <div class="hidden lg:flex items-center space-x-1.5 bg-emerald-900/60 px-2.5 py-1 rounded-lg border border-emerald-600/50 text-xs">
+        <div class="hidden lg:flex items-center space-x-1.5 bg-emerald-900/60 px-2.5 py-1 rounded-lg border border-emerald-600/50 text-xs shrink-0">
           <span class="text-emerald-200" data-i18n="businessModeLabel">डेयरी मोड:</span>
           <select id="business-mode-select" onchange="setBusinessMode(this.value)" class="bg-transparent text-white font-bold text-xs focus:outline-none cursor-pointer">
             <option value="all" class="text-slate-900" data-i18n="modeAll">ऑल-इन-वन संपूर्ण डेयरी</option>
@@ -417,11 +417,11 @@
         </div>
 
         <!-- Language Switcher -->
-        <div class="bg-white/10 p-0.5 rounded-lg flex items-center border border-white/20 backdrop-blur">
-          <button id="lang-btn-hi" onclick="setLanguage('hi')" class="px-2 py-1 text-xs font-bold rounded-md bg-white text-emerald-800 shadow transition">
+        <div class="bg-white/10 p-0.5 rounded-lg flex items-center border border-white/20 backdrop-blur shrink-0">
+          <button id="lang-btn-hi" onclick="setLanguage('hi')" class="px-2 py-0.5 sm:py-1 text-[11px] sm:text-xs font-bold rounded-md bg-white text-emerald-800 shadow transition">
             हिन्दी
           </button>
-          <button id="lang-btn-en" onclick="setLanguage('en')" class="px-2 py-1 text-xs font-semibold rounded-md text-emerald-100 hover:text-white transition">
+          <button id="lang-btn-en" onclick="setLanguage('en')" class="px-2 py-0.5 sm:py-1 text-[11px] sm:text-xs font-semibold rounded-md text-emerald-100 hover:text-white transition">
             EN
           </button>
         </div>
@@ -903,19 +903,19 @@
             <!-- Products Grid -->
             <!-- Category Filter Pills & Add Custom Item Trigger -->
             <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pb-3 border-b border-slate-100">
-              <div class="flex space-x-1 bg-slate-100 p-1 rounded-xl text-xs">
-                <button type="button" class="pos-cat-btn px-3 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 text-white shadow transition" data-cat="all" onclick="setPosCategory('all')">
+              <div class="flex space-x-1 bg-slate-100 p-1 rounded-xl text-xs overflow-x-auto max-w-full no-scrollbar">
+                <button type="button" class="pos-cat-btn shrink-0 px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 text-white shadow transition" data-cat="all" onclick="setPosCategory('all')">
                   सभी (All)
                 </button>
-                <button type="button" class="pos-cat-btn px-3 py-1.5 text-xs font-semibold rounded-xl bg-transparent text-slate-700 hover:bg-white transition" data-cat="dairy" onclick="setPosCategory('dairy')">
+                <button type="button" class="pos-cat-btn shrink-0 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl bg-transparent text-slate-700 hover:bg-white transition" data-cat="dairy" onclick="setPosCategory('dairy')">
                   🧀 डेयरी उत्पाद
                 </button>
-                <button type="button" class="pos-cat-btn px-3 py-1.5 text-xs font-semibold rounded-xl bg-transparent text-slate-700 hover:bg-white transition" data-cat="equipment" onclick="setPosCategory('equipment')">
+                <button type="button" class="pos-cat-btn shrink-0 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl bg-transparent text-slate-700 hover:bg-white transition" data-cat="equipment" onclick="setPosCategory('equipment')">
                   ⚙️ उपकरण व मशीनरी
                 </button>
               </div>
 
-              <button type="button" onclick="openAddCustomItemModal()" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition flex items-center space-x-1 shadow-sm">
+              <button type="button" onclick="openAddCustomItemModal()" class="shrink-0 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition flex items-center space-x-1 shadow-sm">
                 <span>➕</span>
                 <span>नया सामान जोड़ें</span>
               </button>
@@ -1998,38 +1998,50 @@
   <!-- ======================================================== -->
   <!-- MOBILE BOTTOM NAVIGATION BAR (SHOWN WHEN LOGGED IN)      -->
   <!-- ======================================================== -->
-  <nav id="mobile-nav" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 px-2 py-1.5 flex justify-around shadow-lg no-print hidden">
-    <button id="mob-btn-doctor-portal" class="mobile-tab-btn text-slate-500 flex flex-col items-center text-[10px] hidden" data-tab="doctor-portal">
-      <span class="text-base">🩺</span>
-      <span>क्लिनिक</span>
+  <!-- MOBILE BOTTOM NAVIGATION BAR                             -->
+  <!-- ======================================================== -->
+  <nav id="mobile-nav" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 px-1 py-1.5 flex items-center justify-around shadow-lg no-print hidden">
+    <!-- Doctor Clinic (Shown for Doctor role) -->
+    <button id="mob-btn-doctor-portal" class="mobile-tab-btn flex-1 text-slate-500 flex flex-col items-center justify-center text-[10px] hidden" data-tab="doctor-portal">
+      <span class="text-base sm:text-lg">🩺</span>
+      <span class="truncate max-w-[55px]">क्लिनिक</span>
     </button>
-    <button class="mobile-tab-btn text-emerald-600 font-bold flex flex-col items-center text-[10px]" data-tab="products-pos">
-      <span class="text-base">🧀</span>
-      <span data-i18n="mobProducts">पनीर/घी POS</span>
+    <!-- Livestock / Cattle (Shown for Doctor role) -->
+    <button id="mob-btn-cattle-farm" class="mobile-tab-btn flex-1 text-slate-500 flex flex-col items-center justify-center text-[10px] hidden" data-tab="cattle-farm">
+      <span class="text-base sm:text-lg">🐄</span>
+      <span class="truncate max-w-[55px]">पशुधन</span>
     </button>
-    <button class="mobile-tab-btn text-slate-500 flex flex-col items-center text-[10px]" data-tab="customer-portal">
-      <span class="text-base">🔍</span>
-      <span data-i18n="mobCustomer">ग्राहक खाता</span>
+    <!-- Directory (Shown for Doctor role) -->
+    <button id="mob-btn-directory" class="mobile-tab-btn flex-1 text-slate-500 flex flex-col items-center justify-center text-[10px] hidden" data-tab="directory">
+      <span class="text-base sm:text-lg">🏥</span>
+      <span class="truncate max-w-[55px]">दुकानें</span>
     </button>
-    <button class="mobile-tab-btn text-slate-500 flex flex-col items-center text-[10px]" data-tab="collection">
-      <span class="text-base">🥛</span>
-      <span data-i18n="mobCollection">दूध संकलन</span>
+
+    <!-- Dairy POS (Default for Dairy Owner) -->
+    <button id="mob-btn-products-pos" class="mobile-tab-btn flex-1 text-emerald-600 font-bold flex flex-col items-center justify-center text-[10px]" data-tab="products-pos">
+      <span class="text-base sm:text-lg">🧀</span>
+      <span class="truncate max-w-[55px]" data-i18n="mobProducts">POS बिक्री</span>
     </button>
-    <button class="mobile-tab-btn text-slate-500 flex flex-col items-center text-[10px]" data-tab="billing">
-      <span class="text-base">🧾</span>
-      <span data-i18n="mobBilling">बिलिंग</span>
+    <!-- Milk Collection -->
+    <button id="mob-btn-collection" class="mobile-tab-btn flex-1 text-slate-500 flex flex-col items-center justify-center text-[10px]" data-tab="collection">
+      <span class="text-base sm:text-lg">🥛</span>
+      <span class="truncate max-w-[55px]" data-i18n="mobCollection">संकलन</span>
     </button>
-    <button class="mobile-tab-btn text-slate-500 flex flex-col items-center text-[10px]" data-tab="cattle-farm">
-      <span class="text-base">🐄</span>
-      <span data-i18n="mobCattle">पशुपालन</span>
+    <!-- Customer Passbook -->
+    <button id="mob-btn-customer-portal" class="mobile-tab-btn flex-1 text-slate-500 flex flex-col items-center justify-center text-[10px]" data-tab="customer-portal">
+      <span class="text-base sm:text-lg">🔍</span>
+      <span class="truncate max-w-[55px]" data-i18n="mobCustomer">पासबुक</span>
     </button>
-    <button class="mobile-tab-btn text-slate-500 flex flex-col items-center text-[10px]" data-tab="directory">
-      <span class="text-base">🩺</span>
-      <span data-i18n="mobDirectory">डॉक्टर/दुकान</span>
+    <!-- 10-day Billing -->
+    <button id="mob-btn-billing" class="mobile-tab-btn flex-1 text-slate-500 flex flex-col items-center justify-center text-[10px]" data-tab="billing">
+      <span class="text-base sm:text-lg">🧾</span>
+      <span class="truncate max-w-[55px]" data-i18n="mobBilling">बिलिंग</span>
     </button>
-    <button class="mobile-tab-btn text-slate-500 flex flex-col items-center text-[10px]" data-tab="rate-chart">
-      <span class="text-base">⚙️</span>
-      <span data-i18n="mobSettings">GST सेटिंग्स</span>
+
+    <!-- 3-Line Menu Drawer Trigger Button (Easily reachable by thumb!) -->
+    <button type="button" onclick="toggleSidebarMenu()" class="flex-1 flex flex-col items-center justify-center text-[10px] font-bold text-emerald-800 active:scale-95 transition">
+      <span class="text-base sm:text-lg">☰</span>
+      <span class="truncate max-w-[55px]">मेनू (All)</span>
     </button>
   </nav>
 
@@ -2129,8 +2141,8 @@
   </div>
 
   <!-- 3. FARMER PASSBOOK MODAL -->
-  <div id="passbook-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl modal-fade-in flex flex-col max-h-[90vh]">
+  <div id="passbook-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl modal-fade-in flex flex-col max-h-[90vh]">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100">
         <div>
           <h3 id="passbook-farmer-name" class="font-bold text-slate-900 text-base">रामकिशन यादव</h3>
@@ -2141,22 +2153,22 @@
         </button>
       </div>
 
-      <div class="grid grid-cols-3 gap-3 my-4 text-xs">
-        <div class="bg-slate-50 p-3 rounded-xl">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 my-3 sm:my-4 text-xs">
+        <div class="bg-slate-50 p-2.5 sm:p-3 rounded-xl">
           <span class="text-slate-400" data-i18n="lblTotalDelivered">कुल संकलित दूध:</span>
           <div id="passbook-total-liters" class="text-base font-bold text-slate-800">0 L</div>
         </div>
-        <div class="bg-slate-50 p-3 rounded-xl">
+        <div class="bg-slate-50 p-2.5 sm:p-3 rounded-xl">
           <span class="text-slate-400" data-i18n="lblGrossMilkValue">सकल दूध मूल्य:</span>
           <div id="passbook-total-milk" class="text-base font-bold text-emerald-600">₹ 0</div>
         </div>
-        <div class="bg-slate-50 p-3 rounded-xl">
+        <div class="bg-slate-50 p-2.5 sm:p-3 rounded-xl">
           <span class="text-slate-400" data-i18n="lblCurrentAdvance">वर्तमान पेशगी:</span>
           <div id="passbook-advance" class="text-base font-bold text-amber-600">₹ 0</div>
         </div>
       </div>
 
-      <div class="overflow-y-auto flex-1 border border-slate-100 rounded-xl">
+      <div class="overflow-x-auto overflow-y-auto flex-1 border border-slate-100 rounded-xl">
         <table class="w-full text-left text-xs whitespace-nowrap">
           <thead class="bg-slate-100 text-slate-600 font-bold sticky top-0">
             <tr>

@@ -3557,7 +3557,7 @@ function searchPublicCustomerPassbook() {
     html += `
       <div class="pt-2">
         <h5 class="font-bold text-[11px] text-slate-700 mb-1">हालिया दूध संकलन पर्चियां:</h5>
-        <div class="max-h-40 overflow-y-auto border rounded-xl bg-white text-[10px]">
+        <div class="max-h-40 overflow-auto border rounded-xl bg-white text-[10px]">
           <table class="w-full text-left divide-y divide-slate-100">
             <thead class="bg-slate-100 font-bold text-slate-600">
               <tr>
@@ -4307,18 +4307,17 @@ function updateNavForRole(role) {
       }
     });
 
-    // Adjust mobile navbar
+    // Adjust mobile navbar for Doctor
     document.querySelectorAll('#mobile-nav .mobile-tab-btn').forEach(btn => {
       const tab = btn.dataset.tab;
-      if (tab === 'products-pos' || tab === 'collection' || tab === 'billing' || tab === 'rate-chart') {
-        btn.classList.add('hidden');
-      } else {
+      if (tab === 'doctor-portal' || tab === 'cattle-farm' || tab === 'directory' || tab === 'customer-portal') {
         btn.classList.remove('hidden');
+      } else {
+        btn.classList.add('hidden');
       }
     });
   } else {
     if (docNavBtn) docNavBtn.classList.add('hidden');
-    if (docMobBtn) docMobBtn.classList.add('hidden');
 
     document.querySelectorAll('#app-navbar .tab-btn').forEach(btn => {
       if (btn.id === 'nav-btn-doctor-portal') {
@@ -4328,11 +4327,13 @@ function updateNavForRole(role) {
       }
     });
 
+    // Adjust mobile navbar for Dairy Owner
     document.querySelectorAll('#mobile-nav .mobile-tab-btn').forEach(btn => {
-      if (btn.id === 'mob-btn-doctor-portal') {
-        btn.classList.add('hidden');
-      } else {
+      const tab = btn.dataset.tab;
+      if (tab === 'products-pos' || tab === 'collection' || tab === 'customer-portal' || tab === 'billing') {
         btn.classList.remove('hidden');
+      } else {
+        btn.classList.add('hidden');
       }
     });
   }
