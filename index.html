@@ -366,9 +366,14 @@
   <header id="app-header" class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white shadow-md sticky top-0 z-40 no-print hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
       
-      <!-- Logo and App Name -->
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-2xl shadow-inner">
+      <!-- Logo and App Name with 3-Line (☰) Menu Button -->
+      <div class="flex items-center space-x-2.5 sm:space-x-3">
+        <!-- 3-Line Hamburger Menu Button -->
+        <button id="menu-toggle-btn" onclick="toggleSidebarMenu()" class="w-10 h-10 rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 flex items-center justify-center text-white text-2xl border border-white/30 shadow-md transition cursor-pointer select-none" title="मेनू खोलें (3 Lines Menu)">
+          ☰
+        </button>
+
+        <div class="w-10 h-10 rounded-xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-2xl shadow-inner cursor-pointer" onclick="toggleSidebarMenu()" title="Dairy Hisab">
           🧀
         </div>
         <div>
@@ -472,6 +477,179 @@
       </div>
     </nav>
   </header>
+
+  <!-- ======================================================== -->
+  <!-- 3-LINE (☰) HAMBURGER SIDEBAR DRAWER MENU                 -->
+  <!-- ======================================================== -->
+  <div id="sidebar-drawer" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex transition-opacity duration-300">
+    <!-- Click backdrop to close -->
+    <div id="sidebar-drawer-backdrop" class="fixed inset-0 opacity-0 transition-opacity duration-300" onclick="closeSidebarMenu()"></div>
+
+    <!-- Drawer Panel (Slides in from Left) -->
+    <div id="sidebar-drawer-panel" class="relative w-80 sm:w-96 max-w-[85vw] bg-white h-full shadow-2xl flex flex-col transform -translate-x-full transition-transform duration-300 ease-in-out z-10">
+      
+      <!-- Drawer Header -->
+      <div class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white p-5 flex items-center justify-between border-b border-emerald-900 shadow">
+        <div class="flex items-center space-x-3">
+          <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur border border-white/20 flex items-center justify-center text-3xl shadow-inner">
+            🧀
+          </div>
+          <div>
+            <h3 id="drawer-dairy-title" class="font-black text-white text-base leading-tight">Dairy Hisab</h3>
+            <p id="drawer-owner-name" class="text-xs text-emerald-200 mt-0.5 font-medium">संचालक: Admin</p>
+            <span id="drawer-role-badge" class="inline-block mt-1 bg-emerald-500/80 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow uppercase">
+              डेयरी संचालक
+            </span>
+          </div>
+        </div>
+        <button id="sidebar-close-btn" onclick="closeSidebarMenu()" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-lg transition active:scale-95" title="बंद करें (Close)">
+          ✕
+        </button>
+      </div>
+
+      <!-- Quick Shift & Language bar in Drawer -->
+      <div class="bg-slate-50 px-4 py-2 border-b border-slate-200 flex items-center justify-between text-xs">
+        <div class="flex items-center space-x-1.5 font-semibold text-slate-700">
+          <span>पाली:</span>
+          <span id="drawer-shift-display" class="font-bold text-emerald-800">🌅 सुबह</span>
+        </div>
+        <div class="flex items-center space-x-1">
+          <button id="drawer-lang-btn-hi" onclick="setLanguage('hi')" class="px-2 py-0.5 text-xs font-bold rounded bg-emerald-600 text-white shadow">हिन्दी</button>
+          <button id="drawer-lang-btn-en" onclick="setLanguage('en')" class="px-2 py-0.5 text-xs font-semibold rounded bg-slate-200 text-slate-700">EN</button>
+        </div>
+      </div>
+
+      <!-- Drawer Scrollable Navigation Links -->
+      <div class="flex-1 overflow-y-auto p-3 space-y-3 text-sm font-semibold">
+        
+        <!-- SECTION 1: DAIRY BUSINESS (Shown for Dairy Owner) -->
+        <div id="drawer-section-dairy" class="space-y-1">
+          <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">दूध व डेयरी कारोबार</p>
+          
+          <button onclick="switchTab('products-pos'); closeSidebarMenu();" class="drawer-menu-btn w-full px-3 py-2.5 rounded-xl flex items-center space-x-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition" data-tab="products-pos">
+            <span class="text-xl">🧀</span>
+            <div class="text-left">
+              <div class="font-bold">डेयरी उत्पाद व GST बिलिंग</div>
+              <div class="text-[11px] text-slate-400 font-normal">पनीर, घी, दही, उपकरण बिलिंग काउंटर</div>
+            </div>
+          </button>
+
+          <button onclick="switchTab('collection'); closeSidebarMenu();" class="drawer-menu-btn w-full px-3 py-2.5 rounded-xl flex items-center space-x-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition" data-tab="collection">
+            <span class="text-xl">🥛</span>
+            <div class="text-left">
+              <div class="font-bold">दूध संकलन (Milk Collection)</div>
+              <div class="text-[11px] text-slate-400 font-normal">दूध एंट्री, फैट, CLR, लीटर व किलो तौल</div>
+            </div>
+          </button>
+
+          <button onclick="switchTab('customer-portal'); closeSidebarMenu();" class="drawer-menu-btn w-full px-3 py-2.5 rounded-xl flex items-center space-x-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition" data-tab="customer-portal">
+            <span class="text-xl">🔍</span>
+            <div class="text-left">
+              <div class="font-bold">ग्राहक पासबुक (Customer Portal)</div>
+              <div class="text-[11px] text-slate-400 font-normal">ग्राहक व किसान का पूरा पुराना हिसाब देखें</div>
+            </div>
+          </button>
+
+          <button onclick="switchTab('farmers'); closeSidebarMenu();" class="drawer-menu-btn w-full px-3 py-2.5 rounded-xl flex items-center space-x-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition" data-tab="farmers">
+            <span class="text-xl">👨‍🌾</span>
+            <div class="text-left">
+              <div class="font-bold">किसान रजिस्टर (Farmers)</div>
+              <div class="text-[11px] text-slate-400 font-normal">पंजीकृत किसान, पेशगी व खाता सूची</div>
+            </div>
+          </button>
+
+          <button onclick="switchTab('billing'); closeSidebarMenu();" class="drawer-menu-btn w-full px-3 py-2.5 rounded-xl flex items-center space-x-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition" data-tab="billing">
+            <span class="text-xl">🧾</span>
+            <div class="text-left">
+              <div class="font-bold">10-दिवसीय पखवाड़ा बिलिंग</div>
+              <div class="text-[11px] text-slate-400 font-normal">पेमेंट पर्ची व किसानों का भुगतान रजिस्टर</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- SECTION 2: DOCTOR CLINIC (Shown for Doctor role) -->
+        <div id="drawer-section-doctor" class="space-y-1 hidden">
+          <p class="text-[11px] font-bold text-teal-600 uppercase tracking-wider px-3 mb-1">पशु चिकित्सा क्लिनिक</p>
+
+          <button onclick="switchTab('doctor-portal'); closeSidebarMenu();" class="drawer-menu-btn w-full px-3 py-2.5 rounded-xl flex items-center space-x-3 text-slate-700 hover:bg-teal-50 hover:text-teal-800 transition" data-tab="doctor-portal">
+            <span class="text-xl">🩺</span>
+            <div class="text-left">
+              <div class="font-bold">डॉक्टर क्लिनिक व पर्ची</div>
+              <div class="text-[11px] text-slate-400 font-normal">मरीज इलाज, डिजिटल पर्ची व WhatsApp</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- SECTION 3: LIVESTOCK & DIRECTORY -->
+        <div class="space-y-1 pt-2 border-t border-slate-100">
+          <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">पशुधन, डॉक्टर व दुकानें</p>
+
+          <button onclick="switchTab('cattle-farm'); closeSidebarMenu();" class="drawer-menu-btn w-full px-3 py-2.5 rounded-xl flex items-center space-x-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition" data-tab="cattle-farm">
+            <span class="text-xl">🐄</span>
+            <div class="text-left">
+              <div class="font-bold">पशुपालन व चारा खर्च (Cattle)</div>
+              <div class="text-[11px] text-slate-400 font-normal">कुल भैंस/गाय, चारा खपत व डॉक्टर खर्च</div>
+            </div>
+          </button>
+
+          <button onclick="switchTab('directory'); closeSidebarMenu();" class="drawer-menu-btn w-full px-3 py-2.5 rounded-xl flex items-center space-x-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition" data-tab="directory">
+            <span class="text-xl">🏥</span>
+            <div class="text-left">
+              <div class="font-bold">डॉक्टर व दुकानें (Directory)</div>
+              <div class="text-[11px] text-slate-400 font-normal">पशु चिकित्सक रेटिंग्स, चारा व मशीन दुकानें</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- SECTION 4: SETTINGS & BACKUP -->
+        <div class="space-y-1 pt-2 border-t border-slate-100">
+          <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">सेटिंग्स व बैकअप</p>
+
+          <button onclick="switchTab('rate-chart'); closeSidebarMenu();" class="drawer-menu-btn w-full px-3 py-2.5 rounded-xl flex items-center space-x-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition" data-tab="rate-chart">
+            <span class="text-xl">⚙️</span>
+            <div class="text-left">
+              <div class="font-bold">GST व रेट सेटिंग्स</div>
+              <div class="text-[11px] text-slate-400 font-normal">फैट भाव, किलो/लीटर, डेयरी प्रोफाइल</div>
+            </div>
+          </button>
+
+          <button onclick="switchTab('dashboard'); closeSidebarMenu();" class="drawer-menu-btn w-full px-3 py-2.5 rounded-xl flex items-center space-x-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition" data-tab="dashboard">
+            <span class="text-xl">📊</span>
+            <div class="text-left">
+              <div class="font-bold">डैशबोर्ड व रिपोर्ट (Dashboard)</div>
+              <div class="text-[11px] text-slate-400 font-normal">कुल दूध, राजस्व व व्यापार स्थिति</div>
+            </div>
+          </button>
+
+          <button onclick="exportToGoogleDrive(); closeSidebarMenu();" class="w-full px-3 py-2.5 rounded-xl flex items-center space-x-3 bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition">
+            <span class="text-xl">☁️</span>
+            <div class="text-left">
+              <div class="font-bold">Google Drive बैकअप</div>
+              <div class="text-[10px] text-emerald-600 font-normal">1-क्लिक सुरक्षित क्लाउड बैकअप</div>
+            </div>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Drawer Footer with User Info & Logout -->
+      <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <span class="text-xl">👤</span>
+          <div>
+            <div id="drawer-user-name" class="text-xs font-bold text-slate-800 truncate max-w-[130px]">Admin</div>
+            <div id="drawer-user-phone" class="text-[10px] text-slate-500">9829012345</div>
+          </div>
+        </div>
+
+        <button id="drawer-logout-btn" onclick="handleLogout()" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1">
+          <span>🚪</span>
+          <span>लॉग आउट</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
 
   <!-- ======================================================== -->
   <!-- MAIN CONTAINER (SHOWN WHEN LOGGED IN)                    -->

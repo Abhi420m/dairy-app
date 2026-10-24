@@ -776,6 +776,7 @@ function updateHeaderBranding() {
     if (modeSelect && modeSelect.parentElement) {
       modeSelect.parentElement.classList.add('hidden');
     }
+    updateDrawerUserInfo();
     return;
   }
 
@@ -810,6 +811,118 @@ function updateHeaderBranding() {
 
   if (userEl && currentUser) {
     userEl.innerText = currentUser.name || currentUser.phone;
+  }
+  updateDrawerUserInfo();
+}
+
+
+// ============================================================================
+// 3-LINE (☰) HAMBURGER DRAWER MENU LOGIC
+// ============================================================================
+
+function toggleSidebarMenu() {
+  const drawer = document.getElementById('sidebar-drawer');
+  if (!drawer) return;
+  if (drawer.classList.contains('hidden')) {
+    openSidebarMenu();
+  } else {
+    closeSidebarMenu();
+  }
+}
+
+function openSidebarMenu() {
+  const drawer = document.getElementById('sidebar-drawer');
+  const panel = document.getElementById('sidebar-drawer-panel');
+  const backdrop = document.getElementById('sidebar-drawer-backdrop');
+  if (!drawer || !panel || !backdrop) return;
+
+  updateDrawerUserInfo();
+
+  // Highlight current active tab inside drawer
+  document.querySelectorAll('.drawer-menu-btn').forEach(btn => {
+    if (btn.dataset.tab === currentTab) {
+      btn.classList.add('bg-emerald-700', 'text-white', 'font-bold', 'shadow-sm');
+      btn.classList.remove('text-slate-700', 'hover:bg-emerald-50', 'hover:text-emerald-800');
+    } else {
+      btn.classList.remove('bg-emerald-700', 'text-white', 'font-bold', 'shadow-sm');
+      btn.classList.add('text-slate-700', 'hover:bg-emerald-50', 'hover:text-emerald-800');
+    }
+  });
+
+  drawer.classList.remove('hidden');
+  requestAnimationFrame(() => {
+    panel.classList.remove('-translate-x-full');
+    panel.classList.add('translate-x-0');
+    backdrop.classList.remove('opacity-0');
+    backdrop.classList.add('opacity-100');
+  });
+  document.body.classList.add('overflow-hidden');
+}
+
+function closeSidebarMenu() {
+  const drawer = document.getElementById('sidebar-drawer');
+  const panel = document.getElementById('sidebar-drawer-panel');
+  const backdrop = document.getElementById('sidebar-drawer-backdrop');
+  if (!drawer || !panel || !backdrop) return;
+
+  panel.classList.remove('translate-x-0');
+  panel.classList.add('-translate-x-full');
+  backdrop.classList.remove('opacity-100');
+  backdrop.classList.add('opacity-0');
+  document.body.classList.remove('overflow-hidden');
+
+  setTimeout(() => {
+    drawer.classList.add('hidden');
+  }, 220);
+}
+
+function updateDrawerUserInfo() {
+  const titleEl = document.getElementById('drawer-dairy-title');
+  const ownerEl = document.getElementById('drawer-owner-name');
+  const roleBadgeEl = document.getElementById('drawer-role-badge');
+  const userPhoneEl = document.getElementById('drawer-user-phone');
+
+  let title = currentLang === 'en' ? "Dairy Hisab" : "डेयरी हिसाब";
+  if (currentUser) {
+    if (currentUser.role === 'doctor') {
+      title = currentUser.clinic || currentUser.name || "पशु चिकित्सालय";
+    } else if (currentUser.dairyName) {
+      title = currentUser.dairyName;
+    } else if (appData.settings && appData.settings.dairyName) {
+      title = appData.settings.dairyName;
+    }
+  }
+
+  if (titleEl) titleEl.innerText = title;
+
+  if (ownerEl) {
+    if (currentUser) {
+      ownerEl.innerText = currentUser.role === 'doctor'
+        ? `🩺 Dr. ${currentUser.name || ''} (${currentUser.degree || 'B.V.Sc'})`
+        : `👤 ${currentUser.name || 'डेयरी संचालक'}`;
+    } else {
+      ownerEl.innerText = "डेयरी प्रबंधन";
+    }
+  }
+
+  if (roleBadgeEl) {
+    if (currentUser && currentUser.role === 'doctor') {
+      roleBadgeEl.innerText = "🩺 पशु चिकित्सक (Doctor)";
+      roleBadgeEl.className = "bg-teal-400 text-teal-950 text-[10px] font-black px-2 py-0.5 rounded shadow uppercase";
+    } else {
+      const userGstin = (currentUser && currentUser.gstin) || (appData.settings && appData.settings.gstin);
+      if (userGstin) {
+        roleBadgeEl.innerText = "GST: " + userGstin;
+        roleBadgeEl.className = "bg-amber-400 text-amber-950 text-[10px] font-black px-2 py-0.5 rounded shadow uppercase";
+      } else {
+        roleBadgeEl.innerText = currentLang === 'en' ? "Dairy App" : "डेयरी बिजनेस";
+        roleBadgeEl.className = "bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow uppercase";
+      }
+    }
+  }
+
+  if (userPhoneEl && currentUser) {
+    userPhoneEl.innerText = currentUser.phone ? `+91 ${currentUser.phone}` : "";
   }
 }
 
@@ -1473,10 +1586,25 @@ function updateLanguageUI() {
     if (translated) el.placeholder = translated;
   });
 
+  const drawerBtnHi = document.getElementById('drawer-lang-btn-hi');
+  const drawerBtnEn = document.getElementById('drawer-lang-btn-en');
+  if (drawerBtnHi && drawerBtnEn) {
+    if (currentLang === 'hi') {
+      drawerBtnHi.className = "px-2 py-0.5 text-xs font-bold rounded bg-emerald-600 text-white shadow";
+      drawerBtnEn.className = "px-2 py-0.5 text-xs font-semibold rounded bg-slate-200 text-slate-700";
+    } else {
+      drawerBtnHi.className = "px-2 py-0.5 text-xs font-semibold rounded bg-slate-200 text-slate-700";
+      drawerBtnEn.className = "px-2 py-0.5 text-xs font-bold rounded bg-emerald-600 text-white shadow";
+    }
+  }
+
   const shiftBadgeEl = document.getElementById('header-shift-badge');
-  if (shiftBadgeEl) {
+  const drawerShiftEl = document.getElementById('drawer-shift-display');
+  if (shiftBadgeEl || drawerShiftEl) {
     const currentHour = new Date().getHours();
-    shiftBadgeEl.innerText = (currentHour >= 14) ? t('shiftBadgeEvening') : t('shiftBadgeMorning');
+    const shiftText = (currentHour >= 14) ? t('shiftBadgeEvening') : t('shiftBadgeMorning');
+    if (shiftBadgeEl) shiftBadgeEl.innerText = shiftText;
+    if (drawerShiftEl) drawerShiftEl.innerText = shiftText;
   }
 }
 
@@ -1522,6 +1650,16 @@ function switchTab(tabName) {
     } else {
       btn.classList.remove('text-emerald-600', 'font-bold');
       btn.classList.add('text-slate-500');
+    }
+  });
+
+  document.querySelectorAll('.drawer-menu-btn').forEach(btn => {
+    if (btn.dataset.tab === tabName) {
+      btn.classList.add('bg-emerald-700', 'text-white', 'font-bold', 'shadow-sm');
+      btn.classList.remove('text-slate-700', 'hover:bg-emerald-50', 'hover:text-emerald-800');
+    } else {
+      btn.classList.remove('bg-emerald-700', 'text-white', 'font-bold', 'shadow-sm');
+      btn.classList.add('text-slate-700', 'hover:bg-emerald-50', 'hover:text-emerald-800');
     }
   });
 
@@ -4049,6 +4187,44 @@ function setupEventListeners() {
   const publicPassbookForm = document.getElementById('public-passbook-form');
   if (publicPassbookForm) publicPassbookForm.addEventListener('submit', (e) => { e.preventDefault(); searchPublicCustomerPassbook(); });
 
+
+  // 3-Line (☰) Hamburger Drawer listeners
+  const menuToggleBtn = document.getElementById('menu-toggle-btn');
+  if (menuToggleBtn) menuToggleBtn.addEventListener('click', toggleSidebarMenu);
+
+  const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
+  if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebarMenu);
+
+  const sidebarBackdrop = document.getElementById('sidebar-drawer-backdrop');
+  if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', closeSidebarMenu);
+
+  document.querySelectorAll('.drawer-menu-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.tab) {
+        switchTab(btn.dataset.tab);
+        closeSidebarMenu();
+      }
+    });
+  });
+
+  const drawerLogoutBtn = document.getElementById('drawer-logout-btn');
+  if (drawerLogoutBtn) {
+    drawerLogoutBtn.addEventListener('click', () => {
+      closeSidebarMenu();
+      handleLogout();
+    });
+  }
+
+  // Close drawer on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const drawer = document.getElementById('sidebar-drawer');
+      if (drawer && !drawer.classList.contains('hidden')) {
+        closeSidebarMenu();
+      }
+    }
+  });
+
   // Initialize OTP digit input auto-navigation & paste handler
   setupOtpInputListeners();
 }
@@ -4100,6 +4276,17 @@ function setSignupUserType(type) {
 }
 
 function updateNavForRole(role) {
+
+  const drawerDairySec = document.getElementById('drawer-section-dairy');
+  const drawerDocSec = document.getElementById('drawer-section-doctor');
+  if (role === 'doctor') {
+    if (drawerDairySec) drawerDairySec.classList.add('hidden');
+    if (drawerDocSec) drawerDocSec.classList.remove('hidden');
+  } else {
+    if (drawerDairySec) drawerDairySec.classList.remove('hidden');
+    if (drawerDocSec) drawerDocSec.classList.add('hidden');
+  }
+
   const docNavBtn = document.getElementById('nav-btn-doctor-portal');
   const docMobBtn = document.getElementById('mob-btn-doctor-portal');
 
