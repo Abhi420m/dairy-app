@@ -369,7 +369,7 @@
       <!-- Logo and App Name with 3-Line (☰) Menu Button -->
       <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1 mr-1 sm:mr-2">
         <!-- 3-Line Hamburger Menu Button -->
-        <button id="menu-toggle-btn" onclick="toggleSidebarMenu()" class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 flex items-center justify-center text-white text-xl sm:text-2xl border border-white/30 shadow-md transition cursor-pointer select-none" title="मेनू खोलें (3 Lines Menu)">
+        <button id="menu-toggle-btn" type="button" onclick="toggleSidebarMenu(event)" class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 flex items-center justify-center text-white text-xl sm:text-2xl border border-white/30 shadow-md transition cursor-pointer select-none" title="मेनू खोलें (3 Lines Menu)">
           ☰
         </button>
 
@@ -481,9 +481,9 @@
   <!-- ======================================================== -->
   <!-- 3-LINE (☰) HAMBURGER SIDEBAR DRAWER MENU                 -->
   <!-- ======================================================== -->
-  <div id="sidebar-drawer" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex transition-opacity duration-300">
+  <div id="sidebar-drawer" class="fixed inset-0 z-50 hidden transition-all duration-300">
     <!-- Click backdrop to close -->
-    <div id="sidebar-drawer-backdrop" class="fixed inset-0 opacity-0 transition-opacity duration-300" onclick="closeSidebarMenu()"></div>
+    <div id="sidebar-drawer-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm opacity-0 transition-opacity duration-300 cursor-pointer" onclick="closeSidebarMenu(event)"></div>
 
     <!-- Drawer Panel (Slides in from Left) -->
     <div id="sidebar-drawer-panel" class="relative w-80 sm:w-96 max-w-[85vw] bg-white h-full shadow-2xl flex flex-col transform -translate-x-full transition-transform duration-300 ease-in-out z-10">
@@ -502,7 +502,7 @@
             </span>
           </div>
         </div>
-        <button id="sidebar-close-btn" onclick="closeSidebarMenu()" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-lg transition active:scale-95" title="बंद करें (Close)">
+        <button id="sidebar-close-btn" type="button" onclick="closeSidebarMenu(event)" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-lg transition active:scale-95" title="बंद करें (Close)">
           ✕
         </button>
       </div>
@@ -642,7 +642,7 @@
           </div>
         </div>
 
-        <button id="drawer-logout-btn" onclick="handleLogout()" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1">
+        <button id="drawer-logout-btn" type="button" onclick="closeSidebarMenu(event); handleLogout();" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1">
           <span>🚪</span>
           <span>लॉग आउट</span>
         </button>
@@ -2039,7 +2039,7 @@
     </button>
 
     <!-- 3-Line Menu Drawer Trigger Button (Easily reachable by thumb!) -->
-    <button type="button" onclick="toggleSidebarMenu()" class="flex-1 flex flex-col items-center justify-center text-[10px] font-bold text-emerald-800 active:scale-95 transition">
+    <button type="button" onclick="toggleSidebarMenu(event)" class="flex-1 flex flex-col items-center justify-center text-[10px] font-bold text-emerald-800 active:scale-95 transition">
       <span class="text-base sm:text-lg">☰</span>
       <span class="truncate max-w-[55px]">मेनू (All)</span>
     </button>

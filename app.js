@@ -820,22 +820,28 @@ function updateHeaderBranding() {
 // 3-LINE (☰) HAMBURGER DRAWER MENU LOGIC
 // ============================================================================
 
-function toggleSidebarMenu() {
-  const drawer = document.getElementById('sidebar-drawer');
-  if (!drawer) return;
-  if (drawer.classList.contains('hidden')) {
-    openSidebarMenu();
+let isSidebarOpen = false;
+
+function toggleSidebarMenu(e) {
+  if (e) {
+    if (e.preventDefault) e.preventDefault();
+    if (e.stopPropagation) e.stopPropagation();
+  }
+  if (isSidebarOpen) {
+    closeSidebarMenu(e);
   } else {
-    closeSidebarMenu();
+    openSidebarMenu(e);
   }
 }
 
-function openSidebarMenu() {
+function openSidebarMenu(e) {
+  if (e && e.stopPropagation) e.stopPropagation();
   const drawer = document.getElementById('sidebar-drawer');
   const panel = document.getElementById('sidebar-drawer-panel');
   const backdrop = document.getElementById('sidebar-drawer-backdrop');
   if (!drawer || !panel || !backdrop) return;
 
+  isSidebarOpen = true;
   updateDrawerUserInfo();
 
   // Highlight current active tab inside drawer
@@ -849,31 +855,43 @@ function openSidebarMenu() {
     }
   });
 
+  // Make drawer container visible
   drawer.classList.remove('hidden');
-  requestAnimationFrame(() => {
-    panel.classList.remove('-translate-x-full');
-    panel.classList.add('translate-x-0');
-    backdrop.classList.remove('opacity-0');
-    backdrop.classList.add('opacity-100');
-  });
-  document.body.classList.add('overflow-hidden');
+  drawer.style.display = 'block';
+
+  // Force layout recalculation so mobile browsers animate smoothly
+  void panel.offsetWidth;
+
+  panel.classList.remove('-translate-x-full');
+  panel.classList.add('translate-x-0');
+  backdrop.classList.remove('opacity-0');
+  backdrop.classList.add('opacity-100');
+
+  document.body.style.overflow = 'hidden';
 }
 
-function closeSidebarMenu() {
+function closeSidebarMenu(e) {
+  if (e && e.stopPropagation) e.stopPropagation();
   const drawer = document.getElementById('sidebar-drawer');
   const panel = document.getElementById('sidebar-drawer-panel');
   const backdrop = document.getElementById('sidebar-drawer-backdrop');
   if (!drawer || !panel || !backdrop) return;
 
+  isSidebarOpen = false;
+
   panel.classList.remove('translate-x-0');
   panel.classList.add('-translate-x-full');
   backdrop.classList.remove('opacity-100');
   backdrop.classList.add('opacity-0');
-  document.body.classList.remove('overflow-hidden');
+
+  document.body.style.overflow = '';
 
   setTimeout(() => {
-    drawer.classList.add('hidden');
-  }, 220);
+    if (!isSidebarOpen) {
+      drawer.classList.add('hidden');
+      drawer.style.display = 'none';
+    }
+  }, 280);
 }
 
 function updateDrawerUserInfo() {
@@ -4188,40 +4206,10 @@ function setupEventListeners() {
   if (publicPassbookForm) publicPassbookForm.addEventListener('submit', (e) => { e.preventDefault(); searchPublicCustomerPassbook(); });
 
 
-  // 3-Line (☰) Hamburger Drawer listeners
-  const menuToggleBtn = document.getElementById('menu-toggle-btn');
-  if (menuToggleBtn) menuToggleBtn.addEventListener('click', toggleSidebarMenu);
-
-  const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
-  if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebarMenu);
-
-  const sidebarBackdrop = document.getElementById('sidebar-drawer-backdrop');
-  if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', closeSidebarMenu);
-
-  document.querySelectorAll('.drawer-menu-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (btn.dataset.tab) {
-        switchTab(btn.dataset.tab);
-        closeSidebarMenu();
-      }
-    });
-  });
-
-  const drawerLogoutBtn = document.getElementById('drawer-logout-btn');
-  if (drawerLogoutBtn) {
-    drawerLogoutBtn.addEventListener('click', () => {
-      closeSidebarMenu();
-      handleLogout();
-    });
-  }
-
   // Close drawer on Escape key
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      const drawer = document.getElementById('sidebar-drawer');
-      if (drawer && !drawer.classList.contains('hidden')) {
-        closeSidebarMenu();
-      }
+    if (e.key === 'Escape' && isSidebarOpen) {
+      closeSidebarMenu(e);
     }
   });
 
