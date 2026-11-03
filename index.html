@@ -373,10 +373,10 @@
           ☰
         </button>
 
-        <div class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-xl bg-white/10 backdrop-blur border border-white/20 hidden sm:flex items-center justify-center text-xl sm:text-2xl shadow-inner cursor-pointer" onclick="toggleSidebarMenu()" title="Dairy Hisab">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-xl bg-white/10 backdrop-blur border border-white/20 hidden sm:flex items-center justify-center text-xl sm:text-2xl shadow-inner cursor-pointer" onclick="switchTab('dashboard')" title="डैशबोर्ड (Home)">
           🧀
         </div>
-        <div class="min-w-0 flex-1">
+        <div class="min-w-0 flex-1 cursor-pointer" onclick="switchTab('dashboard')" title="डैशबोर्ड (Home)">
           <div class="flex items-center space-x-1.5 sm:space-x-2">
             <h1 id="app-header-title" class="text-sm sm:text-lg lg:text-xl font-black tracking-tight leading-none text-white drop-shadow-sm truncate max-w-[150px] xs:max-w-[210px] sm:max-w-none">
               Dairy Hisab (डेयरी हिसाब)
@@ -428,58 +428,6 @@
       </div>
 
     </div>
-
-    <!-- DESKTOP NAVIGATION BAR -->
-    <nav id="app-navbar" class="bg-white border-b border-slate-200 hidden md:block">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex space-x-1 py-1.5 overflow-x-auto text-sm font-semibold">
-          <button id="nav-btn-doctor-portal" class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition hidden" data-tab="doctor-portal">
-            <span>🩺</span>
-            <span>डॉक्टर क्लिनिक व पर्ची</span>
-          </button>
-          <button class="tab-btn nav-tab-active px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="products-pos">
-            <span>🛒</span>
-            <span>बिक्री (Sale/POS)</span>
-          </button>
-          <button class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="purchases">
-            <span>📥</span>
-            <span>खरीद (Buy/Stock)</span>
-          </button>
-          <button class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="customer-portal">
-            <span>🔍</span>
-            <span data-i18n="tabCustomerPortal">ग्राहक पासबुक (Customer Portal)</span>
-          </button>
-          <button class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="collection">
-            <span>🥛</span>
-            <span data-i18n="tabCollection">दूध संकलन (Collection)</span>
-          </button>
-          <button class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="farmers">
-            <span>👨‍🌾</span>
-            <span data-i18n="tabFarmers">किसान रजिस्टर (Farmers)</span>
-          </button>
-          <button class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="billing">
-            <span>🧾</span>
-            <span data-i18n="tabBilling">पखवाड़ा बिलिंग (Billing)</span>
-          </button>
-          <button class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="cattle-farm">
-            <span>🐄</span>
-            <span data-i18n="tabCattleFarm">पशुपालन व चारा (Cattle & Farm)</span>
-          </button>
-          <button class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="directory">
-            <span>🩺</span>
-            <span data-i18n="tabDirectory">डॉक्टर व दुकानें (Directory)</span>
-          </button>
-          <button class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="rate-chart">
-            <span>⚙️</span>
-            <span data-i18n="tabRateChart">GST व सेटिंग्स (Settings)</span>
-          </button>
-          <button class="tab-btn text-slate-600 hover:bg-slate-100 px-3.5 py-2 rounded-lg flex items-center space-x-1.5 transition" data-tab="dashboard">
-            <span>📊</span>
-            <span data-i18n="tabDashboard">डैशबोर्ड (Dashboard)</span>
-          </button>
-        </div>
-      </div>
-    </nav>
   </header>
 
   <!-- ======================================================== -->
@@ -530,6 +478,14 @@
         <div id="drawer-section-dairy" class="space-y-1">
           <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">दूध व डेयरी कारोबार</p>
           
+          <button onclick="switchTab('dashboard'); closeSidebarMenu();" class="drawer-menu-btn w-full px-3 py-2.5 rounded-xl flex items-center space-x-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition" data-tab="dashboard">
+            <span class="text-xl">📊</span>
+            <div class="text-left">
+              <div class="font-bold">डैशबोर्ड व मुख्य स्थिति (Dashboard)</div>
+              <div class="text-[11px] text-slate-400 font-normal">दैनिक बिक्री, खरीद, उधारी, दूध व मुख्य कार्ड्स</div>
+            </div>
+          </button>
+
           <button onclick="switchTab('products-pos'); closeSidebarMenu();" class="drawer-menu-btn w-full px-3 py-2.5 rounded-xl flex items-center space-x-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition" data-tab="products-pos">
             <span class="text-xl">🛒</span>
             <div class="text-left">
@@ -625,14 +581,6 @@
             </div>
           </button>
 
-          <button onclick="switchTab('dashboard'); closeSidebarMenu();" class="drawer-menu-btn w-full px-3 py-2.5 rounded-xl flex items-center space-x-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition" data-tab="dashboard">
-            <span class="text-xl">📊</span>
-            <div class="text-left">
-              <div class="font-bold">डैशबोर्ड व रिपोर्ट (Dashboard)</div>
-              <div class="text-[11px] text-slate-400 font-normal">कुल दूध, राजस्व व व्यापार स्थिति</div>
-            </div>
-          </button>
-
           <button onclick="exportToGoogleDrive(); closeSidebarMenu();" class="w-full px-3 py-2.5 rounded-xl flex items-center space-x-3 bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition">
             <span class="text-xl">☁️</span>
             <div class="text-left">
@@ -669,163 +617,275 @@
   <main id="main-container" class="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 flex-1 no-print hidden">
 
     <!-- ======================================================== -->
-    <!-- TOP MASTER DASHBOARD ACTION CARDS (खुलते ही मुख्य कार्ड्स) -->
+    <!-- TAB 1: MASTER DASHBOARD & BUSINESS OVERVIEW (डैशबोर्ड)    -->
     <!-- ======================================================== -->
-    <div id="master-action-hub" class="mb-6 space-y-3.5">
-      <!-- Greeting & Quick Actions Header Banner -->
-      <div class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white p-4 sm:p-5 rounded-2xl shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border border-emerald-900/40">
-        <div>
-          <div class="flex items-center space-x-2">
-            <span class="text-2xl">🧀</span>
-            <h2 id="home-dairy-name" class="text-base sm:text-xl font-black tracking-tight text-white drop-shadow">डेयरी हिसाब (Dairy Hisab)</h2>
-            <span class="bg-amber-400 text-amber-950 text-[10px] font-black px-2 py-0.5 rounded shadow">दुकान लाइव</span>
+    <section id="tab-section-dashboard" class="tab-content space-y-6">
+      <div id="master-action-hub" class="space-y-4">
+        <!-- Greeting & Quick Actions Header Banner -->
+        <div class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white p-4 sm:p-5 rounded-2xl shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border border-emerald-900/40">
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="text-2xl">🧀</span>
+              <h2 id="home-dairy-name" class="text-base sm:text-xl font-black tracking-tight text-white drop-shadow">डेयरी हिसाब (Dairy Hisab)</h2>
+              <span class="bg-amber-400 text-amber-950 text-[10px] font-black px-2 py-0.5 rounded shadow">दुकान लाइव</span>
+            </div>
+            <p class="text-xs text-emerald-100 mt-1 opacity-95">पनीर, मक्खन, क्रीम, चाप, सफल मटर, दही, दूध बिक्री व खरीद का सम्पूर्ण समाधान</p>
           </div>
-          <p class="text-xs text-emerald-100 mt-1 opacity-95">पनीर, मक्खन, क्रीम, चाप, सफल मटर, दही, दूध बिक्री व खरीद का सम्पूर्ण समाधान</p>
+          <div class="flex items-center space-x-2 shrink-0">
+            <button type="button" onclick="openAddCustomerModal()" class="px-3.5 py-2 bg-white text-emerald-900 hover:bg-emerald-50 active:scale-95 rounded-xl text-xs font-bold shadow-sm transition flex items-center space-x-1.5">
+              <span>➕</span>
+              <span>नया ग्राहक जोड़ें</span>
+            </button>
+            <button type="button" onclick="openAddCustomItemModal()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 border border-emerald-400 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center space-x-1.5">
+              <span>➕</span>
+              <span>नया सामान जोड़ें</span>
+            </button>
+          </div>
         </div>
-        <div class="flex items-center space-x-2 shrink-0">
-          <button type="button" onclick="openAddCustomerModal()" class="px-3.5 py-2 bg-white text-emerald-900 hover:bg-emerald-50 active:scale-95 rounded-xl text-xs font-bold shadow-sm transition flex items-center space-x-1.5">
-            <span>➕</span>
-            <span>नया ग्राहक जोड़ें</span>
+
+        <!-- 5 PRIMARY ACTION CARDS -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
+          <!-- Card 1: SALE (बिक्री) -->
+          <div onclick="switchTab('products-pos')" class="dairy-card dairy-card-interactive p-3.5 sm:p-4 cursor-pointer bg-white border-2 border-emerald-500/70 hover:border-emerald-600 shadow-sm flex flex-col justify-between rounded-2xl transition">
+            <div class="flex items-center justify-between mb-2">
+              <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl shadow-inner">
+                🛒
+              </div>
+              <span class="text-[9px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">काउंटर सेल</span>
+            </div>
+            <div>
+              <h3 class="font-black text-slate-900 text-xs sm:text-sm">बिक्री (Sale)</h3>
+              <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">पनीर, मक्खन, मटर, चाप बेचें व पर्ची दें</p>
+            </div>
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-emerald-700">
+              <span>बिल काटें</span>
+              <span>➔</span>
+            </div>
+          </div>
+
+          <!-- Card 2: BUY (खरीद) -->
+          <div onclick="switchTab('purchases')" class="dairy-card dairy-card-interactive p-3.5 sm:p-4 cursor-pointer bg-white border-2 border-blue-400/70 hover:border-blue-600 shadow-sm flex flex-col justify-between rounded-2xl transition">
+            <div class="flex items-center justify-between mb-2">
+              <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center text-xl shadow-inner">
+                📥
+              </div>
+              <span class="text-[9px] font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">स्टॉक इन</span>
+            </div>
+            <div>
+              <h3 class="font-black text-slate-900 text-xs sm:text-sm">खरीद (Buy)</h3>
+              <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">दुकान का सामान व स्टॉक खरीद दर्ज करें</p>
+            </div>
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-700">
+              <span>खरीद जोड़ें</span>
+              <span>➔</span>
+            </div>
+          </div>
+
+          <!-- Card 3: CUSTOMERS (ग्राहक खाता) -->
+          <div onclick="switchTab('customer-portal')" class="dairy-card dairy-card-interactive p-3.5 sm:p-4 cursor-pointer bg-white border-2 border-purple-400/70 hover:border-purple-600 shadow-sm flex flex-col justify-between rounded-2xl transition">
+            <div class="flex items-center justify-between mb-2">
+              <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center text-xl shadow-inner">
+                👥
+              </div>
+              <span class="text-[9px] font-bold text-purple-800 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">खाता बही</span>
+            </div>
+            <div>
+              <h3 class="font-black text-slate-900 text-xs sm:text-sm">ग्राहक (Customer)</h3>
+              <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">ग्राहक जोड़ें, उधारी/बकाया व WhatsApp</p>
+            </div>
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-purple-700">
+              <span>खाता देखें</span>
+              <span>➔</span>
+            </div>
+          </div>
+
+          <!-- Card 4: MILK COLLECTION (दूध खरीद) -->
+          <div onclick="switchTab('collection')" class="dairy-card dairy-card-interactive p-3.5 sm:p-4 cursor-pointer bg-white border-2 border-amber-400/70 hover:border-amber-600 shadow-sm flex flex-col justify-between rounded-2xl transition">
+            <div class="flex items-center justify-between mb-2">
+              <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-xl shadow-inner">
+                🥛
+              </div>
+              <span class="text-[9px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">दूध आवक</span>
+            </div>
+            <div>
+              <h3 class="font-black text-slate-900 text-xs sm:text-sm">दूध खरीद (Milk)</h3>
+              <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">किसान दूध, फैट, दर, लीटर व किलो</p>
+            </div>
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-amber-700">
+              <span>दूध एंट्री</span>
+              <span>➔</span>
+            </div>
+          </div>
+
+          <!-- Card 5: RATES & ITEMS (रेट व सामान) -->
+          <div onclick="switchTab('products-pos')" class="dairy-card dairy-card-interactive p-3.5 sm:p-4 cursor-pointer bg-white border-2 border-teal-400/70 hover:border-teal-600 shadow-sm flex flex-col justify-between rounded-2xl transition col-span-2 sm:col-span-1">
+            <div class="flex items-center justify-between mb-2">
+              <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center text-xl shadow-inner">
+                🏷️
+              </div>
+              <span class="text-[9px] font-bold text-teal-800 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">दुकान भाव</span>
+            </div>
+            <div>
+              <h3 class="font-black text-slate-900 text-xs sm:text-sm">रेट सूची (Rates)</h3>
+              <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">पनीर, मक्खन, मटर, चाप के भाव बदलें</p>
+            </div>
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-teal-700">
+              <span>भाव देखें/बदलें</span>
+              <span>➔</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- REAL-TIME PULSE CARDS -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+          <div class="dairy-card p-3 sm:p-3.5 bg-white border-l-4 border-l-emerald-500 flex items-center justify-between rounded-xl shadow-sm">
+            <div>
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">आज की बिक्री (Sales)</span>
+              <div id="quick-today-sales" class="text-base sm:text-lg font-black text-emerald-800 mt-0.5">₹ 0.00</div>
+              <span class="text-[9px] text-slate-400">पनीर, मक्खन, आदि</span>
+            </div>
+            <span class="text-xl sm:text-2xl p-2 bg-emerald-50 rounded-xl text-emerald-600">💰</span>
+          </div>
+
+          <div class="dairy-card p-3 sm:p-3.5 bg-white border-l-4 border-l-blue-500 flex items-center justify-between rounded-xl shadow-sm">
+            <div>
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">आज की खरीद (Purchases)</span>
+              <div id="quick-today-buy" class="text-base sm:text-lg font-black text-blue-800 mt-0.5">₹ 0.00</div>
+              <span class="text-[9px] text-slate-400">सामान व दूध खरीद</span>
+            </div>
+            <span class="text-xl sm:text-2xl p-2 bg-blue-50 rounded-xl text-blue-600">📦</span>
+          </div>
+
+          <div class="dairy-card p-3 sm:p-3.5 bg-white border-l-4 border-l-red-500 flex items-center justify-between rounded-xl shadow-sm">
+            <div>
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">कुल उधारी / बकाया</span>
+              <div id="quick-total-dues" class="text-base sm:text-lg font-black text-red-600 mt-0.5">₹ 0.00</div>
+              <span class="text-[9px] text-slate-400">ग्राहकों से लेना शेष</span>
+            </div>
+            <span class="text-xl sm:text-2xl p-2 bg-red-50 rounded-xl text-red-600">⏳</span>
+          </div>
+
+          <div class="dairy-card p-3 sm:p-3.5 bg-white border-l-4 border-l-amber-500 flex items-center justify-between rounded-xl shadow-sm">
+            <div>
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">आज का दूध संकलन</span>
+              <div id="quick-today-milk" class="text-base sm:text-lg font-black text-amber-700 mt-0.5">0.0 L</div>
+              <span class="text-[9px] text-slate-400">किसान दूध आवक</span>
+            </div>
+            <span class="text-xl sm:text-2xl p-2 bg-amber-50 rounded-xl text-amber-600">🥛</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Highlights: Today's Milk Collection & Cost -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        <div class="dairy-card p-4 bg-emerald-50/80 border border-emerald-200 flex items-center justify-between">
+          <div>
+            <span class="text-xs text-emerald-800 font-bold uppercase tracking-wider">आज का कुल दूध संकलन</span>
+            <div id="dash-today-liters" class="text-2xl font-black text-emerald-950 mt-1">0.0 L</div>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl shadow-inner">
+            🥛
+          </div>
+        </div>
+
+        <div class="dairy-card p-4 bg-blue-50/80 border border-blue-200 flex items-center justify-between">
+          <div>
+            <span class="text-xs text-blue-800 font-bold uppercase tracking-wider">आज का दूध खरीद मूल्य</span>
+            <div id="dash-today-amount" class="text-2xl font-black text-blue-950 mt-1">₹ 0.00</div>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-2xl shadow-inner">
+            💰
+          </div>
+        </div>
+      </div>
+
+      <!-- Lifetime Business Totals -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="dairy-card p-4 sm:p-5 bg-white border-l-4 border-l-emerald-600">
+          <span class="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">कुल पंजीकृत किसान</span>
+          <div id="dash-total-farmers" class="text-xl sm:text-2xl font-black text-slate-800 mt-1">0</div>
+        </div>
+        <div class="dairy-card p-4 sm:p-5 bg-white border-l-4 border-l-blue-600">
+          <span class="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">कुल संकलित दूध</span>
+          <div id="dash-total-liters" class="text-xl sm:text-2xl font-black text-blue-700 mt-1">0.0 L</div>
+        </div>
+        <div class="dairy-card p-4 sm:p-5 bg-white border-l-4 border-l-amber-600">
+          <span class="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">कुल दूध खरीद मूल्य</span>
+          <div id="dash-total-purchase" class="text-xl sm:text-2xl font-black text-amber-700 mt-1">₹ 0</div>
+        </div>
+        <div class="dairy-card p-4 sm:p-5 bg-white border-l-4 border-l-teal-600">
+          <span class="text-[11px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">कुल उत्पाद बिक्री राजस्व</span>
+          <div id="dash-total-sales" class="text-xl sm:text-2xl font-black text-teal-700 mt-1">₹ 0</div>
+        </div>
+      </div>
+
+      <!-- Recent Business Activity Live Feed -->
+      <div class="dairy-card p-4 sm:p-5 bg-white border border-slate-200">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+          <h3 class="font-black text-slate-900 text-sm sm:text-base flex items-center space-x-2">
+            <span>📋</span>
+            <span>ताज़ा व्यावसायिक गतिविधियां (Recent Business Activity)</span>
+          </h3>
+          <span class="text-[11px] text-slate-400 font-semibold">आज का लेनदेन</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+              <tr>
+                <th class="px-3 py-2">प्रकार</th>
+                <th class="px-3 py-2">विवरण / नाम</th>
+                <th class="px-3 py-2 text-right">रकम</th>
+                <th class="px-3 py-2 text-right">समय / तारीख</th>
+              </tr>
+            </thead>
+            <tbody id="dash-recent-activity-tbody" class="divide-y divide-slate-100">
+              <tr>
+                <td colspan="4" class="px-4 py-8 text-center text-slate-400 font-medium">
+                  अभी तक कोई लेनदेन दर्ज नहीं हुआ है। ऊपर दिए गए कार्ड्स से बिक्री, खरीद या दूध दर्ज करें।
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Quick Management Hub Shortcuts -->
+      <div class="dairy-card p-4 sm:p-5 bg-white border border-slate-200">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+          <h3 class="font-black text-slate-900 text-sm sm:text-base flex items-center space-x-2">
+            <span>⚡</span>
+            <span>त्वरित सुविधाएं व रजिस्टर (Quick Access Hub)</span>
+          </h3>
+          <span class="text-[11px] text-slate-400 font-semibold hidden sm:inline">1-क्लिक में खोलें</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 text-xs font-bold text-center">
+          <button onclick="switchTab('farmers')" class="p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50 hover:text-emerald-800 border border-slate-100 hover:border-emerald-200 transition flex flex-col items-center justify-center space-y-1">
+            <span class="text-2xl">👨‍🌾</span>
+            <span>किसान रजिस्टर</span>
           </button>
-          <button type="button" onclick="openAddCustomItemModal()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 border border-emerald-400 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center space-x-1.5">
-            <span>➕</span>
-            <span>नया सामान जोड़ें</span>
+          <button onclick="switchTab('billing')" class="p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50 hover:text-emerald-800 border border-slate-100 hover:border-emerald-200 transition flex flex-col items-center justify-center space-y-1">
+            <span class="text-2xl">🧾</span>
+            <span>पखवाड़ा बिलिंग</span>
+          </button>
+          <button onclick="switchTab('cattle-farm')" class="p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50 hover:text-emerald-800 border border-slate-100 hover:border-emerald-200 transition flex flex-col items-center justify-center space-y-1">
+            <span class="text-2xl">🐄</span>
+            <span>पशुपालन व चारा</span>
+          </button>
+          <button onclick="switchTab('directory')" class="p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50 hover:text-emerald-800 border border-slate-100 hover:border-emerald-200 transition flex flex-col items-center justify-center space-y-1">
+            <span class="text-2xl">🏥</span>
+            <span>डॉक्टर व दुकानें</span>
+          </button>
+          <button onclick="switchTab('rate-chart')" class="p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50 hover:text-emerald-800 border border-slate-100 hover:border-emerald-200 transition flex flex-col items-center justify-center space-y-1">
+            <span class="text-2xl">⚙️</span>
+            <span>GST व सेटिंग्स</span>
+          </button>
+          <button onclick="exportToGoogleDrive()" class="p-3 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition flex flex-col items-center justify-center space-y-1">
+            <span class="text-2xl">☁️</span>
+            <span>Drive बैकअप</span>
           </button>
         </div>
       </div>
-
-      <!-- 5 PRIMARY ACTION CARDS -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
-        <!-- Card 1: SALE (बिक्री) -->
-        <div onclick="switchTab('products-pos')" class="dairy-card dairy-card-interactive p-3.5 sm:p-4 cursor-pointer bg-white border-2 border-emerald-500/70 hover:border-emerald-600 shadow-sm flex flex-col justify-between rounded-2xl transition">
-          <div class="flex items-center justify-between mb-2">
-            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl shadow-inner">
-              🛒
-            </div>
-            <span class="text-[9px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">काउंटर सेल</span>
-          </div>
-          <div>
-            <h3 class="font-black text-slate-900 text-xs sm:text-sm">बिक्री (Sale)</h3>
-            <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">पनीर, मक्खन, मटर, चाप बेचें व पर्ची दें</p>
-          </div>
-          <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-emerald-700">
-            <span>बिल काटें</span>
-            <span>➔</span>
-          </div>
-        </div>
-
-        <!-- Card 2: BUY (खरीद) -->
-        <div onclick="switchTab('purchases')" class="dairy-card dairy-card-interactive p-3.5 sm:p-4 cursor-pointer bg-white border-2 border-blue-400/70 hover:border-blue-600 shadow-sm flex flex-col justify-between rounded-2xl transition">
-          <div class="flex items-center justify-between mb-2">
-            <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center text-xl shadow-inner">
-              📥
-            </div>
-            <span class="text-[9px] font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">स्टॉक इन</span>
-          </div>
-          <div>
-            <h3 class="font-black text-slate-900 text-xs sm:text-sm">खरीद (Buy)</h3>
-            <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">दुकान का सामान व स्टॉक खरीद दर्ज करें</p>
-          </div>
-          <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-700">
-            <span>खरीद जोड़ें</span>
-            <span>➔</span>
-          </div>
-        </div>
-
-        <!-- Card 3: CUSTOMERS (ग्राहक खाता) -->
-        <div onclick="switchTab('customer-portal')" class="dairy-card dairy-card-interactive p-3.5 sm:p-4 cursor-pointer bg-white border-2 border-purple-400/70 hover:border-purple-600 shadow-sm flex flex-col justify-between rounded-2xl transition">
-          <div class="flex items-center justify-between mb-2">
-            <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center text-xl shadow-inner">
-              👥
-            </div>
-            <span class="text-[9px] font-bold text-purple-800 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">खाता बही</span>
-          </div>
-          <div>
-            <h3 class="font-black text-slate-900 text-xs sm:text-sm">ग्राहक (Customer)</h3>
-            <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">ग्राहक जोड़ें, उधारी/बकाया व WhatsApp</p>
-          </div>
-          <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-purple-700">
-            <span>खाता देखें</span>
-            <span>➔</span>
-          </div>
-        </div>
-
-        <!-- Card 4: MILK COLLECTION (दूध खरीद) -->
-        <div onclick="switchTab('collection')" class="dairy-card dairy-card-interactive p-3.5 sm:p-4 cursor-pointer bg-white border-2 border-amber-400/70 hover:border-amber-600 shadow-sm flex flex-col justify-between rounded-2xl transition">
-          <div class="flex items-center justify-between mb-2">
-            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-xl shadow-inner">
-              🥛
-            </div>
-            <span class="text-[9px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">दूध आवक</span>
-          </div>
-          <div>
-            <h3 class="font-black text-slate-900 text-xs sm:text-sm">दूध खरीद (Milk)</h3>
-            <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">किसान दूध, फैट, दर, लीटर व किलो</p>
-          </div>
-          <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-amber-700">
-            <span>दूध एंट्री</span>
-            <span>➔</span>
-          </div>
-        </div>
-
-        <!-- Card 5: RATES & ITEMS (रेट व सामान) -->
-        <div onclick="switchTab('products-pos')" class="dairy-card dairy-card-interactive p-3.5 sm:p-4 cursor-pointer bg-white border-2 border-teal-400/70 hover:border-teal-600 shadow-sm flex flex-col justify-between rounded-2xl transition col-span-2 sm:col-span-1">
-          <div class="flex items-center justify-between mb-2">
-            <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center text-xl shadow-inner">
-              🏷️
-            </div>
-            <span class="text-[9px] font-bold text-teal-800 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">दुकान भाव</span>
-          </div>
-          <div>
-            <h3 class="font-black text-slate-900 text-xs sm:text-sm">रेट सूची (Rates)</h3>
-            <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">पनीर, मक्खन, मटर, चाप के भाव बदलें</p>
-          </div>
-          <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-teal-700">
-            <span>भाव देखें/बदलें</span>
-            <span>➔</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- REAL-TIME PULSE CARDS -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
-        <div class="dairy-card p-3 sm:p-3.5 bg-white border-l-4 border-l-emerald-500 flex items-center justify-between rounded-xl shadow-sm">
-          <div>
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">आज की बिक्री (Sales)</span>
-            <div id="quick-today-sales" class="text-base sm:text-lg font-black text-emerald-800 mt-0.5">₹ 0.00</div>
-            <span class="text-[9px] text-slate-400">पनीर, मक्खन, आदि</span>
-          </div>
-          <span class="text-xl sm:text-2xl p-2 bg-emerald-50 rounded-xl text-emerald-600">💰</span>
-        </div>
-
-        <div class="dairy-card p-3 sm:p-3.5 bg-white border-l-4 border-l-blue-500 flex items-center justify-between rounded-xl shadow-sm">
-          <div>
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">आज की खरीद (Purchases)</span>
-            <div id="quick-today-buy" class="text-base sm:text-lg font-black text-blue-800 mt-0.5">₹ 0.00</div>
-            <span class="text-[9px] text-slate-400">सामान व दूध खरीद</span>
-          </div>
-          <span class="text-xl sm:text-2xl p-2 bg-blue-50 rounded-xl text-blue-600">📦</span>
-        </div>
-
-        <div class="dairy-card p-3 sm:p-3.5 bg-white border-l-4 border-l-red-500 flex items-center justify-between rounded-xl shadow-sm">
-          <div>
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">कुल उधारी / बकाया</span>
-            <div id="quick-total-dues" class="text-base sm:text-lg font-black text-red-600 mt-0.5">₹ 0.00</div>
-            <span class="text-[9px] text-slate-400">ग्राहकों से लेना शेष</span>
-          </div>
-          <span class="text-xl sm:text-2xl p-2 bg-red-50 rounded-xl text-red-600">⏳</span>
-        </div>
-
-        <div class="dairy-card p-3 sm:p-3.5 bg-white border-l-4 border-l-amber-500 flex items-center justify-between rounded-xl shadow-sm">
-          <div>
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">आज का दूध संकलन</span>
-            <div id="quick-today-milk" class="text-base sm:text-lg font-black text-amber-700 mt-0.5">0.0 L</div>
-            <span class="text-[9px] text-slate-400">किसान दूध आवक</span>
-          </div>
-          <span class="text-xl sm:text-2xl p-2 bg-amber-50 rounded-xl text-amber-600">🥛</span>
-        </div>
-      </div>
-    </div>
+    </section>
 
 
     <!-- ======================================================== -->
@@ -1003,7 +1063,7 @@
     <!-- ======================================================== -->
     <!-- TAB: DAIRY PRODUCTS & GST BILLING (POS)                  -->
     <!-- ======================================================== -->
-    <section id="tab-section-products-pos" class="tab-content space-y-6">
+    <section id="tab-section-products-pos" class="tab-content space-y-6 hidden">
       
       <!-- POS Top Summary -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -1075,7 +1135,7 @@
             <!-- Products Grid -->
             <!-- Category Filter Pills & Add Custom Item Trigger -->
             <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pb-3 border-b border-slate-100">
-              <div class="flex space-x-1.5 bg-slate-100 p-1 rounded-xl text-xs overflow-x-auto max-w-full no-scrollbar">
+              <div class="flex flex-wrap gap-1.5 bg-slate-100 p-1.5 rounded-xl text-xs max-w-full">
                 <button type="button" class="pos-cat-btn shrink-0 px-3 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 text-white shadow transition" data-cat="all" onclick="setPosCategory('all')">
                   🌟 सभी सामान
                 </button>
@@ -1967,52 +2027,6 @@
 
     </section>
 
-    <!-- ======================================================== -->
-    <!-- TAB: DASHBOARD & REPORTS SECTION                         -->
-    <!-- ======================================================== -->
-    <section id="tab-section-dashboard" class="tab-content space-y-6 hidden">
-      <!-- Today's Collection Highlights -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="dairy-card p-4 bg-emerald-50/80 border border-emerald-200 flex items-center justify-between">
-          <div>
-            <span class="text-xs text-emerald-800 font-bold uppercase tracking-wider">आज का कुल दूध संकलन</span>
-            <div id="dash-today-liters" class="text-2xl font-black text-emerald-950 mt-1">0.0 L</div>
-          </div>
-          <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl shadow-inner">
-            🥛
-          </div>
-        </div>
-
-        <div class="dairy-card p-4 bg-blue-50/80 border border-blue-200 flex items-center justify-between">
-          <div>
-            <span class="text-xs text-blue-800 font-bold uppercase tracking-wider">आज का दूध खरीद मूल्य</span>
-            <div id="dash-today-amount" class="text-2xl font-black text-blue-950 mt-1">₹ 0.00</div>
-          </div>
-          <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-2xl shadow-inner">
-            💰
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="dairy-card p-5 bg-white border-l-4 border-l-emerald-600">
-          <span class="text-xs text-slate-400 font-bold uppercase tracking-wider" data-i18n="totalRegisteredFarmers">कुल पंजीकृत किसान</span>
-          <div id="dash-total-farmers" class="text-2xl font-black text-slate-800 mt-1">0</div>
-        </div>
-        <div class="dairy-card p-5 bg-white border-l-4 border-l-blue-600">
-          <span class="text-xs text-slate-400 font-bold uppercase tracking-wider" data-i18n="lifetimeMilk">कुल संकलित दूध</span>
-          <div id="dash-total-liters" class="text-2xl font-black text-blue-700 mt-1">0.0 L</div>
-        </div>
-        <div class="dairy-card p-5 bg-white border-l-4 border-l-amber-600">
-          <span class="text-xs text-slate-400 font-bold uppercase tracking-wider" data-i18n="lifetimeCost">कुल दूध खरीद मूल्य</span>
-          <div id="dash-total-purchase" class="text-2xl font-black text-amber-700 mt-1">₹ 0</div>
-        </div>
-        <div class="dairy-card p-5 bg-white border-l-4 border-l-teal-600">
-          <span class="text-xs text-slate-400 font-bold uppercase tracking-wider" data-i18n="retailRevenue">कुल उत्पाद बिक्री राजस्व</span>
-          <div id="dash-total-sales" class="text-2xl font-black text-teal-700 mt-1">₹ 0</div>
-        </div>
-      </div>
-    </section>
 
     <!-- ======================================================== -->
     <!-- TAB: CATTLE & FARM MANAGEMENT (पशुपालन, चारा व डॉक्टर)  -->
@@ -2366,8 +2380,13 @@
       <span class="truncate max-w-[55px]">दुकानें</span>
     </button>
 
-    <!-- Dairy POS (Default for Dairy Owner) -->
-    <button id="mob-btn-products-pos" class="mobile-tab-btn flex-1 text-emerald-600 font-bold flex flex-col items-center justify-center text-[10px]" data-tab="products-pos">
+    <!-- Dairy Owner Tabs: Dashboard is #1 -->
+    <button id="mob-btn-dashboard" class="mobile-tab-btn flex-1 text-emerald-600 font-bold flex flex-col items-center justify-center text-[10px]" data-tab="dashboard">
+      <span class="text-base sm:text-lg">📊</span>
+      <span class="truncate max-w-[55px]">डैशबोर्ड</span>
+    </button>
+    <!-- Dairy POS (Sale) -->
+    <button id="mob-btn-products-pos" class="mobile-tab-btn flex-1 text-slate-500 flex flex-col items-center justify-center text-[10px]" data-tab="products-pos">
       <span class="text-base sm:text-lg">🛒</span>
       <span class="truncate max-w-[55px]">बिक्री (Sale)</span>
     </button>
@@ -2380,11 +2399,6 @@
     <button id="mob-btn-customer-portal" class="mobile-tab-btn flex-1 text-slate-500 flex flex-col items-center justify-center text-[10px]" data-tab="customer-portal">
       <span class="text-base sm:text-lg">👥</span>
       <span class="truncate max-w-[55px]">ग्राहक (Khata)</span>
-    </button>
-    <!-- Milk Collection -->
-    <button id="mob-btn-collection" class="mobile-tab-btn flex-1 text-slate-500 flex flex-col items-center justify-center text-[10px]" data-tab="collection">
-      <span class="text-base sm:text-lg">🥛</span>
-      <span class="truncate max-w-[55px]">दूध आवक</span>
     </button>
 
     <!-- 3-Line Menu Drawer Trigger Button (Easily reachable by thumb!) -->

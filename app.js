@@ -649,7 +649,7 @@ const DEFAULT_DATA = {
 // Global App State
 let appData = {};
 let currentLang = 'hi';
-let currentTab = 'products-pos';
+let currentTab = 'dashboard';
 let currentCart = [];
 let currentUser = null; // Current logged-in user
 
@@ -899,7 +899,6 @@ function checkAuthSession() {
 
   const authScreen = document.getElementById('auth-screen');
   const appHeader = document.getElementById('app-header');
-  const appNavbar = document.getElementById('app-navbar');
   const mainContainer = document.getElementById('main-container');
   const mobileNav = document.getElementById('mobile-nav');
 
@@ -907,7 +906,6 @@ function checkAuthSession() {
     // Logged in
     if (authScreen) authScreen.classList.add('hidden');
     if (appHeader) appHeader.classList.remove('hidden');
-    if (appNavbar) appNavbar.classList.remove('hidden');
     if (mainContainer) mainContainer.classList.remove('hidden');
     if (mobileNav) mobileNav.classList.remove('hidden');
 
@@ -923,14 +921,19 @@ function checkAuthSession() {
     updateLanguageUI();
     setupBusinessMode();
     updateNavForRole(currentUser.role || 'dairy');
-    if (currentUser.role === 'doctor' && (currentTab === 'products-pos' || currentTab === 'collection' || currentTab === 'billing')) {
-      switchTab('doctor-portal');
+    if (currentUser.role === 'doctor') {
+      if (currentTab !== 'doctor-portal' && currentTab !== 'cattle-farm' && currentTab !== 'directory') {
+        switchTab('doctor-portal');
+      }
+    } else {
+      if (currentTab === 'doctor-portal') {
+        switchTab('dashboard');
+      }
     }
   } else {
     // Not logged in -> Show login/signup screen
     if (authScreen) authScreen.classList.remove('hidden');
     if (appHeader) appHeader.classList.add('hidden');
-    if (appNavbar) appNavbar.classList.add('hidden');
     if (mainContainer) mainContainer.classList.add('hidden');
     if (mobileNav) mobileNav.classList.add('hidden');
     switchAuthMode('otp'); // Default to OTP login
@@ -1208,6 +1211,8 @@ function handleVerifyOtp() {
     renderApp();
     if (currentUser.role === 'doctor') {
       switchTab('doctor-portal');
+    } else {
+      switchTab('dashboard');
     }
 
     const welcomeMsg = currentLang === 'en'
@@ -1256,6 +1261,8 @@ function handleLogin(e) {
     renderApp();
     if (currentUser.role === 'doctor') {
       switchTab('doctor-portal');
+    } else {
+      switchTab('dashboard');
     }
     const welcomeMsg = currentLang === 'en'
       ? `Welcome back, ${matched.name || matched.dairyName}!`
@@ -1413,7 +1420,11 @@ function handleSignup(e) {
 
     checkAuthSession();
     renderApp();
-    switchTab('products-pos');
+    if (currentUser.role === 'doctor') {
+      switchTab('doctor-portal');
+    } else {
+      switchTab('dashboard');
+    }
 
     const welcomeMsg = currentLang === 'en'
       ? `Registration successful! Welcome to Dairy Hisab, ${dairyName}.`
@@ -4054,22 +4065,117 @@ function importBackupJson(event) {
 // DASHBOARD & REPORTS
 // ----------------------------------------------------
 function renderDashboardTab() {
-  const totalLiters = appData.collections.reduce((acc, c) => acc + (parseFloat(c.liters) || 0), 0);
-  const totalMilkCost = appData.collections.reduce((acc, c) => acc + (parseFloat(c.totalAmount) || 0), 0);
-  const totalProductSales = appData.invoices.reduce((acc, i) => acc + i.grandTotal, 0);
+  updateHomeSummaryMetrics();
 
-  document.getElementById('dash-total-farmers').innerText = appData.farmers.length;
-  document.getElementById('dash-total-liters').innerText = `${totalLiters.toFixed(1)} L`;
-  document.getElementById('dash-total-purchase').innerText = `₹ ${totalMilkCost.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
-  document.getElementById('dash-total-sales').innerText = `₹ ${totalProductSales.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+  const totalLiters = (appData.collections || []).reduce((acc, c) => acc + (parseFloat(c.liters) || 0), 0);
+  const totalMilkCost = (appData.collections || []).reduce((acc, c) => acc + (parseFloat(c.totalAmount) || 0), 0);
+  const totalProductSales = (appData.invoices || []).reduce((acc, i) => acc + (parseFloat(i.grandTotal) || 0), 0);
+
+  const totalFarmersEl = document.getElementById('dash-total-farmers');
+  if (totalFarmersEl) totalFarmersEl.innerText = (appData.farmers || []).length;
+
+  const totalLitersEl = document.getElementById('dash-total-liters');
+  if (totalLitersEl) totalLitersEl.innerText = `${totalLiters.toFixed(1)} L`;
+
+  const totalPurchaseEl = document.getElementById('dash-total-purchase');
+  if (totalPurchaseEl) totalPurchaseEl.innerText = `₹ ${totalMilkCost.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+
+  const totalSalesEl = document.getElementById('dash-total-sales');
+  if (totalSalesEl) totalSalesEl.innerText = `₹ ${totalProductSales.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
 
   const todayStr = new Date().toISOString().split('T')[0];
-  const todayEntries = appData.collections.filter(c => c.date === todayStr);
+  const todayEntries = (appData.collections || []).filter(c => c.date === todayStr);
   const todayLiters = todayEntries.reduce((acc, c) => acc + (parseFloat(c.liters) || 0), 0);
   const todayAmount = todayEntries.reduce((acc, c) => acc + (parseFloat(c.totalAmount) || 0), 0);
 
-  document.getElementById('dash-today-liters').innerText = `${todayLiters.toFixed(1)} L`;
-  document.getElementById('dash-today-amount').innerText = `₹ ${todayAmount.toFixed(2)}`;
+  const todayLitersEl = document.getElementById('dash-today-liters');
+  if (todayLitersEl) todayLitersEl.innerText = `${todayLiters.toFixed(1)} L`;
+
+  const todayAmountEl = document.getElementById('dash-today-amount');
+  if (todayAmountEl) todayAmountEl.innerText = `₹ ${todayAmount.toFixed(2)}`;
+
+  renderDashboardRecentActivity();
+}
+
+function renderDashboardRecentActivity() {
+  const container = document.getElementById('dash-recent-activity-tbody');
+  if (!container) return;
+
+  const activities = [];
+
+  // Recent Invoices / Sales
+  (appData.invoices || []).slice(-6).forEach(inv => {
+    activities.push({
+      time: inv.date || '',
+      type: 'बिक्री (Sale)',
+      badgeClass: 'bg-emerald-100 text-emerald-800',
+      title: inv.customerName || 'नकद ग्राहक',
+      subtitle: `${inv.items ? inv.items.length : 1} सामान • ${inv.paymentMode || 'नकद'}`,
+      amount: `+₹${parseFloat(inv.grandTotal || 0).toFixed(2)}`,
+      amountClass: 'text-emerald-700 font-bold'
+    });
+  });
+
+  // Recent Purchases
+  (appData.purchases || []).slice(-6).forEach(pur => {
+    activities.push({
+      time: pur.date || '',
+      type: 'खरीद (Buy)',
+      badgeClass: 'bg-blue-100 text-blue-800',
+      title: pur.supplier || 'मंडी सप्लायर',
+      subtitle: `${pur.itemType || 'सामान'} (${pur.qty} ${pur.unit})`,
+      amount: `-₹${parseFloat(pur.total || 0).toFixed(2)}`,
+      amountClass: 'text-blue-700 font-bold'
+    });
+  });
+
+  // Recent Milk Collections
+  (appData.collections || []).slice(-6).forEach(c => {
+    activities.push({
+      time: `${c.date} (${c.shift === 'morning' ? 'सुबह' : 'शाम'})`,
+      type: 'दूध आवक (Milk)',
+      badgeClass: 'bg-amber-100 text-amber-800',
+      title: c.farmerName || `किसान #${c.farmerId}`,
+      subtitle: `${c.milkType === 'cow' ? 'गाय' : 'भैंस'} • ${c.liters} L • फैट ${c.fat}%`,
+      amount: `-₹${parseFloat(c.totalAmount || 0).toFixed(2)}`,
+      amountClass: 'text-amber-700 font-bold'
+    });
+  });
+
+  if (activities.length === 0) {
+    container.innerHTML = `
+      <tr>
+        <td colspan="4" class="px-4 py-8 text-center text-slate-400 font-medium">
+          अभी तक कोई लेनदेन दर्ज नहीं हुआ है। ऊपर दिए गए कार्ड्स से बिक्री, खरीद या दूध दर्ज करें।
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  // Show newest on top (last 8)
+  activities.reverse();
+  const top8 = activities.slice(0, 8);
+
+  container.innerHTML = top8.map(act => `
+    <tr class="hover:bg-slate-50 border-b border-slate-100 transition">
+      <td class="px-3 py-2.5">
+        <span class="inline-block px-2 py-0.5 text-[10px] font-bold rounded-md ${act.badgeClass}">
+          ${act.type}
+        </span>
+      </td>
+      <td class="px-3 py-2.5">
+        <div class="font-bold text-slate-900">${act.title}</div>
+        <div class="text-[10px] text-slate-400">${act.subtitle}</div>
+      </td>
+      <td class="px-3 py-2.5 text-right font-black ${act.amountClass}">
+        ${act.amount}
+      </td>
+      <td class="px-3 py-2.5 text-right text-[10px] text-slate-400">
+        ${act.time}
+      </td>
+    </tr>
+  `).join('');
 }
 
 function exportCollectionsToExcel() {
@@ -4880,25 +4986,10 @@ function updateNavForRole(role) {
     if (drawerDocSec) drawerDocSec.classList.add('hidden');
   }
 
-  const docNavBtn = document.getElementById('nav-btn-doctor-portal');
   const docMobBtn = document.getElementById('mob-btn-doctor-portal');
 
-  const dairyTabs = ['products-pos', 'purchases', 'customer-portal', 'collection', 'billing', 'rate-chart', 'dashboard'];
-  const commonTabs = ['cattle-farm', 'directory', 'farmers', 'customer-portal'];
-
   if (role === 'doctor') {
-    if (docNavBtn) docNavBtn.classList.remove('hidden');
     if (docMobBtn) docMobBtn.classList.remove('hidden');
-
-    // Hide dairy-specific tabs in navbar
-    document.querySelectorAll('#app-navbar .tab-btn').forEach(btn => {
-      const tab = btn.dataset.tab;
-      if (dairyTabs.includes(tab)) {
-        btn.classList.add('hidden');
-      } else {
-        btn.classList.remove('hidden');
-      }
-    });
 
     // Adjust mobile navbar for Doctor
     document.querySelectorAll('#mobile-nav .mobile-tab-btn').forEach(btn => {
@@ -4910,20 +5001,10 @@ function updateNavForRole(role) {
       }
     });
   } else {
-    if (docNavBtn) docNavBtn.classList.add('hidden');
-
-    document.querySelectorAll('#app-navbar .tab-btn').forEach(btn => {
-      if (btn.id === 'nav-btn-doctor-portal') {
-        btn.classList.add('hidden');
-      } else {
-        btn.classList.remove('hidden');
-      }
-    });
-
     // Adjust mobile navbar for Dairy Owner
     document.querySelectorAll('#mobile-nav .mobile-tab-btn').forEach(btn => {
       const tab = btn.dataset.tab;
-      if (tab === 'products-pos' || tab === 'collection' || tab === 'customer-portal' || tab === 'billing') {
+      if (tab === 'dashboard' || tab === 'products-pos' || tab === 'purchases' || tab === 'customer-portal') {
         btn.classList.remove('hidden');
       } else {
         btn.classList.add('hidden');
