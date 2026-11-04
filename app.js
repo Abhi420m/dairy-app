@@ -2211,28 +2211,45 @@ function renderRecentInvoicesTable() {
   if (!tbody) return;
 
   if (appData.invoices.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400 text-xs">कोई बिल जारी नहीं हुआ है</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400 text-xs">कोई बिल जारी नहीं हुआ है। ऊपर कार्ट से नया बिल बनाएं।</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = [...appData.invoices].reverse().map(inv => `
-    <tr class="border-b border-slate-100 hover:bg-slate-50 text-xs">
-      <td class="py-2.5 px-3 font-bold text-emerald-800">${inv.invoiceNo}</td>
-      <td class="py-2.5 px-3 text-slate-500">${inv.date}</td>
-      <td class="py-2.5 px-3 font-semibold text-slate-800">${inv.customerName}</td>
-      <td class="py-2.5 px-3 text-right font-bold text-slate-900">₹${inv.grandTotal.toFixed(2)}</td>
-      <td class="py-2.5 px-3 text-right font-bold text-emerald-600">₹${inv.paidAmount.toFixed(2)}</td>
-      <td class="py-2.5 px-3 text-center">
-        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${inv.dueAmount <= 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
-          ${inv.dueAmount <= 0 ? 'पूर्ण चुकता' : `बकाया: ₹${inv.dueAmount}`}
-        </span>
-      </td>
-      <td class="py-2.5 px-3 text-center space-x-1 whitespace-nowrap">
-        <button onclick="showGstInvoiceModal('${inv.invoiceNo}')" class="p-1 text-slate-600 hover:text-emerald-600" title="प्रिंट बिल">🖨️</button>
-        <button onclick="shareGstInvoiceOnWhatsApp('${inv.invoiceNo}')" class="p-1 text-slate-600 hover:text-green-600" title="WhatsApp बिल">📲</button>
-      </td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = [...appData.invoices].reverse().map(inv => {
+    const itemsSummary = (inv.items && inv.items.length > 0)
+      ? inv.items.map(it => `<span class="inline-block bg-emerald-50 text-emerald-900 border border-emerald-200 px-2 py-0.5 rounded-md text-[11px] font-bold mr-1 mb-0.5">${it.name} (${it.qty} ${it.unit})</span>`).join('')
+      : '<span class="text-slate-400 text-[11px]">-</span>';
+
+    const isDue = (inv.dueAmount || 0) > 0;
+
+    return `
+      <tr class="border-b border-slate-100 hover:bg-slate-50 text-xs">
+        <td class="py-2.5 px-3 font-black text-emerald-800">${inv.invoiceNo}</td>
+        <td class="py-2.5 px-3 text-slate-500 whitespace-nowrap">${inv.date}</td>
+        <td class="py-2.5 px-3">
+          <div class="font-bold text-slate-900 flex items-center space-x-1">
+            <span>👤</span>
+            <span>${inv.customerName}</span>
+          </div>
+          ${inv.customerPhone ? `<div class="text-[10px] text-slate-500 font-medium">📞 ${inv.customerPhone}</div>` : ''}
+          ${inv.customerAddress ? `<div class="text-[10px] text-slate-400">📍 ${inv.customerAddress}</div>` : ''}
+          ${inv.customerPhone ? `<button type="button" onclick="switchTab('customer-portal'); viewCustomerPassbookByPhone('${inv.customerPhone}')" class="text-[9px] text-purple-700 hover:text-purple-900 font-bold hover:underline mt-0.5 block">📜 ग्राहक पासबुक देखें ➔</button>` : ''}
+        </td>
+        <td class="py-2.5 px-3 max-w-[220px]">${itemsSummary}</td>
+        <td class="py-2.5 px-3 text-right font-black text-slate-900">₹ ${(inv.grandTotal || 0).toFixed(2)}</td>
+        <td class="py-2.5 px-3 text-right font-bold text-emerald-700">₹ ${(inv.paidAmount || 0).toFixed(2)}</td>
+        <td class="py-2.5 px-3 text-center">
+          <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${!isDue ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+            ${!isDue ? '✅ पूर्ण चुकता' : `🔴 बकाया: ₹${(inv.dueAmount || 0).toFixed(2)}`}
+          </span>
+        </td>
+        <td class="py-2.5 px-3 text-center space-x-1 whitespace-nowrap">
+          <button onclick="showGstInvoiceModal('${inv.invoiceNo}')" class="p-1.5 bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 rounded-lg text-[11px] font-bold transition shadow-sm" title="प्रिंट पर्ची">🖨️ पर्ची</button>
+          <button onclick="shareGstInvoiceOnWhatsApp('${inv.invoiceNo}')" class="p-1.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-[11px] font-bold border border-green-200 transition shadow-sm" title="WhatsApp बिल">📲 WhatsApp</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
 }
 
 // ----------------------------------------------------
