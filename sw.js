@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dairy-app-cache-v1';
+const CACHE_NAME = 'dairy-app-cache-v3';
 const ASSETS = [
   './',
   './index.html',

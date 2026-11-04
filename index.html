@@ -38,7 +38,7 @@
   <!-- ======================================================== -->
   <!-- AUTHENTICATION SCREEN (LOGIN & SIGN UP)                  -->
   <!-- ======================================================== -->
-  <div id="auth-screen" class="min-h-screen auth-bg flex items-center justify-center p-3 sm:p-4">
+  <div id="auth-screen" class="min-h-screen auth-bg flex items-center justify-center p-3 sm:p-4 hidden">
     <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl p-4 sm:p-8 modal-fade-in border border-emerald-100">
       
       <!-- Logo and App Title -->
@@ -357,13 +357,21 @@
         </div>
       </div>
 
+      <!-- Emergency Direct Open Dashboard Button -->
+      <div class="mt-4 pt-3 border-t border-slate-100 text-center">
+        <button type="button" onclick="bypassAuthAndOpenApp()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-md active:scale-95 flex items-center justify-center space-x-2">
+          <span>🚀</span>
+          <span>सीधे ऐप में जाएं (Open Dashboard Directly)</span>
+        </button>
+      </div>
+
     </div>
   </div>
 
   <!-- ======================================================== -->
   <!-- MAIN APP TOP HEADER (SHOWN WHEN LOGGED IN)               -->
   <!-- ======================================================== -->
-  <header id="app-header" class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white shadow-md sticky top-0 z-40 no-print hidden w-full max-w-full overflow-x-hidden">
+  <header id="app-header" class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white shadow-md sticky top-0 z-40 no-print w-full max-w-full overflow-x-hidden">
     <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex items-center justify-between gap-2">
       
       <!-- Logo and App Name with 3-Line (☰) Menu Button -->
@@ -614,7 +622,7 @@
   <!-- ======================================================== -->
   <!-- MAIN CONTAINER (SHOWN WHEN LOGGED IN)                    -->
   <!-- ======================================================== -->
-  <main id="main-container" class="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 flex-1 no-print hidden">
+  <main id="main-container" class="max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 flex-1 no-print">
 
     <!-- ======================================================== -->
     <!-- TAB 1: MASTER DASHBOARD & BUSINESS OVERVIEW (डैशबोर्ड)    -->
@@ -2451,7 +2459,7 @@
   <!-- ======================================================== -->
   <!-- MOBILE BOTTOM NAVIGATION BAR                             -->
   <!-- ======================================================== -->
-  <nav id="mobile-nav" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 px-1 py-1.5 flex items-center justify-around shadow-lg no-print hidden">
+  <nav id="mobile-nav" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 px-1 py-1.5 flex items-center justify-around shadow-lg no-print">
     <!-- Doctor Clinic (Shown for Doctor role) -->
     <button id="mob-btn-doctor-portal" class="mobile-tab-btn flex-1 text-slate-500 flex flex-col items-center justify-center text-[10px] hidden" data-tab="doctor-portal">
       <span class="text-base sm:text-lg">🩺</span>

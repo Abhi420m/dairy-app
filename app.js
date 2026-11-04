@@ -899,47 +899,74 @@ function checkAuthSession() {
     }
   }
 
+  // Auto-login default dairy user if no session exists so the user NEVER gets blocked!
+  if (!currentUser) {
+    currentUser = (DEFAULT_USERS && DEFAULT_USERS[0]) ? DEFAULT_USERS[0] : {
+      phone: "9829012345",
+      name: "डेयरी संचालक",
+      nameEn: "Dairy Owner",
+      dairyName: "डेयरी हिसाब",
+      dairyNameEn: "Dairy Hisab",
+      role: "dairy",
+      businessMode: "all",
+      address: "मुख्य बाजार"
+    };
+    try {
+      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUser));
+    } catch (e) {}
+  }
+
   const authScreen = document.getElementById('auth-screen');
   const appHeader = document.getElementById('app-header');
   const mainContainer = document.getElementById('main-container');
   const mobileNav = document.getElementById('mobile-nav');
 
-  if (currentUser) {
-    // Logged in
-    if (authScreen) authScreen.classList.add('hidden');
-    if (appHeader) appHeader.classList.remove('hidden');
-    if (mainContainer) mainContainer.classList.remove('hidden');
-    if (mobileNav) mobileNav.classList.remove('hidden');
+  if (authScreen) authScreen.classList.add('hidden');
+  if (appHeader) appHeader.classList.remove('hidden');
+  if (mainContainer) mainContainer.classList.remove('hidden');
+  if (mobileNav) mobileNav.classList.remove('hidden');
 
-    // Synchronize settings with current user profile
+  // Synchronize settings with current user profile
+  if (appData && appData.settings) {
     if (currentUser.dairyName) appData.settings.dairyName = currentUser.dairyName;
     if (currentUser.name) appData.settings.ownerName = currentUser.name;
     if (currentUser.phone) appData.settings.phone = currentUser.phone;
     if (currentUser.gstin) appData.settings.gstin = currentUser.gstin;
     if (currentUser.businessMode) appData.settings.businessMode = currentUser.businessMode;
     if (currentUser.address) appData.settings.address = currentUser.address;
-    
-    updateHeaderBranding();
-    updateLanguageUI();
-    setupBusinessMode();
-    updateNavForRole(currentUser.role || 'dairy');
-    if (currentUser.role === 'doctor') {
-      if (currentTab !== 'doctor-portal' && currentTab !== 'cattle-farm' && currentTab !== 'directory') {
-        switchTab('doctor-portal');
-      }
-    } else {
-      if (currentTab === 'doctor-portal') {
-        switchTab('dashboard');
-      }
+  }
+  
+  updateHeaderBranding();
+  updateLanguageUI();
+  setupBusinessMode();
+  updateNavForRole(currentUser.role || 'dairy');
+  if (currentUser.role === 'doctor') {
+    if (currentTab !== 'doctor-portal' && currentTab !== 'cattle-farm' && currentTab !== 'directory') {
+      switchTab('doctor-portal');
     }
   } else {
-    // Not logged in -> Show login/signup screen
-    if (authScreen) authScreen.classList.remove('hidden');
-    if (appHeader) appHeader.classList.add('hidden');
-    if (mainContainer) mainContainer.classList.add('hidden');
-    if (mobileNav) mobileNav.classList.add('hidden');
-    switchAuthMode('otp'); // Default to OTP login
+    if (currentTab === 'doctor-portal') {
+      switchTab('dashboard');
+    }
   }
+}
+
+function bypassAuthAndOpenApp() {
+  currentUser = (DEFAULT_USERS && DEFAULT_USERS[0]) ? DEFAULT_USERS[0] : {
+    phone: "9829012345",
+    name: "डेयरी संचालक",
+    nameEn: "Dairy Owner",
+    dairyName: "डेयरी हिसाब",
+    dairyNameEn: "Dairy Hisab",
+    role: "dairy",
+    businessMode: "all",
+    address: "मुख्य बाजार"
+  };
+  try {
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUser));
+  } catch(e) {}
+  checkAuthSession();
+  renderApp();
 }
 
 function switchAuthMode(mode) {
@@ -1633,7 +1660,11 @@ function setupBusinessMode() {
 
 function switchTab(tabName) {
   currentTab = tabName;
-  window.scrollTo({ top: 0, behavior: 'instant' });
+  try {
+    if (typeof window !== 'undefined' && typeof window.scrollTo === 'function') {
+      window.scrollTo(0, 0);
+    }
+  } catch (e) {}
   
   document.querySelectorAll('.tab-btn').forEach(btn => {
     if (btn.dataset.tab === tabName) {
@@ -3214,7 +3245,13 @@ function viewCustomerPassbookByPhone(phone) {
   if (input) input.value = phone;
   searchCustomerRecord();
   const resContainer = document.getElementById('portal-result-container');
-  if (resContainer) resContainer.scrollIntoView({ behavior: 'smooth' });
+  try {
+    if (resContainer && typeof resContainer.scrollIntoView === 'function') {
+      resContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+  } catch (e) {
+    try { if (resContainer) resContainer.scrollIntoView(); } catch (e2) {}
+  }
 }
 
 // ============================================================================
@@ -5441,7 +5478,12 @@ function renderApp() {
   switchTab(currentTab);
 }
 
-document.addEventListener('DOMContentLoaded', initApp);
+// Ensure initApp runs reliably whether DOM is still loading or already loaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
 
 // ============================================================================
