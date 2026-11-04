@@ -642,6 +642,7 @@ const DEFAULT_DATA = {
   invoices: [],    // 100% REAL - Zero fake invoices
   sales: [],       // 100% REAL - Zero fake sales
   purchases: [],   // 100% REAL - Purchases for Buy / खरीद
+  suppliers: [],   // 100% REAL - Suppliers / विक्रेता
   feedItems: [],
   feedSales: [],
   expenses: []
@@ -652,6 +653,7 @@ let currentLang = 'hi';
 let currentTab = 'dashboard';
 let currentCart = [];
 let currentUser = null; // Current logged-in user
+let isRateManuallyEdited = false;
 
 function t(key) {
   if (I18N[currentLang] && I18N[currentLang][key] !== undefined) {
@@ -1486,6 +1488,7 @@ function loadData() {
       if (!appData.farmers) appData.farmers = [];
       if (!appData.sales) appData.sales = [];
       if (!appData.purchases) appData.purchases = [];
+      if (!appData.suppliers) appData.suppliers = [];
 
       // PURGE ALL OLD FAKE / DUMMY DEMO RECORDS SO APP HAS ONLY 100% REAL DATA
       appData.collections = appData.collections.filter(c => c.id !== 'COL-1001' && c.id !== 'COL-1002');
@@ -1630,6 +1633,7 @@ function setupBusinessMode() {
 
 function switchTab(tabName) {
   currentTab = tabName;
+  window.scrollTo({ top: 0, behavior: 'instant' });
   
   document.querySelectorAll('.tab-btn').forEach(btn => {
     if (btn.dataset.tab === tabName) {
@@ -1923,27 +1927,46 @@ function populatePosCustomerSelect() {
   if (!select) return;
 
   select.innerHTML = `<option value="WALKIN">-- ${t('walkinCustomer')} --</option>` +
-    appData.customers.map(c => `<option value="${c.id}">${getLocalizedName(c)} (${c.phone || ''})</option>`).join('');
+    appData.customers.map(c => `<option value="${c.id}">${getLocalizedName(c)} (${c.phone || 'बिना नंबर'})</option>`).join('');
 
-  select.onchange = (e) => {
-    const val = e.target.value;
-    const nameInput = document.getElementById('pos-cust-name');
-    const phoneInput = document.getElementById('pos-cust-phone');
-    const gstInput = document.getElementById('pos-cust-gst');
+  select.onchange = handlePosCustomerSelectChange;
+}
 
-    if (val === 'WALKIN') {
-      nameInput.value = '';
-      phoneInput.value = '';
-      gstInput.value = '';
-    } else {
-      const cust = appData.customers.find(c => c.id === val);
-      if (cust) {
-        nameInput.value = cust.name;
-        phoneInput.value = cust.phone || '';
-        gstInput.value = cust.gstin || '';
+function handlePosCustomerSelectChange(e) {
+  const select = document.getElementById('pos-customer-select');
+  const val = select ? select.value : 'WALKIN';
+  const nameInput = document.getElementById('pos-cust-name');
+  const phoneInput = document.getElementById('pos-cust-phone');
+  const addressInput = document.getElementById('pos-cust-address');
+  const gstInput = document.getElementById('pos-cust-gst');
+  const dueAlert = document.getElementById('pos-cust-due-alert');
+  const dueAmountEl = document.getElementById('pos-cust-due-amount');
+
+  if (val === 'WALKIN') {
+    if (nameInput) nameInput.value = '';
+    if (phoneInput) phoneInput.value = '';
+    if (addressInput) addressInput.value = '';
+    if (gstInput) gstInput.value = '';
+    if (dueAlert) dueAlert.classList.add('hidden');
+  } else {
+    const cust = appData.customers.find(c => c.id === val);
+    if (cust) {
+      if (nameInput) nameInput.value = cust.name || '';
+      if (phoneInput) phoneInput.value = cust.phone || '';
+      if (addressInput) addressInput.value = cust.address || '';
+      if (gstInput) gstInput.value = cust.gstin || '';
+
+      const bal = parseFloat(cust.balance) || 0;
+      if (dueAlert && dueAmountEl) {
+        dueAmountEl.innerText = `₹ ${bal.toFixed(2)}`;
+        if (bal > 0) {
+          dueAlert.classList.remove('hidden');
+        } else {
+          dueAlert.classList.add('hidden');
+        }
       }
     }
-  };
+  }
 }
 
 function handleGenerateGstInvoice() {
@@ -1954,6 +1977,7 @@ function handleGenerateGstInvoice() {
 
   const custName = document.getElementById('pos-cust-name').value.trim() || (currentLang === 'en' ? "Walk-in Customer" : "वॉक-इन ग्राहक");
   const custPhone = document.getElementById('pos-cust-phone').value.trim();
+  const custAddress = document.getElementById('pos-cust-address') ? document.getElementById('pos-cust-address').value.trim() : '';
   const custGst = document.getElementById('pos-cust-gst').value.trim();
   const paymentMethod = document.getElementById('pos-payment-method').value;
   const paidInput = parseFloat(document.getElementById('pos-paid-amount').value) || 0;
@@ -2000,6 +2024,7 @@ function handleGenerateGstInvoice() {
     time: timeStr,
     customerName: custName,
     customerPhone: custPhone,
+    customerAddress: custAddress,
     customerGst: custGst,
     items: invoiceItems,
     taxableAmount: taxableTotal,
@@ -2021,6 +2046,7 @@ function handleGenerateGstInvoice() {
         name: custName,
         nameEn: custName,
         phone: custPhone,
+        address: custAddress,
         gstin: custGst,
         balance: dueAmount
       };
@@ -2028,12 +2054,17 @@ function handleGenerateGstInvoice() {
     } else {
       matchedCust.balance = (matchedCust.balance || 0) + dueAmount;
       if (custGst && !matchedCust.gstin) matchedCust.gstin = custGst;
+      if (custAddress && !matchedCust.address) matchedCust.address = custAddress;
     }
   }
 
   saveData();
   renderProductsPosTab();
   clearCart();
+  const addressInput = document.getElementById('pos-cust-address');
+  if (addressInput) addressInput.value = '';
+  const dueAlert = document.getElementById('pos-cust-due-alert');
+  if (dueAlert) dueAlert.classList.add('hidden');
   showGstInvoiceModal(newInvoice.invoiceNo);
 }
 
@@ -2212,20 +2243,160 @@ function renderRecentInvoicesTable() {
 // QUICK RATE EDITING LOGIC (सामान का भाव तुरंत बदलें)
 // ============================================================================
 
-function openEditRateModal(productId) {
-  const prod = appData.products.find(p => p.id === productId);
-  if (!prod) return;
+// ============================================================================
+// QUICK MILK RATE SETTING (दूध का भाव 1-क्लिक में सेट करें)
+// ============================================================================
 
+function setQuickMilkRate(rate) {
+  const rateInput = document.getElementById('col-rate');
+  if (!rateInput) return;
+
+  rateInput.value = rate;
+  isRateManuallyEdited = true;
+
+  const resetBtn = document.getElementById('btn-reset-auto-rate');
+  if (resetBtn) resetBtn.classList.remove('hidden');
+
+  const badge = document.getElementById('col-rate-mode-badge');
+  if (badge) {
+    badge.innerText = "हाथ से तय भाव";
+    badge.className = "text-[9px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200";
+  }
+
+  const updateFn = window._updateMilkCalculations;
+  if (typeof updateFn === 'function') updateFn();
+}
+
+// ============================================================================
+// RATE LIST MODAL (समस्त दूध भाव व उत्पाद रेट लिस्ट)
+// ============================================================================
+
+function openRateListModal() {
+  const modal = document.getElementById('rate-list-modal');
+  if (modal) {
+    renderRateListModalContent();
+    modal.classList.remove('hidden');
+  }
+}
+
+function closeRateListModal() {
+  const modal = document.getElementById('rate-list-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function renderRateListModalContent() {
+  if (!appData.settings) appData.settings = {};
+  const settings = appData.settings;
+
+  // 1. Milk Rates
+  const milkContainer = document.getElementById('rate-list-milk-container');
+  if (milkContainer) {
+    const cowFix = settings.cowFixedRate !== undefined ? settings.cowFixedRate : 45;
+    const bufFix = settings.buffaloFixedRate !== undefined ? settings.buffaloFixedRate : 65;
+    const cowFat = settings.cowRatePerFat !== undefined ? settings.cowRatePerFat : 7.50;
+    const bufFat = settings.buffaloRatePerFat !== undefined ? settings.buffaloRatePerFat : 8.40;
+
+    milkContainer.innerHTML = `
+      <div class="p-2.5 bg-white rounded-xl border border-amber-200 shadow-sm flex items-center justify-between">
+        <div>
+          <div class="font-bold text-slate-800 text-xs">गाय दूध (बिना फैट फिक्स)</div>
+          <div class="text-[10px] text-slate-500">प्रति लीटर / किलो</div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="font-black text-amber-800 text-sm">₹ ${cowFix}</span>
+          <button type="button" onclick="openEditRateModal('milk_cow_fixed')" class="px-2 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-lg text-[10px] transition active:scale-95">✏️ भाव बदलें</button>
+        </div>
+      </div>
+
+      <div class="p-2.5 bg-white rounded-xl border border-amber-200 shadow-sm flex items-center justify-between">
+        <div>
+          <div class="font-bold text-slate-800 text-xs">भैंस दूध (बिना फैट फिक्स)</div>
+          <div class="text-[10px] text-slate-500">प्रति लीटर / किलो</div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="font-black text-amber-800 text-sm">₹ ${bufFix}</span>
+          <button type="button" onclick="openEditRateModal('milk_buffalo_fixed')" class="px-2 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-lg text-[10px] transition active:scale-95">✏️ भाव बदलें</button>
+        </div>
+      </div>
+
+      <div class="p-2.5 bg-white rounded-xl border border-amber-200 shadow-sm flex items-center justify-between">
+        <div>
+          <div class="font-bold text-slate-800 text-xs">गाय दूध (फैट अनुसार)</div>
+          <div class="text-[10px] text-slate-500">प्रति 1% फैट दर</div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="font-black text-amber-800 text-sm">₹ ${cowFat}</span>
+          <button type="button" onclick="openEditRateModal('milk_cow_fat')" class="px-2 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-lg text-[10px] transition active:scale-95">✏️ भाव बदलें</button>
+        </div>
+      </div>
+
+      <div class="p-2.5 bg-white rounded-xl border border-amber-200 shadow-sm flex items-center justify-between">
+        <div>
+          <div class="font-bold text-slate-800 text-xs">भैंस दूध (फैट अनुसार)</div>
+          <div class="text-[10px] text-slate-500">प्रति 1% फैट दर</div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="font-black text-amber-800 text-sm">₹ ${bufFat}</span>
+          <button type="button" onclick="openEditRateModal('milk_buffalo_fat')" class="px-2 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-lg text-[10px] transition active:scale-95">✏️ भाव बदलें</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // 2. Dairy Products Rates
+  const prodContainer = document.getElementById('rate-list-products-container');
+  if (prodContainer && appData.products) {
+    prodContainer.innerHTML = appData.products.map(p => `
+      <div class="p-2.5 bg-white rounded-xl border border-slate-200 shadow-sm flex items-center justify-between hover:border-emerald-300 transition">
+        <div class="flex items-center space-x-2">
+          <span class="text-lg">${getProductEmoji(p)}</span>
+          <div>
+            <div class="font-bold text-slate-900 text-xs">${getLocalizedName(p)}</div>
+            <div class="text-[10px] text-slate-400">इकाई: ${p.unit} | GST: ${p.gstPercent || 0}%</div>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="font-black text-emerald-800 text-sm">₹ ${p.rate}</span>
+          <button type="button" onclick="openEditRateModal('${p.id}')" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold rounded-lg text-[10px] transition active:scale-95">✏️ भाव बदलें</button>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+// ============================================================================
+// QUICK RATE EDITING LOGIC (सामान व दूध का भाव तुरंत बदलें)
+// ============================================================================
+
+function openEditRateModal(productId) {
   const modal = document.getElementById('quick-rate-modal');
   const idInput = document.getElementById('rate-modal-product-id');
   const rateInput = document.getElementById('rate-modal-rate-input');
   const titleEl = document.getElementById('rate-modal-item-name');
+  if (!modal || !idInput || !rateInput) return;
 
-  if (idInput) idInput.value = prod.id;
-  if (rateInput) rateInput.value = prod.rate;
-  if (titleEl) titleEl.innerText = `"${getLocalizedName(prod)}" का भाव बदलें`;
+  idInput.value = productId;
 
-  if (modal) modal.classList.remove('hidden');
+  if (productId === 'milk_cow_fixed') {
+    rateInput.value = appData.settings.cowFixedRate !== undefined ? appData.settings.cowFixedRate : 45;
+    if (titleEl) titleEl.innerText = "गाय दूध (बिना फैट फिक्स दर) का भाव बदलें";
+  } else if (productId === 'milk_buffalo_fixed') {
+    rateInput.value = appData.settings.buffaloFixedRate !== undefined ? appData.settings.buffaloFixedRate : 65;
+    if (titleEl) titleEl.innerText = "भैंस दूध (बिना फैट फिक्स दर) का भाव बदलें";
+  } else if (productId === 'milk_cow_fat') {
+    rateInput.value = appData.settings.cowRatePerFat !== undefined ? appData.settings.cowRatePerFat : 7.50;
+    if (titleEl) titleEl.innerText = "गाय दूध प्रति 1% फैट दर बदलें";
+  } else if (productId === 'milk_buffalo_fat') {
+    rateInput.value = appData.settings.buffaloRatePerFat !== undefined ? appData.settings.buffaloRatePerFat : 8.40;
+    if (titleEl) titleEl.innerText = "भैंस दूध प्रति 1% फैट दर बदलें";
+  } else {
+    const prod = appData.products.find(p => p.id === productId);
+    if (!prod) return;
+    rateInput.value = prod.rate;
+    if (titleEl) titleEl.innerText = `"${getLocalizedName(prod)}" का भाव बदलें`;
+  }
+
+  modal.classList.remove('hidden');
 }
 
 function closeEditRateModal() {
@@ -2246,11 +2417,47 @@ function handleSaveProductRate(e) {
     return;
   }
 
+  if (!appData.settings) appData.settings = {};
+
+  if (prodId === 'milk_cow_fixed') {
+    appData.settings.cowFixedRate = newRate;
+    saveData();
+    closeEditRateModal();
+    renderRateListModalContent();
+    alert(`✅ गाय दूध (बिना फैट) का फिक्स भाव ₹${newRate}/L सुरक्षित कर दिया गया!`);
+    return;
+  }
+  if (prodId === 'milk_buffalo_fixed') {
+    appData.settings.buffaloFixedRate = newRate;
+    saveData();
+    closeEditRateModal();
+    renderRateListModalContent();
+    alert(`✅ भैंस दूध (बिना फैट) का फिक्स भाव ₹${newRate}/L सुरक्षित कर दिया गया!`);
+    return;
+  }
+  if (prodId === 'milk_cow_fat') {
+    appData.settings.cowRatePerFat = newRate;
+    saveData();
+    closeEditRateModal();
+    renderRateListModalContent();
+    alert(`✅ गाय दूध फैट दर ₹${newRate}/फैट सुरक्षित कर दी गई!`);
+    return;
+  }
+  if (prodId === 'milk_buffalo_fat') {
+    appData.settings.buffaloRatePerFat = newRate;
+    saveData();
+    closeEditRateModal();
+    renderRateListModalContent();
+    alert(`✅ भैंस दूध फैट दर ₹${newRate}/फैट सुरक्षित कर दी गई!`);
+    return;
+  }
+
   const prod = appData.products.find(p => p.id === prodId);
   if (prod) {
     prod.rate = newRate;
     saveData();
     renderProductCards();
+    renderRateListModalContent();
     closeEditRateModal();
     alert(`✅ "${getLocalizedName(prod)}" का भाव बदलकर ₹${newRate}/${prod.unit} कर दिया गया है!`);
   }
@@ -2262,6 +2469,9 @@ function handleSaveProductRate(e) {
 
 function renderPurchasesTab() {
   updateHomeSummaryMetrics();
+
+  populateBuySupplierSelect();
+  renderSuppliersTable();
 
   // Populate purchase product select
   const select = document.getElementById('buy-product-select');
@@ -2339,15 +2549,239 @@ function calculateBuyTotal() {
   totalDisplay.innerText = `₹ ${total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
 }
 
+function populateBuySupplierSelect() {
+  const select = document.getElementById('buy-supplier-select');
+  if (!select) return;
+
+  if (!appData.suppliers) appData.suppliers = [];
+
+  select.innerHTML = '<option value="NEW">-- नया / नकद विक्रेता (New / Cash Supplier) --</option>' +
+    appData.suppliers.map(s => `<option value="${s.id}">${s.name} (${s.phone || 'बिना नंबर'})</option>`).join('');
+
+  select.onchange = handleBuySupplierSelectChange;
+}
+
+function handleBuySupplierSelectChange(e) {
+  const select = document.getElementById('buy-supplier-select');
+  const val = select ? select.value : 'NEW';
+  const nameInput = document.getElementById('buy-supplier-name');
+  const phoneInput = document.getElementById('buy-supplier-phone');
+  const addressInput = document.getElementById('buy-supplier-address');
+  const hiddenSupplier = document.getElementById('buy-supplier');
+  const dueAlert = document.getElementById('buy-supplier-due-alert');
+  const dueAmountEl = document.getElementById('buy-supplier-due-amount');
+
+  if (val === 'NEW') {
+    if (nameInput) nameInput.value = '';
+    if (phoneInput) phoneInput.value = '';
+    if (addressInput) addressInput.value = '';
+    if (hiddenSupplier) hiddenSupplier.value = '';
+    if (dueAlert) dueAlert.classList.add('hidden');
+  } else {
+    const s = appData.suppliers.find(sup => sup.id === val);
+    if (s) {
+      if (nameInput) nameInput.value = s.name;
+      if (phoneInput) phoneInput.value = s.phone || '';
+      if (addressInput) addressInput.value = s.address || '';
+      if (hiddenSupplier) hiddenSupplier.value = s.name;
+
+      const bal = parseFloat(s.balance) || 0;
+      if (dueAlert && dueAmountEl) {
+        dueAmountEl.innerText = `₹ ${bal.toFixed(2)}`;
+        if (bal > 0) {
+          dueAlert.classList.remove('hidden');
+        } else {
+          dueAlert.classList.add('hidden');
+        }
+      }
+    }
+  }
+}
+
+function openAddSupplierModal() {
+  const modal = document.getElementById('add-supplier-modal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeAddSupplierModal() {
+  const modal = document.getElementById('add-supplier-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function handleAddSupplier(e) {
+  if (e && e.preventDefault) e.preventDefault();
+
+  const name = document.getElementById('new-sup-name').value.trim();
+  const phone = document.getElementById('new-sup-phone').value.trim();
+  const address = document.getElementById('new-sup-address').value.trim();
+  const openingBal = parseFloat(document.getElementById('new-sup-balance').value) || 0;
+
+  if (!name) {
+    alert("कृपया सप्लायर का नाम भरें!");
+    return;
+  }
+
+  if (!appData.suppliers) appData.suppliers = [];
+
+  const newSup = {
+    id: "SUP-" + Date.now(),
+    name: name,
+    phone: phone,
+    address: address,
+    balance: openingBal,
+    totalPurchases: 0,
+    history: []
+  };
+
+  if (openingBal > 0) {
+    newSup.history.push({
+      date: new Date().toISOString().split('T')[0],
+      type: 'OPENING',
+      amount: openingBal,
+      balanceAfter: openingBal,
+      note: 'आरंभिक बकाया'
+    });
+  }
+
+  appData.suppliers.push(newSup);
+  saveData();
+
+  const form = document.getElementById('add-supplier-form');
+  if (form) form.reset();
+  closeAddSupplierModal();
+
+  populateBuySupplierSelect();
+  renderSuppliersTable();
+
+  // Select newly added supplier
+  const select = document.getElementById('buy-supplier-select');
+  if (select) {
+    select.value = newSup.id;
+    handleBuySupplierSelectChange();
+  }
+
+  alert(`✅ नया सप्लायर "${name}" सफलतापूर्वक जोड़ दिया गया!`);
+}
+
+function renderSuppliersTable() {
+  const tbody = document.getElementById('suppliers-table-body');
+  const countBadge = document.getElementById('suppliers-count-badge');
+  if (!tbody) return;
+
+  if (!appData.suppliers) appData.suppliers = [];
+
+  if (countBadge) countBadge.innerText = `${appData.suppliers.length} सप्लायर`;
+
+  if (appData.suppliers.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-400 text-xs">कोई सप्लायर दर्ज नहीं है। "➕ नया सप्लायर" बटन से जोड़ें।</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = appData.suppliers.map(s => {
+    const bal = parseFloat(s.balance) || 0;
+    const isDue = bal > 0;
+    return `
+      <tr class="hover:bg-slate-50 transition text-xs">
+        <td class="py-2.5 px-3 font-bold text-slate-900">${s.name}</td>
+        <td class="py-2.5 px-3 text-slate-600">${s.phone || '-'}</td>
+        <td class="py-2.5 px-3 text-slate-500 max-w-[140px] truncate">${s.address || '-'}</td>
+        <td class="py-2.5 px-3 text-right font-bold text-slate-800">₹ ${(s.totalPurchases || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+        <td class="py-2.5 px-3 text-right font-black ${isDue ? 'text-red-600' : 'text-emerald-700'}">
+          ₹ ${bal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+        </td>
+        <td class="py-2.5 px-3 text-center">
+          <button type="button" onclick="openSupplierPaymentModal('${s.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-[11px] shadow-sm transition active:scale-95">
+            💵 भुगतान
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function openSupplierPaymentModal(supplierId) {
+  if (!appData.suppliers) appData.suppliers = [];
+  const s = appData.suppliers.find(sup => sup.id === supplierId);
+  if (!s) return;
+
+  const modal = document.getElementById('pay-supplier-modal');
+  const idEl = document.getElementById('pay-sup-id');
+  const nameEl = document.getElementById('pay-sup-name');
+  const balEl = document.getElementById('pay-sup-current-balance');
+  const amtEl = document.getElementById('pay-sup-amount');
+
+  if (idEl) idEl.value = s.id;
+  if (nameEl) nameEl.innerText = s.name;
+  if (balEl) balEl.innerText = `₹ ${(s.balance || 0).toFixed(2)}`;
+  if (amtEl) amtEl.value = '';
+
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeSupplierPaymentModal() {
+  const modal = document.getElementById('pay-supplier-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function handleSaveSupplierPayment(e) {
+  if (e && e.preventDefault) e.preventDefault();
+
+  const id = document.getElementById('pay-sup-id').value;
+  const amt = parseFloat(document.getElementById('pay-sup-amount').value) || 0;
+  const mode = document.getElementById('pay-sup-mode').value;
+  const remarks = document.getElementById('pay-sup-remarks').value.trim();
+
+  if (amt <= 0) {
+    alert("कृपया सही भुगतान राशि भरें!");
+    return;
+  }
+
+  const s = appData.suppliers.find(sup => sup.id === id);
+  if (!s) return;
+
+  s.balance = (s.balance || 0) - amt;
+  if (!s.history) s.history = [];
+
+  s.history.push({
+    date: new Date().toISOString().split('T')[0],
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    type: 'PAYMENT',
+    amount: amt,
+    mode: mode,
+    balanceAfter: s.balance,
+    note: remarks || 'सप्लायर भुगतान'
+  });
+
+  saveData();
+  closeSupplierPaymentModal();
+  renderSuppliersTable();
+  populateBuySupplierSelect();
+
+  alert(`✅ "${s.name}" को ₹${amt.toFixed(2)} का भुगतान सफलता पूर्वक दर्ज किया गया! अब बकाया: ₹${s.balance.toFixed(2)}`);
+}
+
 function handleSavePurchase(e) {
   if (e && e.preventDefault) e.preventDefault();
 
   const prodId = document.getElementById('buy-product-select').value;
   const qty = parseFloat(document.getElementById('buy-qty').value) || 0;
   const rate = parseFloat(document.getElementById('buy-rate').value) || 0;
-  const supplier = document.getElementById('buy-supplier').value.trim();
   const dateVal = document.getElementById('buy-date').value || new Date().toISOString().split('T')[0];
   const statusVal = document.getElementById('buy-status').value || 'paid';
+
+  const supNameInput = document.getElementById('buy-supplier-name');
+  const supPhoneInput = document.getElementById('buy-supplier-phone');
+  const supAddressInput = document.getElementById('buy-supplier-address');
+  const supplierSelect = document.getElementById('buy-supplier-select');
+
+  let supplierName = supNameInput ? supNameInput.value.trim() : '';
+  let supplierPhone = supPhoneInput ? supPhoneInput.value.trim() : '';
+  let supplierAddress = supAddressInput ? supAddressInput.value.trim() : '';
+
+  if (!supplierName) {
+    const hiddenSupplier = document.getElementById('buy-supplier');
+    supplierName = (hiddenSupplier && hiddenSupplier.value.trim()) || "मंडी / स्थानीय सप्लायर";
+  }
 
   if (!prodId) {
     alert("कृपया सामान (Item) चुनें!");
@@ -2366,14 +2800,70 @@ function handleSavePurchase(e) {
   // 1. Increase product stock
   prod.stock = (parseFloat(prod.stock) || 0) + qty;
 
-  // 2. Add purchase record
+  // 2. Track / update supplier
+  if (!appData.suppliers) appData.suppliers = [];
+  let supplierObj = null;
+
+  if (supplierSelect && supplierSelect.value !== 'NEW') {
+    supplierObj = appData.suppliers.find(sup => sup.id === supplierSelect.value);
+  }
+
+  if (!supplierObj && supplierName && supplierName !== "मंडी / स्थानीय सप्लायर") {
+    supplierObj = appData.suppliers.find(sup => (supplierPhone && sup.phone === supplierPhone) || (sup.name.toLowerCase() === supplierName.toLowerCase()));
+    if (!supplierObj) {
+      supplierObj = {
+        id: "SUP-" + Date.now(),
+        name: supplierName,
+        phone: supplierPhone,
+        address: supplierAddress,
+        balance: (statusVal === 'credit' ? total : 0),
+        totalPurchases: total,
+        history: [{
+          date: dateVal,
+          type: 'PURCHASE',
+          amount: total,
+          status: statusVal,
+          product: getLocalizedName(prod),
+          qty: qty,
+          unit: prod.unit || 'kg',
+          balanceAfter: (statusVal === 'credit' ? total : 0)
+        }]
+      };
+      appData.suppliers.push(supplierObj);
+    }
+  }
+
+  if (supplierObj) {
+    supplierObj.totalPurchases = (supplierObj.totalPurchases || 0) + total;
+    if (statusVal === 'credit') {
+      supplierObj.balance = (supplierObj.balance || 0) + total;
+    }
+    if (supplierPhone && !supplierObj.phone) supplierObj.phone = supplierPhone;
+    if (supplierAddress && !supplierObj.address) supplierObj.address = supplierAddress;
+    if (!supplierObj.history) supplierObj.history = [];
+    supplierObj.history.push({
+      date: dateVal,
+      type: 'PURCHASE',
+      amount: total,
+      status: statusVal,
+      product: getLocalizedName(prod),
+      qty: qty,
+      unit: prod.unit || 'kg',
+      balanceAfter: supplierObj.balance || 0
+    });
+  }
+
+  // 3. Add purchase record
   if (!appData.purchases) appData.purchases = [];
   const newPurchase = {
     id: "PUR-" + Date.now(),
     date: dateVal,
     productId: prod.id,
     productName: getLocalizedName(prod),
-    supplier: supplier || "मंडी / स्थानीय सप्लायर",
+    supplier: supplierName,
+    supplierId: supplierObj ? supplierObj.id : null,
+    supplierPhone: supplierPhone,
+    supplierAddress: supplierAddress,
     qty: qty,
     unit: prod.unit || 'kg',
     rate: rate,
@@ -2388,6 +2878,11 @@ function handleSavePurchase(e) {
   // Reset form
   const form = document.getElementById('purchase-form');
   if (form) form.reset();
+  if (supNameInput) supNameInput.value = '';
+  if (supPhoneInput) supPhoneInput.value = '';
+  if (supAddressInput) supAddressInput.value = '';
+  const dueAlert = document.getElementById('buy-supplier-due-alert');
+  if (dueAlert) dueAlert.classList.add('hidden');
   calculateBuyTotal();
 
   renderPurchasesTab();
@@ -3374,7 +3869,7 @@ function setCollectionUnit(unit) {
   if (typeof updateFn === 'function') updateFn();
 }
 
-let isRateManuallyEdited = false;
+// isRateManuallyEdited is declared globally at top
 
 function resetRateToAuto() {
   isRateManuallyEdited = false;

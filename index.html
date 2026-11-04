@@ -643,10 +643,10 @@
           </div>
         </div>
 
-        <!-- 5 PRIMARY ACTION CARDS -->
+        <!-- 5 PRIMARY ACTION CARDS (ROBUST BUTTONS WITH TOUCH/CLICK) -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
           <!-- Card 1: SALE (बिक्री) -->
-          <div onclick="switchTab('products-pos')" class="dairy-card dairy-card-interactive p-3.5 sm:p-4 cursor-pointer bg-white border-2 border-emerald-500/70 hover:border-emerald-600 shadow-sm flex flex-col justify-between rounded-2xl transition">
+          <button type="button" onclick="switchTab('products-pos')" class="w-full text-left dairy-card dairy-card-interactive p-3.5 sm:p-4 bg-white border-2 border-emerald-500/70 hover:border-emerald-600 shadow-sm flex flex-col justify-between rounded-2xl transition active:scale-95 focus:outline-none">
             <div class="flex items-center justify-between mb-2">
               <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl shadow-inner">
                 🛒
@@ -657,14 +657,14 @@
               <h3 class="font-black text-slate-900 text-xs sm:text-sm">बिक्री (Sale)</h3>
               <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">पनीर, मक्खन, मटर, चाप बेचें व पर्ची दें</p>
             </div>
-            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-emerald-700">
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-emerald-700 w-full">
               <span>बिल काटें</span>
               <span>➔</span>
             </div>
-          </div>
+          </button>
 
           <!-- Card 2: BUY (खरीद) -->
-          <div onclick="switchTab('purchases')" class="dairy-card dairy-card-interactive p-3.5 sm:p-4 cursor-pointer bg-white border-2 border-blue-400/70 hover:border-blue-600 shadow-sm flex flex-col justify-between rounded-2xl transition">
+          <button type="button" onclick="switchTab('purchases')" class="w-full text-left dairy-card dairy-card-interactive p-3.5 sm:p-4 bg-white border-2 border-blue-400/70 hover:border-blue-600 shadow-sm flex flex-col justify-between rounded-2xl transition active:scale-95 focus:outline-none">
             <div class="flex items-center justify-between mb-2">
               <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center text-xl shadow-inner">
                 📥
@@ -673,16 +673,16 @@
             </div>
             <div>
               <h3 class="font-black text-slate-900 text-xs sm:text-sm">खरीद (Buy)</h3>
-              <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">दुकान का सामान व स्टॉक खरीद दर्ज करें</p>
+              <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">दुकान का सामान व सप्लायर खरीद दर्ज करें</p>
             </div>
-            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-700">
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-blue-700 w-full">
               <span>खरीद जोड़ें</span>
               <span>➔</span>
             </div>
-          </div>
+          </button>
 
           <!-- Card 3: CUSTOMERS (ग्राहक खाता) -->
-          <div onclick="switchTab('customer-portal')" class="dairy-card dairy-card-interactive p-3.5 sm:p-4 cursor-pointer bg-white border-2 border-purple-400/70 hover:border-purple-600 shadow-sm flex flex-col justify-between rounded-2xl transition">
+          <button type="button" onclick="switchTab('customer-portal')" class="w-full text-left dairy-card dairy-card-interactive p-3.5 sm:p-4 bg-white border-2 border-purple-400/70 hover:border-purple-600 shadow-sm flex flex-col justify-between rounded-2xl transition active:scale-95 focus:outline-none">
             <div class="flex items-center justify-between mb-2">
               <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center text-xl shadow-inner">
                 👥
@@ -693,14 +693,14 @@
               <h3 class="font-black text-slate-900 text-xs sm:text-sm">ग्राहक (Customer)</h3>
               <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">ग्राहक जोड़ें, उधारी/बकाया व WhatsApp</p>
             </div>
-            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-purple-700">
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-purple-700 w-full">
               <span>खाता देखें</span>
               <span>➔</span>
             </div>
-          </div>
+          </button>
 
           <!-- Card 4: MILK COLLECTION (दूध खरीद) -->
-          <div onclick="switchTab('collection')" class="dairy-card dairy-card-interactive p-3.5 sm:p-4 cursor-pointer bg-white border-2 border-amber-400/70 hover:border-amber-600 shadow-sm flex flex-col justify-between rounded-2xl transition">
+          <button type="button" onclick="switchTab('collection')" class="w-full text-left dairy-card dairy-card-interactive p-3.5 sm:p-4 bg-white border-2 border-amber-400/70 hover:border-amber-600 shadow-sm flex flex-col justify-between rounded-2xl transition active:scale-95 focus:outline-none">
             <div class="flex items-center justify-between mb-2">
               <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-xl shadow-inner">
                 🥛
@@ -711,29 +711,28 @@
               <h3 class="font-black text-slate-900 text-xs sm:text-sm">दूध खरीद (Milk)</h3>
               <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">किसान दूध, फैट, दर, लीटर व किलो</p>
             </div>
-            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-amber-700">
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-amber-700 w-full">
               <span>दूध एंट्री</span>
               <span>➔</span>
             </div>
-          </div>
+          </button>
 
-          <!-- Card 5: RATES & ITEMS (रेट व सामान) -->
-          <div onclick="switchTab('products-pos')" class="dairy-card dairy-card-interactive p-3.5 sm:p-4 cursor-pointer bg-white border-2 border-teal-400/70 hover:border-teal-600 shadow-sm flex flex-col justify-between rounded-2xl transition col-span-2 sm:col-span-1">
+          <!-- Card 5: RATES & ITEMS (रेट सूची) -->
+          <button type="button" onclick="openRateListModal()" class="w-full text-left dairy-card dairy-card-interactive p-3.5 sm:p-4 bg-white border-2 border-teal-400/70 hover:border-teal-600 shadow-sm flex flex-col justify-between rounded-2xl transition active:scale-95 focus:outline-none col-span-2 sm:col-span-1">
             <div class="flex items-center justify-between mb-2">
               <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center text-xl shadow-inner">
                 🏷️
               </div>
-              <span class="text-[9px] font-bold text-teal-800 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">दुकान भाव</span>
+              <span class="text-[9px] font-bold text-teal-800 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">समस्त भाव</span>
             </div>
             <div>
               <h3 class="font-black text-slate-900 text-xs sm:text-sm">रेट सूची (Rates)</h3>
-              <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">पनीर, मक्खन, मटर, चाप के भाव बदलें</p>
+              <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">दूध व सभी डेयरी उत्पादों के भाव देखें/बदलें</p>
             </div>
-            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-teal-700">
-              <span>भाव देखें/बदलें</span>
-              <span>➔</span>
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-teal-700 w-full">
+              <span>भाव लिस्ट ➔</span>
             </div>
-          </div>
+          </button>
         </div>
 
         <!-- REAL-TIME PULSE CARDS -->
@@ -1206,7 +1205,7 @@
               <div>
                 <div class="flex items-center justify-between mb-1">
                   <label class="block font-bold text-slate-700" data-i18n="customerInfo">ग्राहक चुनें या नया दर्ज करें</label>
-                  <button type="button" onclick="openAddCustomerModal()" class="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded-lg border border-emerald-200 transition">
+                  <button type="button" onclick="openAddCustomerModal()" class="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded-lg border border-emerald-200 transition active:scale-95">
                     ➕ नया ग्राहक
                   </button>
                 </div>
@@ -1215,13 +1214,23 @@
                 </select>
               </div>
 
+              <!-- Customer Previous Due Alert -->
+              <div id="pos-cust-due-alert" class="hidden p-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-[11px] font-bold flex items-center justify-between">
+                <span>⚠️ ग्राहक का पिछला बकाया:</span>
+                <span id="pos-cust-due-amount" class="text-xs font-black text-amber-800">₹0.00</span>
+              </div>
+
               <div class="grid grid-cols-2 gap-2 pt-1">
                 <div>
-                  <input type="text" id="pos-cust-name" placeholder="ग्राहक का नाम..." class="dairy-input w-full px-2.5 py-1.5 border rounded-lg bg-white text-xs">
+                  <input type="text" id="pos-cust-name" placeholder="ग्राहक का नाम..." class="dairy-input w-full px-2.5 py-1.5 border rounded-lg bg-white text-xs font-semibold text-slate-800">
                 </div>
                 <div>
                   <input type="tel" id="pos-cust-phone" placeholder="मोबाइल नंबर (10 अंक)..." class="dairy-input w-full px-2.5 py-1.5 border rounded-lg bg-white text-xs font-bold text-emerald-800">
                 </div>
+              </div>
+
+              <div>
+                <input type="text" id="pos-cust-address" placeholder="ग्राहक का पता / गांव / मोहल्ला..." class="dairy-input w-full px-2.5 py-1.5 border rounded-lg bg-white text-xs text-slate-700">
               </div>
 
               <div>
@@ -1357,9 +1366,40 @@
                 <span id="buy-total-display" class="font-black text-base sm:text-lg text-blue-800">₹ 0.00</span>
               </div>
 
-              <div>
-                <label class="block font-bold text-slate-700 mb-1">सप्लायर / मंडी / विक्रेता का नाम</label>
-                <input type="text" id="buy-supplier" placeholder="उदा. मंडी ट्रेडर्स, आज़ादपुर मंडी..." class="dairy-input w-full px-3 py-2 border rounded-xl font-semibold text-slate-800">
+              <!-- Supplier Details in Purchases -->
+              <div class="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs">
+                <div>
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="block font-bold text-slate-700">सप्लायर / विक्रेता चुनें या नया जोड़ें</label>
+                    <button type="button" onclick="openAddSupplierModal()" class="text-[11px] font-bold text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded-lg border border-blue-200 transition active:scale-95">
+                      ➕ नया सप्लायर
+                    </button>
+                  </div>
+                  <select id="buy-supplier-select" class="dairy-input w-full px-2.5 py-1.5 border rounded-lg bg-white text-xs font-semibold">
+                    <!-- Populated dynamically -->
+                  </select>
+                </div>
+
+                <!-- Supplier Previous Due Alert -->
+                <div id="buy-supplier-due-alert" class="hidden p-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-[11px] font-bold flex items-center justify-between">
+                  <span>⚠️ सप्लायर को पिछला बकाया:</span>
+                  <span id="buy-supplier-due-amount" class="text-xs font-black text-amber-800">₹0.00</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                  <div>
+                    <input type="text" id="buy-supplier-name" placeholder="सप्लायर का नाम..." class="dairy-input w-full px-2.5 py-1.5 border rounded-lg bg-white text-xs font-semibold text-slate-800">
+                  </div>
+                  <div>
+                    <input type="tel" id="buy-supplier-phone" placeholder="मोबाइल नंबर..." class="dairy-input w-full px-2.5 py-1.5 border rounded-lg bg-white text-xs text-slate-700">
+                  </div>
+                </div>
+
+                <div>
+                  <input type="text" id="buy-supplier-address" placeholder="सप्लायर का पता / मंडी / शहर..." class="dairy-input w-full px-2.5 py-1.5 border rounded-lg bg-white text-xs text-slate-700">
+                </div>
+                <!-- Hidden synced input for backward compatibility -->
+                <input type="hidden" id="buy-supplier" value="">
               </div>
 
               <div class="grid grid-cols-2 gap-2.5">
@@ -1409,6 +1449,40 @@
                   </tr>
                 </thead>
                 <tbody id="purchases-table-body" class="divide-y divide-slate-100">
+                  <!-- Dynamically rendered -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Suppliers Khata & Payables (सप्लायर खाता बही) -->
+          <div class="dairy-card p-5 bg-white border border-slate-100 shadow-sm rounded-2xl">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+              <div>
+                <h3 class="font-bold text-slate-800 text-sm">सप्लायर खाता बही (Suppliers Khata & Payables)</h3>
+                <p class="text-xs text-slate-500">विक्रेताओं का बकाया व भुगतान रिकॉर्ड</p>
+              </div>
+              <div class="flex items-center space-x-2">
+                <span id="suppliers-count-badge" class="text-xs font-bold bg-blue-50 text-blue-800 border border-blue-200 px-2.5 py-1 rounded-full">0 सप्लायर</span>
+                <button type="button" onclick="openAddSupplierModal()" class="text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-lg transition active:scale-95">
+                  ➕ नया सप्लायर
+                </button>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs whitespace-nowrap">
+                <thead class="bg-slate-50 text-slate-600 font-bold border-b">
+                  <tr>
+                    <th class="py-2.5 px-3">सप्लायर नाम</th>
+                    <th class="py-2.5 px-3">मोबाइल</th>
+                    <th class="py-2.5 px-3">पता / मंडी</th>
+                    <th class="py-2.5 px-3 text-right">कुल खरीद</th>
+                    <th class="py-2.5 px-3 text-right">बकाया देनदारी</th>
+                    <th class="py-2.5 px-3 text-center">एक्शन</th>
+                  </tr>
+                </thead>
+                <tbody id="suppliers-table-body" class="divide-y divide-slate-100">
                   <!-- Dynamically rendered -->
                 </tbody>
               </table>
@@ -1662,6 +1736,19 @@
                 <button type="button" id="btn-reset-auto-rate" onclick="resetRateToAuto()" class="text-emerald-700 font-bold hover:underline hidden">
                   ↺ ऑटो भाव
                 </button>
+              </div>
+
+              <!-- 1-Tap Quick Rate Buttons -->
+              <div class="mt-2 pt-2 border-t border-slate-100 flex items-center gap-1 flex-wrap">
+                <span class="text-[9px] font-bold text-slate-500">त्वरित भाव:</span>
+                <button type="button" onclick="setQuickMilkRate(40)" class="px-2 py-0.5 bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 font-bold text-[10px] rounded-md transition active:scale-90">₹40</button>
+                <button type="button" onclick="setQuickMilkRate(45)" class="px-2 py-0.5 bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 font-bold text-[10px] rounded-md transition active:scale-90">₹45</button>
+                <button type="button" onclick="setQuickMilkRate(50)" class="px-2 py-0.5 bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 font-bold text-[10px] rounded-md transition active:scale-90">₹50</button>
+                <button type="button" onclick="setQuickMilkRate(55)" class="px-2 py-0.5 bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 font-bold text-[10px] rounded-md transition active:scale-90">₹55</button>
+                <button type="button" onclick="setQuickMilkRate(60)" class="px-2 py-0.5 bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 font-bold text-[10px] rounded-md transition active:scale-90">₹60</button>
+                <button type="button" onclick="setQuickMilkRate(65)" class="px-2 py-0.5 bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 font-bold text-[10px] rounded-md transition active:scale-90">₹65</button>
+                <button type="button" onclick="setQuickMilkRate(70)" class="px-2 py-0.5 bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 font-bold text-[10px] rounded-md transition active:scale-90">₹70</button>
+                <button type="button" onclick="setQuickMilkRate(75)" class="px-2 py-0.5 bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 font-bold text-[10px] rounded-md transition active:scale-90">₹75</button>
               </div>
             </div>
             <div>
@@ -2515,6 +2602,140 @@
           💾 भाव सुरक्षित करें (Save Rate)
         </button>
       </form>
+    </div>
+  </div>
+
+  <!-- ADD SUPPLIER MODAL (नया सप्लायर / विक्रेता जोड़ें) -->
+  <div id="add-supplier-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl modal-fade-in border border-slate-100">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h3 class="font-black text-slate-900 text-sm flex items-center space-x-1.5">
+          <span>📦</span>
+          <span>नया सप्लायर / विक्रेता जोड़ें</span>
+        </h3>
+        <button onclick="closeAddSupplierModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center font-bold">✕</button>
+      </div>
+      <form id="add-supplier-form" onsubmit="handleAddSupplier(event)" class="space-y-3 mt-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">सप्लायर / फर्म / विक्रेता का नाम *</label>
+          <input type="text" id="new-sup-name" placeholder="उदा. आज़ादपुर मंडी, श्याम ट्रेडर्स..." class="dairy-input w-full px-3 py-2 border rounded-xl font-bold text-slate-800" required>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">मोबाइल नंबर (Phone)</label>
+            <input type="tel" id="new-sup-phone" placeholder="10 अंकों का मोबाइल..." class="dairy-input w-full px-3 py-2 border rounded-xl font-medium text-slate-800">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">शुरुआती बकाया (Opening ₹)</label>
+            <input type="number" step="1" id="new-sup-balance" placeholder="0" class="dairy-input w-full px-3 py-2 border rounded-xl font-bold text-amber-800">
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">पता / मंडी / शहर (Address)</label>
+          <input type="text" id="new-sup-address" placeholder="दुकान नं., मंडी, शहर..." class="dairy-input w-full px-3 py-2 border rounded-xl font-medium text-slate-800">
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-md transition active:scale-95">
+          💾 सप्लायर सुरक्षित करें (Save Supplier)
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- PAY SUPPLIER MODAL (सप्लायर को भुगतान दर्ज करें) -->
+  <div id="pay-supplier-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl modal-fade-in border border-slate-100">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h3 class="font-black text-slate-900 text-sm flex items-center space-x-1.5">
+          <span>💵</span>
+          <span>सप्लायर भुगतान (Pay Supplier)</span>
+        </h3>
+        <button onclick="closeSupplierPaymentModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center font-bold">✕</button>
+      </div>
+      <form id="pay-supplier-form" onsubmit="handleSaveSupplierPayment(event)" class="space-y-3 mt-4 text-xs">
+        <input type="hidden" id="pay-sup-id">
+        <div class="bg-blue-50 p-2.5 rounded-xl border border-blue-200 flex justify-between items-center">
+          <div>
+            <div id="pay-sup-name" class="font-bold text-blue-900 text-xs">-</div>
+            <div class="text-[10px] text-blue-700">वर्तमान बकाया দেনदारी:</div>
+          </div>
+          <span id="pay-sup-current-balance" class="font-black text-sm text-red-600">₹0.00</span>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">भुगतान की गई रकम (Amount ₹) *</label>
+          <input type="number" step="1" id="pay-sup-amount" class="dairy-input w-full px-3 py-2 border rounded-xl font-black text-base text-emerald-700" placeholder="0" required>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">भुगतान माध्यम (Mode)</label>
+          <select id="pay-sup-mode" class="dairy-input w-full px-3 py-2 border rounded-xl font-semibold bg-white">
+            <option value="नकद (Cash)">💵 नकद (Cash)</option>
+            <option value="PhonePe / GPay">📲 PhonePe / GPay / UPI</option>
+            <option value="Paytm">📱 Paytm</option>
+            <option value="बैंक ट्रांसफर">🏦 बैंक ट्रांसफर (NEFT/IMPS)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">विवरण / नोट (Remarks)</label>
+          <input type="text" id="pay-sup-remarks" placeholder="उदा. चेक नं / बिल भुगतान..." class="dairy-input w-full px-3 py-2 border rounded-xl text-xs">
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-md transition active:scale-95">
+          ✅ भुगतान दर्ज करें (Confirm Payment)
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- RATE LIST MODAL (समस्त रेट सूची - दूध भाव व डेयरी उत्पाद भाव) -->
+  <div id="rate-list-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl modal-fade-in border border-slate-100 flex flex-col max-h-[92vh]">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0">
+        <div class="flex items-center space-x-2">
+          <span class="text-2xl">🏷️</span>
+          <div>
+            <h3 class="font-black text-slate-900 text-base sm:text-lg">डेयरी रेट सूची (Rate List)</h3>
+            <p class="text-xs text-slate-500">दूध खरीद दरें व सभी डेयरी उत्पादों के लाइव भाव</p>
+          </div>
+        </div>
+        <button onclick="closeRateListModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center font-bold">✕</button>
+      </div>
+
+      <div class="overflow-y-auto space-y-4 my-3 pr-1 text-xs">
+        <!-- Milk Rates Section -->
+        <div class="bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200">
+          <div class="flex items-center justify-between mb-2.5">
+            <h4 class="font-bold text-amber-900 text-xs sm:text-sm flex items-center space-x-1.5">
+              <span>🥛</span>
+              <span>दूध खरीद दरें (Milk Collection Rates)</span>
+            </h4>
+            <span class="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">लाइव रेट</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="rate-list-milk-container">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Products Rates Section -->
+        <div>
+          <div class="flex items-center justify-between mb-2.5">
+            <h4 class="font-bold text-slate-800 text-xs sm:text-sm flex items-center space-x-1.5">
+              <span>🧀</span>
+              <span>डेयरी उत्पाद बिक्री भाव (Dairy Products Selling Rates)</span>
+            </h4>
+            <button type="button" onclick="closeRateListModal(); openAddCustomItemModal();" class="text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-lg transition active:scale-95">
+              ➕ नया सामान जोड़ें
+            </button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="rate-list-products-container">
+            <!-- Dynamically populated with all products (पनीर, मक्खन, क्रीम, चाप, सफल मटर, दही, सोयाबीन पनीर, आदि) -->
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 shrink-0 flex items-center justify-between">
+        <span class="text-[11px] text-slate-500">✏️ किसी भी आइटम का भाव बदलने के लिए "भाव बदलें" पर क्लिक करें।</span>
+        <button onclick="closeRateListModal()" class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-xl text-xs transition">
+          बंद करें (Close)
+        </button>
+      </div>
     </div>
   </div>
 
