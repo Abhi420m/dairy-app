@@ -889,6 +889,125 @@ function updateDrawerUserInfo() {
   }
 }
 
+// ----------------------------------------------------
+// USER DATA ISOLATION & LOCKOUT SECURITY
+// ----------------------------------------------------
+const LOCKOUT_MAX_ATTEMPTS = 3;
+const LOCKOUT_DURATION_MS = 5 * 60 * 1000; // 5 minutes lockout
+let lockoutTimerInterval = null;
+
+function getUserStorageKey(user) {
+  if (user && user.phone) {
+    return 'dairy_user_data_' + String(user.phone).replace(/\D/g, '');
+  }
+  return 'dairy_user_data_default';
+}
+
+function getLockoutInfo(phone) {
+  if (!phone) return { attempts: 0, lockoutUntil: 0 };
+  const cleanPhone = String(phone).replace(/\D/g, '');
+  try {
+    const raw = localStorage.getItem('auth_lockout_' + cleanPhone);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return { attempts: 0, lockoutUntil: 0 };
+}
+
+function setLockoutInfo(phone, info) {
+  if (!phone) return;
+  const cleanPhone = String(phone).replace(/\D/g, '');
+  try {
+    localStorage.setItem('auth_lockout_' + cleanPhone, JSON.stringify(info));
+  } catch (e) {}
+}
+
+function clearLockoutInfo(phone) {
+  if (!phone) return;
+  const cleanPhone = String(phone).replace(/\D/g, '');
+  try {
+    localStorage.removeItem('auth_lockout_' + cleanPhone);
+  } catch (e) {}
+}
+
+function checkAndDisplayLockout(phone) {
+  const alertBox = document.getElementById('login-lockout-alert');
+  const timerSpan = document.getElementById('login-lockout-timer');
+  const submitBtn = document.getElementById('login-submit-btn');
+
+  if (lockoutTimerInterval) {
+    clearInterval(lockoutTimerInterval);
+    lockoutTimerInterval = null;
+  }
+
+  if (!phone || String(phone).replace(/\D/g, '').length < 10) {
+    if (alertBox) alertBox.classList.add('hidden');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+    return false;
+  }
+
+  const cleanPhone = String(phone).replace(/\D/g, '');
+  const info = getLockoutInfo(cleanPhone);
+  const now = Date.now();
+
+  if (info.lockoutUntil && info.lockoutUntil > now) {
+    if (alertBox) alertBox.classList.remove('hidden');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+
+    const updateTimer = () => {
+      const remainingMs = info.lockoutUntil - Date.now();
+      if (remainingMs <= 0) {
+        if (lockoutTimerInterval) {
+          clearInterval(lockoutTimerInterval);
+          lockoutTimerInterval = null;
+        }
+        clearLockoutInfo(cleanPhone);
+        if (alertBox) alertBox.classList.add('hidden');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+        return;
+      }
+      const totalSec = Math.ceil(remainingMs / 1000);
+      const m = Math.floor(totalSec / 60);
+      const s = totalSec % 60;
+      if (timerSpan) timerSpan.innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    };
+
+    updateTimer();
+    lockoutTimerInterval = setInterval(updateTimer, 1000);
+    return true;
+  } else {
+    if (info.lockoutUntil && info.lockoutUntil <= now) {
+      clearLockoutInfo(cleanPhone);
+    }
+    if (alertBox) alertBox.classList.add('hidden');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+    return false;
+  }
+}
+
+function fillDemoCredentials() {
+  const phoneEl = document.getElementById('login-phone');
+  const passEl = document.getElementById('login-password');
+  if (phoneEl) {
+    phoneEl.value = '9829012345';
+    checkAndDisplayLockout('9829012345');
+  }
+  if (passEl) {
+    passEl.value = '123';
+  }
+}
+
 function checkAuthSession() {
   const savedSession = localStorage.getItem(SESSION_STORAGE_KEY);
   if (savedSession) {
@@ -897,23 +1016,8 @@ function checkAuthSession() {
     } catch (e) {
       currentUser = null;
     }
-  }
-
-  // Auto-login default dairy user if no session exists so the user NEVER gets blocked!
-  if (!currentUser) {
-    currentUser = (DEFAULT_USERS && DEFAULT_USERS[0]) ? DEFAULT_USERS[0] : {
-      phone: "9829012345",
-      name: "डेयरी संचालक",
-      nameEn: "Dairy Owner",
-      dairyName: "डेयरी हिसाब",
-      dairyNameEn: "Dairy Hisab",
-      role: "dairy",
-      businessMode: "all",
-      address: "मुख्य बाजार"
-    };
-    try {
-      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUser));
-    } catch (e) {}
+  } else {
+    currentUser = null;
   }
 
   const authScreen = document.getElementById('auth-screen');
@@ -921,10 +1025,27 @@ function checkAuthSession() {
   const mainContainer = document.getElementById('main-container');
   const mobileNav = document.getElementById('mobile-nav');
 
+  if (!currentUser) {
+    // Show Authentication / Login Screen
+    if (authScreen) authScreen.classList.remove('hidden');
+    if (appHeader) appHeader.classList.add('hidden');
+    if (mainContainer) mainContainer.classList.add('hidden');
+    if (mobileNav) mobileNav.classList.add('hidden');
+    switchAuthMode('login');
+    const phoneInput = document.getElementById('login-phone');
+    if (phoneInput && phoneInput.value) {
+      checkAndDisplayLockout(phoneInput.value);
+    }
+    return;
+  }
+
+  // Authenticated user session active
   if (authScreen) authScreen.classList.add('hidden');
   if (appHeader) appHeader.classList.remove('hidden');
   if (mainContainer) mainContainer.classList.remove('hidden');
   if (mobileNav) mobileNav.classList.remove('hidden');
+
+  loadData();
 
   // Synchronize settings with current user profile
   if (appData && appData.settings) {
@@ -1272,11 +1393,27 @@ function handleVerifyOtp() {
 
 function handleLogin(e) {
   if (e) e.preventDefault();
-  const phone = document.getElementById('login-phone').value.trim();
-  const password = document.getElementById('login-password').value.trim();
+  const phoneInput = document.getElementById('login-phone');
+  const passwordInput = document.getElementById('login-password');
+  const phone = phoneInput ? phoneInput.value.trim().replace(/\D/g, '') : '';
+  const password = passwordInput ? passwordInput.value.trim() : '';
 
   if (!phone || !password) {
     alert(currentLang === 'en' ? "Please enter mobile number and password!" : "कृपया मोबाइल नंबर और पासवर्ड दर्ज करें!");
+    return;
+  }
+
+  // Pre-check if account is locked out
+  if (checkAndDisplayLockout(phone)) {
+    const info = getLockoutInfo(phone);
+    const remainingMs = Math.max(0, info.lockoutUntil - Date.now());
+    const totalSec = Math.ceil(remainingMs / 1000);
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    const formatted = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    alert(currentLang === 'en'
+      ? `🔒 Security Lockout! 3 wrong password attempts detected. Please try again after ${formatted}.`
+      : `🔒 सुरक्षा लॉक: 3 बार गलत पासवर्ड दर्ज करने के कारण यह खाता 5 मिनट के लिए लॉक है। कृपया ${formatted} बाद पुनः प्रयास करें।`);
     return;
   }
 
@@ -1284,6 +1421,9 @@ function handleLogin(e) {
   const matched = users.find(u => u.phone === phone && u.password === password);
 
   if (matched) {
+    clearLockoutInfo(phone);
+    checkAndDisplayLockout(phone);
+
     currentUser = matched;
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUser));
     checkAuthSession();
@@ -1298,9 +1438,23 @@ function handleLogin(e) {
       : `स्वागत है, ${matched.name || matched.dairyName}!`;
     alert(welcomeMsg);
   } else {
-    alert(currentLang === 'en' 
-      ? "Invalid mobile number or password! If you don't have an account, please Sign Up." 
-      : "गलत मोबाइल नंबर या पासवर्ड! यदि आपका खाता नहीं है, तो कृपया साइन अप करें।");
+    const info = getLockoutInfo(phone);
+    info.attempts = (info.attempts || 0) + 1;
+
+    if (info.attempts >= LOCKOUT_MAX_ATTEMPTS) {
+      info.lockoutUntil = Date.now() + LOCKOUT_DURATION_MS;
+      setLockoutInfo(phone, info);
+      checkAndDisplayLockout(phone);
+      alert(currentLang === 'en'
+        ? "🚨 Account locked for 5 minutes! You exceeded 3 incorrect password attempts."
+        : "🚨 3 बार गलत पासवर्ड दर्ज किया गया! सुरक्षा कारणों से यह खाता 5 मिनट के लिए लॉक कर दिया गया है।");
+    } else {
+      setLockoutInfo(phone, info);
+      const remaining = LOCKOUT_MAX_ATTEMPTS - info.attempts;
+      alert(currentLang === 'en'
+        ? `⚠️ Incorrect password! You have ${remaining} attempt(s) left before a 5-minute lockout.`
+        : `⚠️ गलत पासवर्ड! आपके पास केवल ${remaining} प्रयास शेष हैं। 3 गलत प्रयासों के बाद खाता 5 मिनट के लिए लॉक हो जाएगा।`);
+    }
   }
 }
 
@@ -1372,6 +1526,10 @@ function handleSignup(e) {
     users.push(newUser);
     saveUsersList(users);
 
+    currentUser = newUser;
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUser));
+    loadData();
+
     // Also add to doctors directory
     if (!appData.doctors) appData.doctors = [];
     const existingDocIdx = appData.doctors.findIndex(d => d.phone === phone);
@@ -1395,9 +1553,6 @@ function handleSignup(e) {
       appData.doctors.unshift(docItem);
     }
     saveData();
-
-    currentUser = newUser;
-    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUser));
 
     checkAuthSession();
     renderApp();
@@ -1436,16 +1591,19 @@ function handleSignup(e) {
     users.push(newUser);
     saveUsersList(users);
 
-    appData.settings.dairyName = dairyName;
-    appData.settings.ownerName = ownerName;
-    appData.settings.phone = phone;
-    appData.settings.gstin = gstin;
-    appData.settings.businessMode = businessMode;
-    appData.settings.address = address;
-    saveData();
-
     currentUser = newUser;
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentUser));
+    loadData();
+
+    if (appData && appData.settings) {
+      appData.settings.dairyName = dairyName;
+      appData.settings.ownerName = ownerName;
+      appData.settings.phone = phone;
+      appData.settings.gstin = gstin;
+      appData.settings.businessMode = businessMode;
+      appData.settings.address = address;
+    }
+    saveData();
 
     checkAuthSession();
     renderApp();
@@ -1467,6 +1625,7 @@ function handleLogout() {
   if (confirm(confirmMsg)) {
     currentUser = null;
     localStorage.removeItem(SESSION_STORAGE_KEY);
+    appData = {};
     checkAuthSession();
   }
 }
@@ -1489,11 +1648,9 @@ function togglePasswordVisibility(inputId, btn) {
 // APP INITIALIZATION & CORE FUNCTIONS
 // ----------------------------------------------------
 function initApp() {
-  loadData();
   setupLanguage();
   checkAuthSession();
   setupEventListeners();
-  renderApp();
   initAutoCalculators();
   
   if ('serviceWorker' in navigator) {
@@ -1502,7 +1659,20 @@ function initApp() {
 }
 
 function loadData() {
-  const savedData = localStorage.getItem(STORAGE_KEY);
+  const userKey = getUserStorageKey(currentUser);
+  let savedData = localStorage.getItem(userKey);
+
+  // Backward-compatibility data migration for demo user
+  if (!savedData && currentUser && currentUser.phone === '9829012345') {
+    const legacyData = localStorage.getItem(STORAGE_KEY);
+    if (legacyData) {
+      savedData = legacyData;
+      try {
+        localStorage.setItem(userKey, legacyData);
+      } catch (e) {}
+    }
+  }
+
   if (savedData) {
     try {
       appData = JSON.parse(savedData);
@@ -1530,20 +1700,18 @@ function loadData() {
         appData.vetExpenses = appData.vetExpenses.filter(v => !['VET-1', 'VET-2', 'VET-3'].includes(v.id));
       }
 
-      // Ensure all requested products (Paneer, Butter, Cream, Chaap, Safal Matar, Dahi, Soya Paneer, Ghee, Milk) exist
+      // Ensure all requested products exist
       DEFAULT_DATA.products.forEach(defaultProd => {
         const existing = appData.products.find(p => p.id === defaultProd.id);
         if (!existing) {
           appData.products.push(JSON.parse(JSON.stringify(defaultProd)));
         } else {
-          // Keep category synced
-          if (!existing.category || existing.category === 'dairy' && defaultProd.category !== 'dairy') {
+          if (!existing.category || (existing.category === 'dairy' && defaultProd.category !== 'dairy')) {
             existing.category = defaultProd.category;
           }
         }
       });
 
-      // Migrate new cattle, feed, vet, doctors, and shops
       if (!appData.cattleSummary) appData.cattleSummary = JSON.parse(JSON.stringify(DEFAULT_DATA.cattleSummary));
       if (!appData.feedConsumption) appData.feedConsumption = JSON.parse(JSON.stringify(DEFAULT_DATA.feedConsumption));
       if (!appData.doctors || appData.doctors.length === 0) appData.doctors = JSON.parse(JSON.stringify(DEFAULT_DATA.doctors));
@@ -1562,7 +1730,24 @@ function loadData() {
       saveData();
     }
   } else {
+    // Fresh isolated dataset for this specific user
     appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    if (currentUser) {
+      if (currentUser.dairyName) appData.settings.dairyName = currentUser.dairyName;
+      if (currentUser.dairyNameEn) appData.settings.dairyNameEn = currentUser.dairyNameEn;
+      if (currentUser.name) appData.settings.ownerName = currentUser.name;
+      if (currentUser.phone) appData.settings.phone = currentUser.phone;
+      if (currentUser.gstin) appData.settings.gstin = currentUser.gstin;
+      if (currentUser.businessMode) appData.settings.businessMode = currentUser.businessMode;
+      if (currentUser.address) appData.settings.address = currentUser.address;
+    }
+    appData.invoices = [];
+    appData.collections = [];
+    appData.customers = [];
+    appData.farmers = [];
+    appData.sales = [];
+    appData.purchases = [];
+    appData.suppliers = [];
     saveData();
   }
 
@@ -1571,8 +1756,15 @@ function loadData() {
     currentLang = savedLang;
   }
 }
+
 function saveData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+  if (!appData) return;
+  const userKey = getUserStorageKey(currentUser);
+  try {
+    localStorage.setItem(userKey, JSON.stringify(appData));
+  } catch (e) {
+    console.error("Error saving user data:", e);
+  }
 }
 
 function setLanguage(lang) {
@@ -5473,6 +5665,7 @@ function setupEventListeners() {
 }
 
 function renderApp() {
+  if (!currentUser) return;
   updateLanguageUI();
   setupBusinessMode();
   switchTab(currentTab);
